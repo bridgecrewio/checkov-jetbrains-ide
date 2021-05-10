@@ -8,12 +8,12 @@
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceImplementation="com.github.niradler.checkovjetbrainsidea.services.MyApplicationService"/>
-        <projectService serviceImplementation="com.github.niradler.checkovjetbrainsidea.services.MyProjectService"/>
+        <applicationService serviceImplementation="com.bridgecrew.services.MyApplicationService"/>
+        <projectService serviceImplementation="com.bridgecrew.services.MyProjectService"/>
     </extensions>
 
     <applicationListeners>
-        <listener class="com.github.niradler.checkovjetbrainsidea.listeners.MyProjectManagerListener"
+        <listener class="com.bridgecrew.listeners.MyProjectManagerListener"
                   topic="com.intellij.openapi.project.ProjectManagerListener"/>
     </applicationListeners>
 </idea-plugin>

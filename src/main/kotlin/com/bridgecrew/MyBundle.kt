@@ -1,4 +1,4 @@
-package com.github.niradler.checkovjetbrainsidea
+package com.bridgecrew
 
 import com.intellij.AbstractBundle
 import org.jetbrains.annotations.NonNls

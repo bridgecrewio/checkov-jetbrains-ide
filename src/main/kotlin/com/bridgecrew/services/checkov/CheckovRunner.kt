@@ -1,4 +1,4 @@
-package com.github.niradler.checkovjetbrainsidea.services.checkov
+package com.bridgecrew.services.checkov
 
 val SKIP_CHECKS = arrayOf("CKV_AWS_52")
 

@@ -1,6 +1,6 @@
-package com.github.niradler.checkovjetbrainsidea.services
+package com.bridgecrew.services
 
-import com.github.niradler.checkovjetbrainsidea.MyBundle
+import com.bridgecrew.MyBundle
 import com.intellij.openapi.project.Project
 
 class MyProjectService(project: Project) {
@@ -9,6 +9,5 @@ class MyProjectService(project: Project) {
         println(MyBundle.message("projectService", project.name))
         val checkovService = CheckovService()
         checkovService.installCheckov()
-        checkovService.scanFile()
     }
 }

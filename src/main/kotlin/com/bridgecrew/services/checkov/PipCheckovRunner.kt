@@ -1,4 +1,4 @@
-package com.github.niradler.checkovjetbrainsidea.services.checkov
+package com.bridgecrew.services.checkov
 
 import java.nio.file.Paths
 

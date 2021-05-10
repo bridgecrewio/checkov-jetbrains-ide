@@ -1,6 +1,6 @@
-package com.github.niradler.checkovjetbrainsidea.listeners
+package com.bridgecrew.listeners
 
-import com.github.niradler.checkovjetbrainsidea.services.MyProjectService
+import com.bridgecrew.services.MyProjectService
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManagerListener

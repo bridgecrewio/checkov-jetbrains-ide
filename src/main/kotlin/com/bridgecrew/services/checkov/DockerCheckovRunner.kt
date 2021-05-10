@@ -1,4 +1,4 @@
-package com.github.niradler.checkovjetbrainsidea.services.checkov
+package com.bridgecrew.services.checkov
 
 import org.apache.commons.io.FilenameUtils
 import java.io.File
@@ -31,7 +31,7 @@ class DockerCheckovRunner : CheckovRunner {
     override fun run(filePath: String, extensionVersion: String, bcToken: String): String {
         println("Trying file scan using Docker.")
         val scannedFileDirectory = File(filePath).parent.toString()
-        val dockerParams = "docker run --rm --tty --env BC_SOURCE=vscode --env BC_SOURCE_VERSION=${extensionVersion} --volume ${scannedFileDirectory}:${DOCKER_MOUNT_DIR} bridgecrew/checkov"
+        val dockerParams = "docker run --rm --tty --env BC_SOURCE=vscode --env BC_SOURCE_VERSION=${extensionVersion} --volume ${scannedFileDirectory}:$DOCKER_MOUNT_DIR bridgecrew/checkov"
         println("Docker params: $dockerParams")
 
         val fileName = Paths.get(filePath).fileName.toString()

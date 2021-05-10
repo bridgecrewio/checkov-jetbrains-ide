@@ -1,8 +1,8 @@
-package com.github.niradler.checkovjetbrainsidea.services
+package com.bridgecrew.services
 
-import com.github.niradler.checkovjetbrainsidea.services.checkov.CheckovRunner
-import com.github.niradler.checkovjetbrainsidea.services.checkov.DockerCheckovRunner
-import com.github.niradler.checkovjetbrainsidea.services.checkov.PipCheckovRunner
+import com.bridgecrew.services.checkov.CheckovRunner
+import com.bridgecrew.services.checkov.DockerCheckovRunner
+import com.bridgecrew.services.checkov.PipCheckovRunner
 
 class CheckovService {
     private var selectedCheckovRunner: CheckovRunner? = null
