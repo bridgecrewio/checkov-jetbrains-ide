@@ -19,12 +19,12 @@ class PipCheckovRunner: CheckovRunner {
 
     override fun installOrUpdate(): Boolean {
         try {
-            println("Trying to install Checkov using pip3.")
+            println("Trying to install Checkov using pip.")
             val pipInstallProcess = Runtime.getRuntime().exec("pip3 install -U --user --verbose checkov -i https://pypi.org/simple/")
             val pipInstallExitCode = pipInstallProcess.waitFor()
 
             if (pipInstallExitCode !== 0) {
-                println("Failed to Docker pull Checkov Image.")
+                println("Failed to pip pull Checkov Image.")
                 println(pipInstallProcess.errorStream.bufferedReader().use { it.readText() })
                 throw Exception("Failed to pip install Checkov")
             }
@@ -46,6 +46,21 @@ class PipCheckovRunner: CheckovRunner {
     }
 
     override fun run(filePath: String, extensionVersion: String, bcToken: String): String {
-        TODO("Not yet implemented")
+        println("Trying file scan using pip.")
+        val execCommand = "${this.checkovPath} -s --skip-check ${SKIP_CHECKS.joinToString(",")} --bc-api-key $bcToken --repo-id vscode/extension -f $filePath -o json"
+        println("pip Checkov Exec: $execCommand")
+        val checkovProcess = Runtime.getRuntime().exec(execCommand)
+        val checkovExitCode = checkovProcess.waitFor()
+
+        if (checkovExitCode != 0) {
+            println("Failed to run Checkov using pip.")
+            println(checkovProcess.errorStream.bufferedReader().use { it.readText() })
+            throw Exception("Failed to run Checkov using pip")
+        }
+
+        val checkovResult = checkovProcess.inputStream.bufferedReader().use { it.readText() }
+        println("pip Checkov scanned file successfully. Result:")
+        println(checkovResult)
+        return checkovResult
     }
 }

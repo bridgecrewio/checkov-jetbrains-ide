@@ -5,7 +5,6 @@ import java.io.File
 import java.nio.file.Paths
 
 const val DOCKER_MOUNT_DIR = "/checkovScan"
-val SKIP_CHECKS = arrayOf("CKV_AWS_52")
 
 class DockerCheckovRunner : CheckovRunner {
     override fun installOrUpdate(): Boolean {
