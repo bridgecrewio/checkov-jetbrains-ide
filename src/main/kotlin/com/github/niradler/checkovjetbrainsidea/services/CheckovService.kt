@@ -4,7 +4,7 @@ import com.github.niradler.checkovjetbrainsidea.services.checkov.CheckovRunner
 import com.github.niradler.checkovjetbrainsidea.services.checkov.DockerCheckovRunner
 import com.github.niradler.checkovjetbrainsidea.services.checkov.PipCheckovRunner
 
-abstract class CheckovService {
+class CheckovService {
     private var selectedCheckovRunner: CheckovRunner? = null
     private var checkovRunners = arrayOf(DockerCheckovRunner(), PipCheckovRunner())
 
