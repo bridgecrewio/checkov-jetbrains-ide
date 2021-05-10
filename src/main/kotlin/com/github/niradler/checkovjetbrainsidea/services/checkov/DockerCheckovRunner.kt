@@ -12,7 +12,7 @@ class DockerCheckovRunner : CheckovRunner {
         try {
             println("Trying to install Checkov using Docker.")
             val dockerPullProcess = Runtime.getRuntime().exec("docker pull bridgecrew/checkov:latest")
-            var dockerPullExitCode = dockerPullProcess.waitFor()
+            val dockerPullExitCode = dockerPullProcess.waitFor()
 
             if (dockerPullExitCode != 0) {
                 println("Failed to Docker pull Checkov Image.")
@@ -44,7 +44,7 @@ class DockerCheckovRunner : CheckovRunner {
         val execCommand = "$dockerParams $checkovParams"
         println("Exec: $execCommand")
         val dockerCheckovProcess = Runtime.getRuntime().exec(execCommand)
-        var dockerCheckovExitCode = dockerCheckovProcess.waitFor()
+        val dockerCheckovExitCode = dockerCheckovProcess.waitFor()
 
         if (dockerCheckovExitCode != 0) {
             println("Failed to run Checkov using Docker.")
@@ -52,6 +52,9 @@ class DockerCheckovRunner : CheckovRunner {
             throw Exception("Failed to run Checkov using Docker")
         }
 
-        return dockerCheckovProcess.inputStream.bufferedReader().use { it.readText() }
+        val checkovResult = dockerCheckovProcess.inputStream.bufferedReader().use { it.readText() }
+        println("Docker Checkov scanned file successfully. Result:")
+        println(checkovResult)
+        return checkovResult
     }
 }
