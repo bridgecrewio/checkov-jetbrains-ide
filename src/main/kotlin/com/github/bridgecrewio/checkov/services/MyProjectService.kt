@@ -1,6 +1,6 @@
-package com.github.niradler.checkovjetbrainsidea.services
+package com.github.bridgecrewio.checkov.services
 
-import com.github.niradler.checkovjetbrainsidea.MyBundle
+import com.github.bridgecrewio.checkov.MyBundle
 import com.intellij.openapi.project.Project
 
 class MyProjectService(project: Project) {

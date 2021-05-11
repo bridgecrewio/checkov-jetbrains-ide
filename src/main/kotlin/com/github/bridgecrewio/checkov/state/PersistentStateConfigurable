@@ -1,0 +1,65 @@
+package com.fimaworks.jetbrains.tenbis.state
+
+import com.intellij.openapi.Disposable
+import com.intellij.openapi.options.Configurable
+import com.intellij.openapi.options.Configurable.NoScroll
+import com.intellij.util.ui.FormBuilder
+import java.awt.BorderLayout
+import java.awt.FlowLayout
+import java.text.NumberFormat
+import javax.swing.*
+import javax.swing.text.NumberFormatter
+
+
+class ReminderPersistentStateConfigurable : Configurable, NoScroll, Disposable {
+
+    // configurations for the text fields
+    private val hourFormatter = NumberFormatter(NumberFormat.getIntegerInstance()).also {
+
+    }
+
+    private val minutesFormatter = NumberFormatter(NumberFormat.getIntegerInstance()).also {
+
+    }
+
+    // this is the persistent component we can read or write to
+    private val configState
+        get() = ReminderPersistentStateComponent.instance.state
+
+    // ui components
+    private var showToolbarCheckbox: JCheckBox? = JCheckBox("Show Toolbar Button")
+    private var showRemindersCheckbox: JCheckBox? = JCheckBox("Show Reminder Notifications")
+
+    private var hourField: JFormattedTextField? =
+            JFormattedTextField(hourFormatter).also { it.text = configState.reminderHour.toString() }
+
+    private var minutesField: JTextField? =
+            JFormattedTextField(minutesFormatter).also { it.text = configState.reminderMinutes.toString() }
+
+    override fun getDisplayName(): String = "10bis Plugin Configuration"
+
+    override fun createComponent(): JComponent? {
+
+    }
+
+
+    override fun dispose() {
+
+    }
+
+
+    override fun isModified(): Boolean {
+
+
+    }
+
+    // when the user hits "ok" or "apply" we want o update the configurable state
+    override fun apply() {
+
+    }
+
+
+    override fun reset() {
+
+    }
+}
