@@ -28,7 +28,7 @@ data class Results(
 
 data class Report(val check_type: String, val summary: Summary, val results: Results)
 
-fun getFile(filePath: String): String {
+fun getFileText(filePath: String): String {
 
     return File(filePath).readText()
 }
@@ -60,7 +60,7 @@ data class Diagnostic(
 
 fun main() {
     val filePath = "tests/report.json"
-    val file = getFile(filePath)
+    val file = getFileText(filePath)
     val reports = jsonToData(file)
     val diagnostics = mutableListOf<Diagnostic>()
 
