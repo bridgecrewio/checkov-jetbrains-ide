@@ -1,8 +1,4 @@
-<<<<<<< HEAD:src/main/kotlin/com/github/bridgecrewio/checkov/MyBundle.kt
-package com.github.bridgecrewio.checkov
-=======
 package com.bridgecrew
->>>>>>> 5069401bc9c3f0dba82fdbef6c97312569d32725:src/main/kotlin/com/bridgecrew/MyBundle.kt
 
 import com.intellij.AbstractBundle
 import org.jetbrains.annotations.NonNls
