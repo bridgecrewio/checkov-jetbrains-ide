@@ -1,6 +1,6 @@
-package com.bridgecrew.listeners
+package com.bridgecrewio.listeners
 
-import com.bridgecrew.services.MyProjectService
+import com.bridgecrewio.services.MyProjectService
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManagerListener

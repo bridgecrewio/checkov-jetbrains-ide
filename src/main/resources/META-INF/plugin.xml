@@ -1,11 +1,29 @@
 <idea-plugin>
-    <id>com.github.niradler.checkovjetbrainsidea</id>
-    <name>checkov-jetbrains-idea</name>
-    <vendor>niradler</vendor>
-
+    <id>com.github.bridgecrewio.checkov</id>
+    <name>Checkov</name>
+    <vendor email="info@bridgecrew.io">bridgecrewio</vendor>
+    <description><![CDATA[
+    Prevent cloud misconfigurations during build-time for Terraform,
+    Cloudformation, Kubernetes, Serverless framework and other
+    infrastructure-as-code-languages with Checkov by Bridgecrew.
+    ]]></description>
     <!-- Product and plugin compatibility requirements -->
     <!-- https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
+
+    <depends>com.intellij.modules.lang</depends>
     <depends>com.intellij.modules.platform</depends>
+    <depends>com.google.code.gson</depends>
+
+    <actions>
+        <!-- toolbar action button -->
+        <action id="checkov-action" class="com.github.bridgecrewio.checkov"
+                text="checkov"
+                icon="META-INF/checkov.png">
+
+            <add-to-group group-id="ToolbarRunGroup" anchor="last"/>
+        </action>
+
+    </actions>
 
     <extensions defaultExtensionNs="com.intellij">
         <applicationService serviceImplementation="com.bridgecrew.services.MyApplicationService"/>
