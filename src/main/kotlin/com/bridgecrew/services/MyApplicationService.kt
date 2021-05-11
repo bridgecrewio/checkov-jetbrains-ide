@@ -1,6 +1,6 @@
-package com.github.bridgecrewio.checkov.services
+package com.bridgecrew.services
 
-import com.github.bridgecrewio.checkov.MyBundle
+import com.bridgecrew.MyBundle
 
 class MyApplicationService {
 

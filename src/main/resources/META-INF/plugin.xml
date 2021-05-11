@@ -26,6 +26,7 @@
     </actions>
 
     <extensions defaultExtensionNs="com.intellij">
+<<<<<<< HEAD
         <applicationService serviceImplementation="com.github.bridgecrewio.checkov.services.MyApplicationService"/>
         <projectService serviceImplementation="com.github.bridgecrewio.checkov.services.MyProjectService"/>
         <applicationConfigurable instance="com.github.bridgecrewio.checkov.state.PersistentStateConfigurable"
@@ -34,6 +35,14 @@
 
     <applicationListeners>
         <listener class="com.github.bridgecrewio.checkov.listeners.MyProjectManagerListener"
+=======
+        <applicationService serviceImplementation="com.bridgecrew.services.MyApplicationService"/>
+        <projectService serviceImplementation="com.bridgecrew.services.MyProjectService"/>
+    </extensions>
+
+    <applicationListeners>
+        <listener class="com.bridgecrew.listeners.MyProjectManagerListener"
+>>>>>>> 5069401bc9c3f0dba82fdbef6c97312569d32725
                   topic="com.intellij.openapi.project.ProjectManagerListener"/>
     </applicationListeners>
 </idea-plugin>
