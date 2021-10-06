@@ -12,7 +12,6 @@
 
     <depends>com.intellij.modules.lang</depends>
     <depends>com.intellij.modules.platform</depends>
-    <depends>com.google.code.gson</depends>
 
     <actions>
         <!-- toolbar action button -->
