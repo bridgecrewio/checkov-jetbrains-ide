@@ -88,7 +88,8 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v1
         with:
-          java-version: 11
+          distribution: zulu
+          java-version: 8
 
       # Check out current repository
       - name: Fetch Sources
