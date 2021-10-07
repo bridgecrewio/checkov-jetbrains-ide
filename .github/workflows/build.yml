@@ -93,7 +93,7 @@ jobs:
   build:
     name: Build
 #    needs: test
-    runs-on: ubuntu-latest
+    runs-on: [ self-hosted, public, linux, x64 ]
     outputs:
       version: ${{ steps.properties.outputs.version }}
       changelog: ${{ steps.properties.outputs.changelog }}
