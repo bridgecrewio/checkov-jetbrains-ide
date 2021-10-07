@@ -87,10 +87,10 @@ jobs:
       # Setup Java 1.8 environment for the next steps
       - name: Setup Java
         uses: actions/setup-java@v2
-          with:
-            distribution: zulu
-            java-version: 11
-            cache: gradle
+        with:
+          distribution: zulu
+          java-version: 11
+          cache: gradle
 
       # Check out current repository
       - name: Fetch Sources
@@ -151,10 +151,10 @@ jobs:
       # Setup Java 1.8 environment for the next steps
       - name: Setup Java
         uses: actions/setup-java@v2
-          with:
-            distribution: zulu
-            java-version: 11
-            cache: gradle
+        with:
+          distribution: zulu
+          java-version: 11
+          cache: gradle
 
       # Check out current repository
       - name: Fetch Sources
