@@ -33,6 +33,10 @@ dependencies {
     implementation("com.beust:klaxon:5.5")
 }
 
+plugins {
+    "com.google.code.gson"
+}
+
 // Configure gradle-intellij-plugin plugin.
 // Read more: https://github.com/JetBrains/gradle-intellij-plugin
 intellij {
