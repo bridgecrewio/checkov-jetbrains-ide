@@ -107,9 +107,9 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v2
         with:
-          distribution: zulu
+          distribution: adopt
           java-version: 11
-          cache: gradle
+          architecture: x64
 
       # Set environment variables
       - name: Export Properties
