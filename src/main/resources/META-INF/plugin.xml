@@ -12,16 +12,15 @@
 
     <depends>com.intellij.modules.lang</depends>
     <depends>com.intellij.modules.platform</depends>
-    <depends>com.google.code.gson</depends>
 
     <actions>
         <!-- toolbar action button -->
-        <action id="checkov-action" class="com.github.bridgecrewio.checkov"
-                text="checkov"
-                icon="META-INF/checkov.png">
+<!--        <action id="checkov-action" class="com.github.bridgecrew.checkov"-->
+<!--                text="checkov"-->
+<!--                icon="META-INF/checkov.png">-->
 
-            <add-to-group group-id="ToolbarRunGroup" anchor="last"/>
-        </action>
+<!--            <add-to-group group-id="ToolbarRunGroup" anchor="last"/>-->
+<!--        </action>-->
 
     </actions>
 
