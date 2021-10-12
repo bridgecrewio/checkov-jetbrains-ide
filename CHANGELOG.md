@@ -3,13 +3,8 @@
 # checkov-jetbrains-idea Changelog
 
 ## [Unreleased]
-## [0.0.1.3-beta]
-## [0.0.1]
-## [0.0.1]
-## [0.0.1]
-## [0.0.1]
-## [0.0.1]
-## [0.0.1]
+### Added
+* CICD workflow
 ## [0.0.1]
 ### Added
 - Initial scaffold created from [IntelliJ Platform Plugin Template](https://github.com/JetBrains/intellij-platform-plugin-template)
