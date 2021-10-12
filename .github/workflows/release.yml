@@ -55,5 +55,5 @@ jobs:
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
-          branch: configure-cicd
+          branch: main
           GITHUB_TOKEN: ${{ secrets.YUVAL_GH_TOKEN }}
