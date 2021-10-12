@@ -13,16 +13,16 @@
     <depends>com.intellij.modules.lang</depends>
     <depends>com.intellij.modules.platform</depends>
 
-    <actions>
-        <!-- toolbar action button -->
+<!--    <actions>-->
+<!--         toolbar action button-->
 <!--        <action id="checkov-action" class="com.github.bridgecrew.checkov"-->
 <!--                text="checkov"-->
-<!--                icon="META-INF/checkov.png">-->
+<!--                icon="META-INF/pluginIcon.svg">-->
 
 <!--            <add-to-group group-id="ToolbarRunGroup" anchor="last"/>-->
 <!--        </action>-->
 
-    </actions>
+<!--    </actions>-->
 
     <extensions defaultExtensionNs="com.intellij">
         <applicationService serviceImplementation="com.bridgecrew.services.MyApplicationService"/>
