@@ -5,7 +5,7 @@
 ## [Unreleased]
 ### Added
 * updated platform build range
-## [0.0.1.4-beta]
+## [0.0.1.4]
 ### Added
 * CICD workflow
 ## [0.0.1]
