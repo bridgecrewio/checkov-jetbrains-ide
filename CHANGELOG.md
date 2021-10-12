@@ -3,6 +3,7 @@
 # checkov-jetbrains-idea Changelog
 
 ## [Unreleased]
+## [0.0.1.3-beta]
 ## [0.0.1]
 ## [0.0.1]
 ## [0.0.1]
