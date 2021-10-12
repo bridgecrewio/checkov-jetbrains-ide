@@ -139,7 +139,6 @@ jobs:
     name: Release Draft
     if: |
       github.event_name != 'pull_request' &&
-#      github.ref == 'refs/heads/main'
       github.ref == 'refs/heads/configure-cicd'
     needs: build
     runs-on: [ self-hosted, public, linux, x64 ]
