@@ -3,6 +3,8 @@
 # checkov-jetbrains-idea Changelog
 
 ## [Unreleased]
+### Added
+* updated platform build range
 ## [0.0.1.4-beta]
 ### Added
 * CICD workflow
