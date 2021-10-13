@@ -10,13 +10,10 @@ import com.intellij.openapi.util.Disposer
 
 class CheckovToolWindowFactory : ToolWindowFactory{
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
-        val CheckovToolWindow = CheckovToolWindowPanel(project)
+        val CheckovToolWindoTreeNode = CheckovToolWindowTreeNode(project)
         val contentManager = toolWindow.contentManager
-        val content = contentManager.factory.createContent(CheckovToolWindow.filePathWithLink(), null, false)
+        val content = contentManager.factory.createContent(CheckovToolWindoTreeNode.createTree(), null, false)
         contentManager.addContent(content)
-
-        Disposer.register(project, CheckovToolWindow)
-
     }
 
 }
