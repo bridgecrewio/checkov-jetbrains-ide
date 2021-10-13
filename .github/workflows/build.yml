@@ -148,8 +148,10 @@ jobs:
       - name: Fetch Sources
         uses: actions/checkout@v2.3.4
 
-      - name: Install gh
+      - name: Install gh cli
         run: |
+         sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key C99B11DEB97541F0
+         sudo apt-add-repository https://cli.github.com/packages
          sudo apt update
          sudo apt install gh
 
