@@ -13,24 +13,12 @@
     <depends>com.intellij.modules.lang</depends>
     <depends>com.intellij.modules.platform</depends>
 
-<!--    <actions>-->
-<!--         toolbar action button-->
-<!--        <action id="checkov-action" class="com.github.bridgecrew.checkov"-->
-<!--                text="checkov"-->
-<!--                icon="META-INF/pluginIcon.svg">-->
-
-<!--            <add-to-group group-id="ToolbarRunGroup" anchor="last"/>-->
-<!--        </action>-->
-
-<!--    </actions>-->
 
     <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceImplementation="com.bridgecrew.services.MyApplicationService"/>
-        <projectService serviceImplementation="com.bridgecrew.services.MyProjectService"/>
+        <toolWindow id="Checkov"
+                    anchor="bottom"
+                    factoryClass="com.bridgecrew.ui.CheckovToolWindowFactory"/>
     </extensions>
 
-    <applicationListeners>
-        <listener class="com.bridgecrew.listeners.MyProjectManagerListener"
-                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
-    </applicationListeners>
+
 </idea-plugin>
