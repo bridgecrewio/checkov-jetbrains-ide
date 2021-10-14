@@ -4,7 +4,7 @@ import com.bridgecrew.services.checkov.CheckovRunner
 import com.bridgecrew.services.checkov.DockerCheckovRunner
 import com.bridgecrew.services.checkov.PipCheckovRunner
 
-class CheckovService {
+open class CheckovService {
     private var selectedCheckovRunner: CheckovRunner? = null
     private val checkovRunners = arrayOf(DockerCheckovRunner(), PipCheckovRunner())
 
@@ -32,4 +32,20 @@ class CheckovService {
         var result = selectedCheckovRunner!!.run(filePath, extensionVersion, token)
         println(result)
     }
+
+    fun getVersion(): String {
+        println(this.selectedCheckovRunner)
+        if (selectedCheckovRunner == null) {
+            throw Exception("[CheckovService]: Checkov is not installed")
+        }
+
+        return selectedCheckovRunner!!.getVersion()
+    }
+}
+
+object CheckovServiceInstance : CheckovService() {
+    init {
+        println("CheckovServiceInstance invoked")
+    }
+
 }

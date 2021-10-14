@@ -10,7 +10,7 @@ class DockerCheckovRunner : CheckovRunner {
     override fun installOrUpdate(): Boolean {
         try {
             println("Trying to install Checkov using Docker.")
-            val dockerPullProcess = Runtime.getRuntime().exec("docker pull bridgecrew/checkov:latest")
+            val dockerPullProcess = Runtime.getRuntime().exec("docker pull bridgecrew/checkov")
             val dockerPullExitCode = dockerPullProcess.waitFor()
 
             if (dockerPullExitCode != 0) {
@@ -55,5 +55,11 @@ class DockerCheckovRunner : CheckovRunner {
         println("Docker Checkov scanned file successfully. Result:")
         println(checkovResult)
         return checkovResult
+    }
+
+    override fun getVersion(): String {
+        println("running getVersion from Dockerrunner")
+        val dockerCheckovProcess = Runtime.getRuntime().exec("docker run --rm --tty bridgecrew/checkov -v")
+        return dockerCheckovProcess.inputStream.bufferedReader().use { it.readText() }
     }
 }

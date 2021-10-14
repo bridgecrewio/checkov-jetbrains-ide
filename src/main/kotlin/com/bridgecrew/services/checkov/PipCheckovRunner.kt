@@ -34,7 +34,7 @@ class PipCheckovRunner : CheckovRunner {
             pipInstallProcess.inputStream.bufferedReader().use { println(it.readText()) }
             val pipInstallExitCode = pipInstallProcess.waitFor()
             if (pipInstallExitCode !== 0) {
-                println("Failed to install Checkov using pip.")
+                println("Failed to install Checkov using pip1.")
                 println(pipInstallProcess.errorStream.bufferedReader().use { it.readText() })
                 throw Exception("Failed to install Checkov using pip")
             }
@@ -46,10 +46,11 @@ class PipCheckovRunner : CheckovRunner {
             } else {
                 this.checkovPath = this.getPythonUserBasePath()
             }
+            println(this.checkovPath)
 
             return true
         } catch (err: Exception) {
-            println("Failed to install Checkov using pip.")
+            println("Failed to install Checkov using pip2.")
             err.printStackTrace()
             return false
         }
@@ -72,5 +73,11 @@ class PipCheckovRunner : CheckovRunner {
         println("pip Checkov scanned file successfully. Result:")
         println(checkovResult)
         return checkovResult
+    }
+
+    override fun getVersion(): String {
+        println("getting checkov version from PipRunner")
+        val checkovProcess = Runtime.getRuntime().exec("${this.checkovPath} -v")
+        return checkovProcess.inputStream.bufferedReader().use { it.readText() }
     }
 }

@@ -18,6 +18,8 @@
         <toolWindow id="Checkov"
                     anchor="bottom"
                     factoryClass="com.bridgecrew.ui.CheckovToolWindowFactory"/>
+
+        <postStartupActivity implementation="com.bridgecrew.activities.PostStartupActivity"/>
     </extensions>
 
 
