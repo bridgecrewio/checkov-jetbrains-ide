@@ -34,7 +34,7 @@ class PipCheckovRunner : CheckovRunner {
             pipInstallProcess.inputStream.bufferedReader().use { println(it.readText()) }
             val pipInstallExitCode = pipInstallProcess.waitFor()
             if (pipInstallExitCode !== 0) {
-                println("Failed to install Checkov using pip1.")
+                println("Failed to install Checkov using pip.")
                 println(pipInstallProcess.errorStream.bufferedReader().use { it.readText() })
                 throw Exception("Failed to install Checkov using pip")
             }
@@ -50,7 +50,7 @@ class PipCheckovRunner : CheckovRunner {
 
             return true
         } catch (err: Exception) {
-            println("Failed to install Checkov using pip2.")
+            println("Failed to install Checkov using pip.")
             err.printStackTrace()
             return false
         }
