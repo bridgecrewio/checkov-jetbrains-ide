@@ -46,7 +46,6 @@ class PipCheckovRunner : CheckovRunner {
             } else {
                 this.checkovPath = this.getPythonUserBasePath()
             }
-            println(this.checkovPath)
 
             return true
         } catch (err: Exception) {
