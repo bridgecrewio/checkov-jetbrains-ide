@@ -23,12 +23,12 @@ import com.intellij.ui.ScrollPaneFactory
 import javax.swing.tree.DefaultMutableTreeNode
 
 class CheckovToolWindowTreeNode(val project: Project) : JPanel(), Disposable {
-    val fileList = listOf("src/main/java/com/jfrog/ide/idea/ui/ComponentDetails.java","src/main/java/com/jfrog/ide/idea/ui/ComponentIssueDetails.java","src/main/java/com/jfrog/ide/idea/ui/ComponentsTree.java")
+    val file = "src/main/java/com/jfrog/ide/idea/ui/ComponentDetails.java"
     val checkovTestAnswer = CheckovToolWindow().getResultsList()
     val testPanel = JPanel(BorderLayout())
 
     fun createTree() : JPanel {
-        val rootNode = DefaultMutableTreeNode(fileList[0])
+        val rootNode = DefaultMutableTreeNode(file)
         checkovTestAnswer.sortBy { it.file_path }
         checkovTestAnswer.forEach {
             val child1 = DefaultMutableTreeNode(it.file_path)
