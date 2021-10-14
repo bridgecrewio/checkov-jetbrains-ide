@@ -22,12 +22,13 @@ import java.awt.BorderLayout
 import com.intellij.ui.ScrollPaneFactory
 import javax.swing.tree.DefaultMutableTreeNode
 
-class CheckovToolWindowTreeNode(val project: Project) : JPanel(), Disposable {
+class CheckovToolWindowTreeNode(val project: Project) : SimpleToolWindowPanel(true, true), Disposable {
     val fileList = listOf("src/main/java/com/jfrog/ide/idea/ui/ComponentDetails.java","src/main/java/com/jfrog/ide/idea/ui/ComponentIssueDetails.java","src/main/java/com/jfrog/ide/idea/ui/ComponentsTree.java")
     val checkovTestAnswer = CheckovToolWindow().getResultsList()
     val testPanel = JPanel(BorderLayout())
 
     fun createTree() : JPanel {
+
         val rootNode = DefaultMutableTreeNode(fileList[0])
         checkovTestAnswer.sortBy { it.file_path }
         checkovTestAnswer.forEach {
@@ -42,7 +43,13 @@ class CheckovToolWindowTreeNode(val project: Project) : JPanel(), Disposable {
         val tree = Tree(rootNode).apply {
             this.isRootVisible = false
         }
-
+//        val treePanel = JPanel()
+//        treePanel.add(tree)
+//        val scrollPane = ScrollPaneFactory.createScrollPane(
+//            treePanel,
+//            ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+//            ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED
+//        )
         tree.selectionModel.addTreeSelectionListener {
             ApplicationManager.getApplication().invokeLater {
                 val selectionPath = tree.selectionPath

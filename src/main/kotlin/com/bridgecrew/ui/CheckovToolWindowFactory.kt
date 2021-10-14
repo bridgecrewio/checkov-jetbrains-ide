@@ -10,9 +10,9 @@ import com.intellij.openapi.util.Disposer
 
 class CheckovToolWindowFactory : ToolWindowFactory{
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
-        val CheckovToolWindoTreeNode = CheckovToolWindowTreeNode(project)
+        val CheckovToolWindoTreeNode = CheckovToolWindowPanel(project)
         val contentManager = toolWindow.contentManager
-        val content = contentManager.factory.createContent(CheckovToolWindoTreeNode.createTree(), null, false)
+        val content = contentManager.factory.createContent(CheckovToolWindoTreeNode.dividePanel(), null, false)
         contentManager.addContent(content)
     }
 
