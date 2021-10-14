@@ -8,7 +8,7 @@ import com.bridgecrew.CheckovResult
 
 class CheckovToolWindow : SimpleToolWindowPanel(false, true) {
     val gson: Gson = Gson()
-    private val resultsList: Map<CheckovResult> = mapOf<CheckovResult>()
+    private val resultsList: ArrayList<CheckovResult> = arrayListOf<CheckovResult>()
     val results: List<String> = mutableListOf("""{
         "check_id": "CKV2_AWS_12",
         "bc_check_id": "BC_AWS_LOGGING_10",
@@ -29,7 +29,7 @@ class CheckovToolWindow : SimpleToolWindowPanel(false, true) {
         "caller_file_line_range": null,
         "guideline": "https://docs.bridgecrew.io/docs/logging_9-enable-vpc-flow-logging"
     }""",
-    """{
+        """{
         "check_id": "CKV2_AWS_11",
         "bc_check_id": "BC_AWS_LOGGING_9",
         "check_name": "Ensure VPC flow logging is enabled in all VPCs",
@@ -49,7 +49,7 @@ class CheckovToolWindow : SimpleToolWindowPanel(false, true) {
         "caller_file_line_range": null,
         "guideline": "https://docs.bridgecrew.io/docs/logging_9-enable-vpc-flow-logging"
     }""",
-    """{
+        """{
         "check_id": "CKV2_AWS_13",
         "bc_check_id": "BC_AWS_LOGGING_13",
         "check_name": "Ensure VPC flow logging is enabled in all VPCs",
@@ -70,7 +70,7 @@ class CheckovToolWindow : SimpleToolWindowPanel(false, true) {
         "guideline": "https://docs.bridgecrew.io/docs/logging_9-enable-vpc-flow-logging"
     }""")
 
-    fun getResultsList():  MutableList<CheckovResult>{
+    fun getResultsList():  ArrayList<CheckovResult>{
         results.forEach {
             resultsList.add(gson.fromJson(it, CheckovResult::class.java))
         }
