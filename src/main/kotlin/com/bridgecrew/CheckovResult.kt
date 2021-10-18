@@ -12,6 +12,3 @@ data class CheckovResult(
     val guideline: String = "\"No Guide\")",
     val fixed_definition: String? = ""
     )
-
-
-
