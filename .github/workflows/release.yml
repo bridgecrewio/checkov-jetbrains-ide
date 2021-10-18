@@ -1,33 +1,19 @@
-# GitHub Actions Workflow created for handling the release process based on the draft release prepared
-# with the Build workflow. Running the publishPlugin task requires the PUBLISH_TOKEN secret provided.
-
 name: Release
 on:
-  release:
-    types: [prereleased, released]
+  push:
+    tags:
+      - 'v*'
 
 jobs:
-
-  # Prepare and publish the plugin to the Marketplace repository
   release:
     name: Publish Plugin
     runs-on: ubuntu-latest
     steps:
-
-      # Setup Java 1.8 environment for the next steps
-      - name: Setup Java
-        uses: actions/setup-java@v2
-        with:
-          distribution: zulu
-          java-version: 8
-
-      # Check out current repository
       - name: Fetch Sources
         uses: actions/checkout@v2
         with:
           ref: ${{ github.event.release.tag_name }}
 
-      # Publish the plugin to the Marketplace
       - name: Publish Plugin
         env:
           PUBLISH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
@@ -37,15 +23,16 @@ jobs:
   changelog:
     name: Update Changelog
     needs: release
-    runs-on: ubuntu-latest
+    runs-on: [ self-hosted, public, linux, x64 ]
     steps:
 
-      # Setup Java 1.8 environment for the next steps
+      # Setup Java 11 environment for the next steps
       - name: Setup Java
         uses: actions/setup-java@v2
         with:
-          distribution: zulu
-          java-version: 8
+          distribution: adopt
+          java-version: 11
+          architecture: x64
 
       # Check out current repository
       - name: Fetch Sources
@@ -69,4 +56,4 @@ jobs:
         uses: ad-m/github-push-action@master
         with:
           branch: main
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.YUVAL_GH_TOKEN }}

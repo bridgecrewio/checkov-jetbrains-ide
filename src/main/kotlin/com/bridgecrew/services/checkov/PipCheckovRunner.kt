@@ -73,4 +73,10 @@ class PipCheckovRunner : CheckovRunner {
         println(checkovResult)
         return checkovResult
     }
+
+    override fun getVersion(): String {
+        println("getting checkov version from PipRunner")
+        val checkovProcess = Runtime.getRuntime().exec("${this.checkovPath} -v")
+        return checkovProcess.inputStream.bufferedReader().use { it.readText() }
+    }
 }
