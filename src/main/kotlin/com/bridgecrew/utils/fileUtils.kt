@@ -7,6 +7,7 @@ import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
 import com.intellij.uiDesigner.core.GridConstraints
+import java.net.URL
 
 fun navigateToFile(fileToNavigate: PsiFile) {
     PsiNavigationSupport.getInstance().createNavigatable(
@@ -40,3 +41,14 @@ fun createGridRowCol(row: Int, col: Int = 0, align: Int = 0): GridConstraints {
     )
 }
 
+/**
+ * Helper function that validates url string.
+ */
+fun isUrl(url: String): Boolean {
+    try {
+        URL(url)
+        return true
+    } catch (e: Throwable) {
+        return false
+    }
+}

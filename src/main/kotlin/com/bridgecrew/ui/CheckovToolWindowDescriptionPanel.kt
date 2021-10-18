@@ -88,17 +88,6 @@ class CheckovToolWindowDescriptionPanel() : SimpleToolWindowPanel(true, true) {
         return JSection
     }
 
-    /**
-     * Helper function that validates url string.
-     */
-    private fun isUrl(url: String): Boolean {
-        try {
-            URL(url)
-            return true
-        } catch (e: Throwable) {
-            return false
-        }
-    }
 
     fun createScroll(): JScrollPane {
         return ScrollPaneFactory.createScrollPane(
