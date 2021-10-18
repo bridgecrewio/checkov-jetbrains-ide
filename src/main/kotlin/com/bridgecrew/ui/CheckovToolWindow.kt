@@ -6,6 +6,7 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.google.gson.Gson
 import com.bridgecrew.CheckovResult
 
+
 class CheckovToolWindow : SimpleToolWindowPanel(false, true) {
     val gson: Gson = Gson()
     private val resultsList: ArrayList<CheckovResult> = arrayListOf<CheckovResult>()
@@ -17,8 +18,8 @@ class CheckovToolWindow : SimpleToolWindowPanel(false, true) {
         "file_abs_path": "/Users/yorhov/development/test1.tf",
         "repo_file_path": "/test.tf",
         "file_line_range": [
-        43,
-        59
+        1,
+        10
         ],
         "resource": "aws_vpc.eks_vpc",
         "evaluations": null,
@@ -37,7 +38,7 @@ class CheckovToolWindow : SimpleToolWindowPanel(false, true) {
         "file_abs_path": "/Users/yorhov/development/test.tf",
         "repo_file_path": "/test.tf",
         "file_line_range": [
-        43,
+        1,
         59
         ],
         "resource": "aws_vpc.eks_vpc",
@@ -76,4 +77,5 @@ class CheckovToolWindow : SimpleToolWindowPanel(false, true) {
         }
         return resultsList
     }
+
 }

@@ -32,7 +32,6 @@ dependencies {
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.16.0")
     implementation("com.beust:klaxon:5.5")
     implementation("com.google.code.gson:gson:2.8.8")
-
 }
 
 // Configure gradle-intellij-plugin plugin.
