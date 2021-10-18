@@ -25,6 +25,22 @@ fun getPsFileByPath(path: String, project: Project): PsiFile? {
     return null
 }
 
+fun getOffsetByLines(range:ArrayList<Int>, project: Project): Pair<Int,Int>{
+    val startLine: Int = range.getOrElse(0, { 0 }) - 1
+    val endLine: Int = range.getOrElse(1, { 0 }) - 1
+    val editor = FileEditorManager.getInstance(project).selectedTextEditor
+    val document = editor?.getDocument();
+    var startOffset = document?.getLineStartOffset(startLine)
+    var endOffset = document?.getLineEndOffset(endLine)
+    if (endOffset == null){
+        endOffset = 0
+    }
+    if(startOffset == null){
+        startOffset = 0
+    }
+    return Pair(startOffset, endOffset)
+}
+
 fun updateFile(replaceString: String, project: Project, start:Int, end: Int){
     val editor = FileEditorManager.getInstance(project).selectedTextEditor
     val document = editor?.getDocument();
