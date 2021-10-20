@@ -82,6 +82,7 @@ class CheckovToolWindow : SimpleToolWindowPanel(false, true) {
 
         return listOfCheckovResults
     }
+
     fun readFileAsLinesUsingUseLines(fileName: String): String{
         val inputStream: InputStream = File(fileName).inputStream()
         val inputString = inputStream.bufferedReader().use { it.readText() }

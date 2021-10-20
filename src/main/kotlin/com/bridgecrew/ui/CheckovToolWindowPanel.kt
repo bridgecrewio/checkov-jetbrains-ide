@@ -29,6 +29,7 @@ class CheckovToolWindowPanel(val project: Project) : SimpleToolWindowPanel(false
         split.setFirstComponent(left)
         split.setSecondComponent(right)
         return split
+
     }
 
     override fun dispose() = Unit
