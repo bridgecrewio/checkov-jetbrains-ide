@@ -75,9 +75,7 @@ class CheckovToolWindow : SimpleToolWindowPanel(false, true) {
 
 
     fun getResultsList():  ArrayList<CheckovResult>{
-//        results.forEach {
-//            resultsList.add(gson.fromJson(it, CheckovResult::class.java))
-//        }
+
         val fileString = readFileAsLinesUsingUseLines("/Users/yorhov/development/checkov-jetbrains-ide/src/main/kotlin/com/bridgecrew/a.json")
         val resultsList1 = object : TypeToken<List<CheckovResult>>() {}.type
 

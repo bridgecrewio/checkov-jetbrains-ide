@@ -32,10 +32,10 @@ fun getOffsetByLines(range:ArrayList<Int>, project: Project): Pair<Int,Int>{
     val document = editor?.getDocument();
     var startOffset = document?.getLineStartOffset(startLine)
     var endOffset = document?.getLineEndOffset(endLine)
-    if (endOffset == null){
+    if (endOffset == null) {
         endOffset = 0
     }
-    if(startOffset == null){
+    if(startOffset == null) {
         startOffset = 0
     }
     return Pair(startOffset, endOffset)
