@@ -73,7 +73,6 @@ class CheckovToolWindow : SimpleToolWindowPanel(false, true) {
         "guideline": "https://docs.bridgecrew.io/docs/logging_9-enable-vpc-flow-logging"
     }""")
 
-
     fun getResultsList():  ArrayList<CheckovResult>{
 
         val fileString = readFileAsLinesUsingUseLines("/Users/yorhov/development/checkov-jetbrains-ide/src/main/kotlin/com/bridgecrew/a.json")
