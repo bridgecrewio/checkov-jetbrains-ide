@@ -1,5 +1,5 @@
 package com.bridgecrew.ui
-
+import com.intellij.openapi.application.ApplicationManager
 import com.bridgecrew.CheckovResult
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.ui.ScrollPaneFactory
@@ -12,9 +12,10 @@ import java.net.URISyntaxException
 import javax.swing.*
 import java.net.URL
 import com.bridgecrew.utils.*
+import com.intellij.openapi.project.Project
 
 
-class CheckovToolWindowDescriptionPanel() : SimpleToolWindowPanel(true, true) {
+class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindowPanel(true, true) {
     val descriptionPanel: JPanel = JPanel()
     var checkNameLabel: JPanel = JPanel()
     var checkIdLabel: JPanel = JPanel()
@@ -42,6 +43,19 @@ class CheckovToolWindowDescriptionPanel() : SimpleToolWindowPanel(true, true) {
 
         descriptionPanel.layout = GridLayoutManager(3, 2)
         fixButton = JButton("Fix")
+        if (checkovResult.fixed_definition == null){
+            fixButton.isEnabled = false
+        }
+        else {
+            fixButton.isEnabled = true
+            fixButton.addActionListener {
+                ApplicationManager.getApplication().invokeLater {
+                    val (start, end) = getOffsetByLines(checkovResult.file_line_range, project)
+                    updateFile(checkovResult.fixed_definition, project, start, end)
+                    fixButton.isEnabled = false
+                }
+            }
+        }
 
         checkNameLabel = createDescriptionSection(CHECKNAME, checkovResult.check_name)
         checkIdLabel = createDescriptionSection(CHECKID, checkovResult.check_id)

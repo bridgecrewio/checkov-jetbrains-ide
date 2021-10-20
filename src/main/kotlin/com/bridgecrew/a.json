@@ -1,0 +1,500 @@
+[
+      {
+        "check_id": "CKV_AWS_19",
+        "bc_check_id": "BC_AWS_S3_14",
+        "check_name": "Ensure all data stored in the S3 bucket is securely encrypted at rest",
+        "check_result": {
+          "result": "FAILED",
+          "evaluated_keys": [
+            "server_side_encryption_configuration/[0]/rule/[0]/apply_server_side_encryption_by_default/[0]/sse_algorithm"
+          ]
+        },
+        "code_block": [
+          [
+            1,
+            "resource \"aws_s3_bucket\" \"data\" {\n"
+          ],
+          [
+            2,
+            "  # bucket is public\n"
+          ],
+          [
+            3,
+            "  # bucket is not encrypted\n"
+          ],
+          [
+            4,
+            "  # bucket does not have access logs\n"
+          ],
+          [
+            5,
+            "  # bucket does not have versioning\n"
+          ],
+          [
+            6,
+            "  bucket        = \"${local.resource_prefix.value}-data\"\n"
+          ],
+          [
+            7,
+            "  acl           = \"public-read\"\n"
+          ],
+          [
+            8,
+            "  force_destroy = true\n"
+          ],
+          [
+            9,
+            "  tags = {\n"
+          ],
+          [
+            10,
+            "    Name        = \"${local.resource_prefix.value}-data\"\n"
+          ],
+          [
+            11,
+            "    Environment = local.resource_prefix.value\n"
+          ],
+          [
+            12,
+            "  }\n"
+          ],
+          [
+            13,
+            "}\n"
+          ]
+        ],
+        "file_path": "src/main/java/com/jfrog/ide/idea/ui/ComponentIssueDetails.java",
+        "file_abs_path": "/Users/steve/dev/terragoat/terraform/aws/s3.tf",
+        "repo_file_path": "/terraform/aws/s3.tf",
+        "file_line_range": [
+          29,
+          35
+        ],
+        "resource": "aws_s3_bucket.data",
+        "evaluations": null,
+        "check_class": "checkov.terraform.checks.resource.aws.S3Encryption",
+        "fixed_definition": "resource \"aws_s3_bucket\" \"data\" {\n  # bucket is public\n  # bucket is not encrypted\n  # bucket does not have access logs\n  # bucket does not have versioning\n  bucket        = \"${local.resource_prefix.value}-data\"\n  acl           = \"public-read\"\n  force_destroy = true\n  tags = {\n    Name        = \"${local.resource_prefix.value}-data\"\n    Environment = local.resource_prefix.value\n  }\n  server_side_encryption_configuration {\n    rule {\n      apply_server_side_encryption_by_default {\n        sse_algorithm = \"AES256\"\n      }\n    }\n  }\n}\n",
+        "entity_tags": {
+          "Name": "local.resource_prefix.value-data",
+          "Environment": "local.resource_prefix.value"
+        },
+        "caller_file_path": null,
+        "caller_file_line_range": null,
+        "guideline": "https://docs.bridgecrew.io/docs/s3_14-data-encrypted-at-rest"
+      },
+      {
+        "check_id": "CKV_AWS_20",
+        "bc_check_id": "BC_AWS_S3_1",
+        "check_name": "S3 Bucket has an ACL defined which allows public READ access.",
+        "check_result": {
+          "result": "FAILED",
+          "evaluated_keys": [
+            "acl"
+          ]
+        },
+        "code_block": [
+          [
+            1,
+            "resource \"aws_s3_bucket\" \"data\" {\n"
+          ],
+          [
+            2,
+            "  # bucket is public\n"
+          ],
+          [
+            3,
+            "  # bucket is not encrypted\n"
+          ],
+          [
+            4,
+            "  # bucket does not have access logs\n"
+          ],
+          [
+            5,
+            "  # bucket does not have versioning\n"
+          ],
+          [
+            6,
+            "  bucket        = \"${local.resource_prefix.value}-data\"\n"
+          ],
+          [
+            7,
+            "  acl           = \"public-read\"\n"
+          ],
+          [
+            8,
+            "  force_destroy = true\n"
+          ],
+          [
+            9,
+            "  tags = {\n"
+          ],
+          [
+            10,
+            "    Name        = \"${local.resource_prefix.value}-data\"\n"
+          ],
+          [
+            11,
+            "    Environment = local.resource_prefix.value\n"
+          ],
+          [
+            12,
+            "  }\n"
+          ],
+          [
+            13,
+            "}\n"
+          ]
+        ],
+        "file_path": "src/main/java/com/jfrog/ide/idea/ui/ComponentsTree.java",
+        "file_abs_path": "/Users/steve/dev/terragoat/terraform/aws/s3.tf",
+        "repo_file_path": "/terraform/aws/s3.tf",
+        "file_line_range": [
+          1,
+          13
+        ],
+        "resource": "aws_s3_bucket.data",
+        "evaluations": null,
+        "check_class": "checkov.terraform.checks.resource.aws.S3PublicACLRead",
+        "fixed_definition": "resource \"aws_s3_bucket\" \"data\" {\n  # bucket is public\n  # bucket is not encrypted\n  # bucket does not have access logs\n  # bucket does not have versioning\n  bucket        = \"${local.resource_prefix.value}-data\"\n  force_destroy = true\n  tags = {\n    }\n}\n",
+        "entity_tags": {
+          "Name": "local.resource_prefix.value-data",
+          "Environment": "local.resource_prefix.value"
+        },
+        "caller_file_path": null,
+        "caller_file_line_range": null,
+        "guideline": "https://docs.bridgecrew.io/docs/s3_1-acl-read-permissions-everyone"
+      },
+      {
+        "check_id": "CKV_AWS_18",
+        "bc_check_id": "BC_AWS_S3_13",
+        "check_name": "Ensure the S3 bucket has access logging enabled",
+        "check_result": {
+          "result": "FAILED",
+          "evaluated_keys": [
+            "logging"
+          ]
+        },
+        "code_block": [
+          [
+            1,
+            "resource \"aws_s3_bucket\" \"data\" {\n"
+          ],
+          [
+            2,
+            "  # bucket is public\n"
+          ],
+          [
+            3,
+            "  # bucket is not encrypted\n"
+          ],
+          [
+            4,
+            "  # bucket does not have access logs\n"
+          ],
+          [
+            5,
+            "  # bucket does not have versioning\n"
+          ],
+          [
+            6,
+            "  bucket        = \"${local.resource_prefix.value}-data\"\n"
+          ],
+          [
+            7,
+            "  acl           = \"public-read\"\n"
+          ],
+          [
+            8,
+            "  force_destroy = true\n"
+          ],
+          [
+            9,
+            "  tags = {\n"
+          ],
+          [
+            10,
+            "    Name        = \"${local.resource_prefix.value}-data\"\n"
+          ],
+          [
+            11,
+            "    Environment = local.resource_prefix.value\n"
+          ],
+          [
+            12,
+            "  }\n"
+          ],
+          [
+            13,
+            "}\n"
+          ]
+        ],
+        "file_path": "src/main/java/com/jfrog/ide/idea/ui/ComponentsTree.java",
+        "file_abs_path": "/Users/steve/dev/terragoat/terraform/aws/s3.tf",
+        "repo_file_path": "/terraform/aws/s3.tf",
+        "file_line_range": [
+          1,
+          13
+        ],
+        "resource": "aws_s3_bucket.data",
+        "evaluations": null,
+        "check_class": "checkov.terraform.checks.resource.aws.S3AccessLogs",
+        "fixed_definition": null,
+        "entity_tags": {
+          "Name": "local.resource_prefix.value-data",
+          "Environment": "local.resource_prefix.value"
+        },
+        "caller_file_path": null,
+        "caller_file_line_range": null,
+        "guideline": "https://docs.bridgecrew.io/docs/s3_13-enable-logging"
+      },
+      {
+        "check_id": "CKV_AWS_144",
+        "bc_check_id": "BC_AWS_GENERAL_72",
+        "check_name": "Ensure that S3 bucket has cross-region replication enabled",
+        "check_result": {
+          "result": "FAILED",
+          "evaluated_keys": [
+            "replication_configuration/[0]/role"
+          ]
+        },
+        "code_block": [
+          [
+            1,
+            "resource \"aws_s3_bucket\" \"data\" {\n"
+          ],
+          [
+            2,
+            "  # bucket is public\n"
+          ],
+          [
+            3,
+            "  # bucket is not encrypted\n"
+          ],
+          [
+            4,
+            "  # bucket does not have access logs\n"
+          ],
+          [
+            5,
+            "  # bucket does not have versioning\n"
+          ],
+          [
+            6,
+            "  bucket        = \"${local.resource_prefix.value}-data\"\n"
+          ],
+          [
+            7,
+            "  acl           = \"public-read\"\n"
+          ],
+          [
+            8,
+            "  force_destroy = true\n"
+          ],
+          [
+            9,
+            "  tags = {\n"
+          ],
+          [
+            10,
+            "    Name        = \"${local.resource_prefix.value}-data\"\n"
+          ],
+          [
+            11,
+            "    Environment = local.resource_prefix.value\n"
+          ],
+          [
+            12,
+            "  }\n"
+          ],
+          [
+            13,
+            "}\n"
+          ]
+        ],
+        "file_path": "/s3.tf",
+        "file_abs_path": "/Users/steve/dev/terragoat/terraform/aws/s3.tf",
+        "repo_file_path": "/terraform/aws/s3.tf",
+        "file_line_range": [
+          1,
+          13
+        ],
+        "resource": "aws_s3_bucket.data",
+        "evaluations": null,
+        "check_class": "checkov.terraform.checks.resource.aws.S3BucketReplicationConfiguration",
+        "fixed_definition": null,
+        "entity_tags": {
+          "Name": "local.resource_prefix.value-data",
+          "Environment": "local.resource_prefix.value"
+        },
+        "caller_file_path": null,
+        "caller_file_line_range": null,
+        "guideline": "https://docs.bridgecrew.io/docs/ensure-that-s3-bucket-has-cross-region-replication-enabled"
+      },
+      {
+        "check_id": "CKV_AWS_145",
+        "bc_check_id": "BC_AWS_GENERAL_56",
+        "check_name": "Ensure that S3 buckets are encrypted with KMS by default",
+        "check_result": {
+          "result": "FAILED",
+          "evaluated_keys": [
+            "server_side_encryption_configuration/[0]/rule/[0]/apply_server_side_encryption_by_default/[0]/sse_algorithm"
+          ]
+        },
+        "code_block": [
+          [
+            1,
+            "resource \"aws_s3_bucket\" \"data\" {\n"
+          ],
+          [
+            2,
+            "  # bucket is public\n"
+          ],
+          [
+            3,
+            "  # bucket is not encrypted\n"
+          ],
+          [
+            4,
+            "  # bucket does not have access logs\n"
+          ],
+          [
+            5,
+            "  # bucket does not have versioning\n"
+          ],
+          [
+            6,
+            "  bucket        = \"${local.resource_prefix.value}-data\"\n"
+          ],
+          [
+            7,
+            "  acl           = \"public-read\"\n"
+          ],
+          [
+            8,
+            "  force_destroy = true\n"
+          ],
+          [
+            9,
+            "  tags = {\n"
+          ],
+          [
+            10,
+            "    Name        = \"${local.resource_prefix.value}-data\"\n"
+          ],
+          [
+            11,
+            "    Environment = local.resource_prefix.value\n"
+          ],
+          [
+            12,
+            "  }\n"
+          ],
+          [
+            13,
+            "}\n"
+          ]
+        ],
+        "file_path": "/s3.tf",
+        "file_abs_path": "/Users/steve/dev/terragoat/terraform/aws/s3.tf",
+        "repo_file_path": "/terraform/aws/s3.tf",
+        "file_line_range": [
+          1,
+          13
+        ],
+        "resource": "aws_s3_bucket.data",
+        "evaluations": null,
+        "check_class": "checkov.terraform.checks.resource.aws.S3KMSEncryptedByDefault",
+        "fixed_definition": null,
+        "entity_tags": {
+          "Name": "local.resource_prefix.value-data",
+          "Environment": "local.resource_prefix.value"
+        },
+        "caller_file_path": null,
+        "caller_file_line_range": null,
+        "guideline": "https://docs.bridgecrew.io/docs/ensure-that-s3-buckets-are-encrypted-with-kms-by-default"
+      },
+      {
+        "check_id": "CKV_AWS_21",
+        "bc_check_id": "BC_AWS_S3_16",
+        "check_name": "Ensure all data stored in the S3 bucket have versioning enabled",
+        "check_result": {
+          "result": "FAILED",
+          "evaluated_keys": [
+            "versioning/[0]/enabled"
+          ]
+        },
+        "code_block": [
+          [
+            1,
+            "resource \"aws_s3_bucket\" \"data\" {\n"
+          ],
+          [
+            2,
+            "  # bucket is public\n"
+          ],
+          [
+            3,
+            "  # bucket is not encrypted\n"
+          ],
+          [
+            4,
+            "  # bucket does not have access logs\n"
+          ],
+          [
+            5,
+            "  # bucket does not have versioning\n"
+          ],
+          [
+            6,
+            "  bucket        = \"${local.resource_prefix.value}-data\"\n"
+          ],
+          [
+            7,
+            "  acl           = \"public-read\"\n"
+          ],
+          [
+            8,
+            "  force_destroy = true\n"
+          ],
+          [
+            9,
+            "  tags = {\n"
+          ],
+          [
+            10,
+            "    Name        = \"${local.resource_prefix.value}-data\"\n"
+          ],
+          [
+            11,
+            "    Environment = local.resource_prefix.value\n"
+          ],
+          [
+            12,
+            "  }\n"
+          ],
+          [
+            13,
+            "}\n"
+          ]
+        ],
+        "file_path": "/s3.tf",
+        "file_abs_path": "/Users/steve/dev/terragoat/terraform/aws/s3.tf",
+        "repo_file_path": "/terraform/aws/s3.tf",
+        "file_line_range": [
+          1,
+          13
+        ],
+        "resource": "aws_s3_bucket.data",
+        "evaluations": null,
+        "check_class": "checkov.terraform.checks.resource.aws.S3Versioning",
+        "fixed_definition": "resource \"aws_s3_bucket\" \"data\" {\n  # bucket is public\n  # bucket is not encrypted\n  # bucket does not have access logs\n  # bucket does not have versioning\n  bucket        = \"${local.resource_prefix.value}-data\"\n  acl           = \"public-read\"\n  force_destroy = true\n  tags = {\n    Name        = \"${local.resource_prefix.value}-data\"\n    Environment = local.resource_prefix.value\n  }\n  versioning {\n    enabled = true\n  }\n}\n",
+        "entity_tags": {
+          "Name": "local.resource_prefix.value-data",
+          "Environment": "local.resource_prefix.value"
+        },
+        "caller_file_path": null,
+        "caller_file_line_range": null,
+        "guideline": "https://docs.bridgecrew.io/docs/s3_16-enable-versioning"
+      }
+]

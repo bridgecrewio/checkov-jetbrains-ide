@@ -10,5 +10,5 @@ data class CheckovResult(
     val file_line_range: ArrayList<Int>,
     val resource: String,
     val guideline: String = "\"No Guide\")",
-    val fixed_definition: String? = ""
+    val fixed_definition: String = ""
     )

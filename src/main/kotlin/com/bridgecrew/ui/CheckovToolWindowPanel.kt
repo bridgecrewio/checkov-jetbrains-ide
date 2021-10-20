@@ -9,7 +9,7 @@ import javax.swing.event.*
 
 
 class CheckovToolWindowPanel(val project: Project) : JPanel(), Disposable {
-    val checkovDescription = CheckovToolWindowDescriptionPanel()
+    val checkovDescription = CheckovToolWindowDescriptionPanel(project)
     val checkovTree = CheckovToolWindowTree(project, checkovDescription)
 
     /**

@@ -88,10 +88,9 @@ class CheckovToolWindowTree(val project: Project, descriptionPanel: CheckovToolW
                 navigateToFile(fileToNavigate)
             }
             val range = checkovResultObject.file_line_range
-            val start: Int = range.getOrElse(0, { 0 })
-            val end: Int = range.getOrElse(1, { 0 })
+            val (startOffset, endOffset) = getOffsetByLines(range, project)
             val editor = FileEditorManager.getInstance(project).selectedTextEditor
-            editor?.selectionModel?.setSelection(start, end)
+            editor?.selectionModel?.setSelection(startOffset, endOffset)
         }
     }
 
