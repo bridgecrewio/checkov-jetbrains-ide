@@ -14,6 +14,11 @@ class CheckovToolWindowFactory : ToolWindowFactory{
         contentManager.addContent(content)
 
         Disposer.register(project, CheckovToolWindowPanel)
+<<<<<<< Updated upstream
+=======
+        CheckovNotificationBalloon.showError(project, 3)
+
+>>>>>>> Stashed changes
     }
 
 }
