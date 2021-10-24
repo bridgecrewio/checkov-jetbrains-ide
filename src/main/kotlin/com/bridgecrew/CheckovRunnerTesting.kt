@@ -1,15 +1,14 @@
-package com.bridgecrew.ui
+package com.bridgecrew
 
-import javax.swing.*;
-import com.intellij.json.psi.JsonObject
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.google.gson.Gson
-import com.bridgecrew.CheckovResult
+import com.bridgecrew.listeners.CheckovScanListener
 import java.io.File
 import java.io.InputStream
 import com.google.gson.reflect.TypeToken
+import com.intellij.openapi.project.Project
 
-class CheckovToolWindow : SimpleToolWindowPanel(false, true) {
+class CheckovRunnerTesting : SimpleToolWindowPanel(false, true) {
     val gson: Gson = Gson()
     private val resultsList: ArrayList<CheckovResult> = arrayListOf<CheckovResult>()
     val results: List<String> = mutableListOf("""{
@@ -73,14 +72,11 @@ class CheckovToolWindow : SimpleToolWindowPanel(false, true) {
         "guideline": "https://docs.bridgecrew.io/docs/logging_9-enable-vpc-flow-logging"
     }""")
 
-    fun getResultsList():  ArrayList<CheckovResult>{
-
+    fun getResultsList(index: Int, project: Project) {
         val fileString = readFileAsLinesUsingUseLines("/Users/yorhov/development/checkov-jetbrains-ide/src/main/kotlin/com/bridgecrew/a.json")
         val resultsList1 = object : TypeToken<List<CheckovResult>>() {}.type
-
         val listOfCheckovResults: ArrayList<CheckovResult> = gson.fromJson(fileString, resultsList1)
-
-        return listOfCheckovResults
+        project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished(arrayListOf(listOfCheckovResults.get(index), listOfCheckovResults.get(index+1)))
     }
 
     fun readFileAsLinesUsingUseLines(fileName: String): String{
