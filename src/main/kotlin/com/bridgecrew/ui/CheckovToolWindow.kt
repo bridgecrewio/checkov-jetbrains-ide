@@ -12,7 +12,7 @@ import com.google.gson.reflect.TypeToken
 class CheckovToolWindow : SimpleToolWindowPanel(false, true) {
     val gson: Gson = Gson()
     private val resultsList: ArrayList<CheckovResult> = arrayListOf<CheckovResult>()
-    val results: List<String> = mutableListOf("""{
+    private var results: List<String> = mutableListOf("""{
         "check_id": "CKV2_AWS_12",
         "bc_check_id": "BC_AWS_LOGGING_10",
         "check_name": "Ensure VPC flow logging is enabled in all VPCs",
@@ -75,7 +75,7 @@ class CheckovToolWindow : SimpleToolWindowPanel(false, true) {
 
     fun getResultsList():  ArrayList<CheckovResult>{
 
-        val fileString = readFileAsLinesUsingUseLines("/Users/yorhov/development/checkov-jetbrains-ide/src/main/kotlin/com/bridgecrew/a.json")
+        val fileString = readFileAsLinesUsingUseLines("/Users/yyacoby/repos/checkov-jetbrains-ide/src/main/kotlin/com/bridgecrew/a.json")
         val resultsList1 = object : TypeToken<List<CheckovResult>>() {}.type
 
         val listOfCheckovResults: ArrayList<CheckovResult> = gson.fromJson(fileString, resultsList1)

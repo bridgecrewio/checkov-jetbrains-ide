@@ -1,9 +1,22 @@
 package com.bridgecrew.services.checkov
 
+import com.bridgecrew.services.CliService
+import com.bridgecrew.services.CliServiceInstance
+import com.bridgecrew.ui.CheckovResourceTreeNode
+import com.intellij.openapi.application.PathManager
 import java.nio.file.Paths
+
+import com.bridgecrew.ui.CheckovToolWindow
+import com.bridgecrew.ui.CheckovToolWindowDescriptionPanel
+import com.bridgecrew.ui.CheckovToolWindowTree
+import kotlinx.coroutines.*
+
 
 class PipCheckovRunner : CheckovRunner {
     private var checkovPath: String? = null
+    private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
+    private var runJobRunning: Job? = null
+    private val cliService: CliService = CliServiceInstance
 
     private fun isCheckovInstalledGlobally(): Boolean {
         return try {
@@ -47,6 +60,8 @@ class PipCheckovRunner : CheckovRunner {
                 this.checkovPath = this.getPythonUserBasePath()
             }
 
+            println("Using checkov version: ${getVersion()}")
+
             return true
         } catch (err: Exception) {
             println("Failed to install Checkov using pip.")
@@ -55,27 +70,24 @@ class PipCheckovRunner : CheckovRunner {
         }
     }
 
-    override fun run(filePath: String, extensionVersion: String, bcToken: String): String {
-        println("Trying file scan using pip.")
-        val execCommand = "${this.checkovPath} -s --skip-check ${SKIP_CHECKS.joinToString(",")} --bc-api-key $bcToken --repo-id vscode/extension -f $filePath -o json"
-        println("pip Checkov Exec: $execCommand")
-        val checkovProcess = Runtime.getRuntime().exec(execCommand)
-        val checkovExitCode = checkovProcess.waitFor()
-
-        if (checkovExitCode != 0) {
-            println("Failed to run Checkov using pip.")
-            println(checkovProcess.errorStream.bufferedReader().use { it.readText() })
-            throw Exception("Failed to run Checkov using pip")
+    override fun run(filePath: String, extensionVersion: String, bcToken: String) = runBlocking {
+        if (runJobRunning !== null) {
+            println("cancelling current running scan job due to newer request")
+            runJobRunning!!.cancel()
         }
-
-        val checkovResult = checkovProcess.inputStream.bufferedReader().use { it.readText() }
-        println("pip Checkov scanned file successfully. Result:")
-        println(checkovResult)
-        return checkovResult
+        runJobRunning = scope.launch {
+            val execCommand =
+//                "${checkovPath} -s --skip-check ${SKIP_CHECKS.joinToString(",")} --bc-api-key $bcToken --repo-id yyacoby/terragoat-yuval -f $filePath -o json"
+                "${checkovPath} -s --skip-check ${SKIP_CHECKS.joinToString(",")} -f $filePath -o json"
+            val res = cliService.run(execCommand)
+            if (isActive) {
+                println(res)
+                runJobRunning = null
+            }
+        }
     }
 
-    override fun getVersion(): String {
-        println("getting checkov version from PipRunner")
+    private fun getVersion(): String {
         val checkovProcess = Runtime.getRuntime().exec("${this.checkovPath} -v")
         return checkovProcess.inputStream.bufferedReader().use { it.readText() }
     }

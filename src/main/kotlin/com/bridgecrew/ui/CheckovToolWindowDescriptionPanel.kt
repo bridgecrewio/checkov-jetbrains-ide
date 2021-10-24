@@ -14,6 +14,9 @@ import java.net.URL
 import com.bridgecrew.utils.*
 import com.intellij.openapi.project.Project
 
+import com.bridgecrew.services.CheckovService
+import com.bridgecrew.services.CheckovServiceInstance
+
 
 class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindowPanel(true, true) {
     val descriptionPanel: JPanel = JPanel()
@@ -52,7 +55,9 @@ class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindow
                 ApplicationManager.getApplication().invokeLater {
                     val (start, end) = getOffsetByLines(checkovResult.file_line_range, project)
                     updateFile(checkovResult.fixed_definition, project, start, end)
-                    fixButton.isEnabled = false
+//                    fixButton.isEnabled = false
+                    val checkov = CheckovServiceInstance
+                    checkov.scanFile("/Users/yyacoby/repos/terragoat/terraform/aws/ec2.tf", "unknown", "09f77e61-3c9a-4325-ace9-6210dc576c1a")
                 }
             }
         }
