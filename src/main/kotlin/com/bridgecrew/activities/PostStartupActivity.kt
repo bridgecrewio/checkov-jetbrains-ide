@@ -9,17 +9,10 @@ class PostStartupActivity : StartupActivity {
 
     override fun runActivity(project: Project) {
         this.installCheckovOnStartup()
-//        this.scanProjectOnStartUp(project)
         println("startup finished")
     }
 
-    private fun scanProjectOnStartUp(project: Project) {
-        println("[scanProjectOnStartUp] scanning project")
-        val results = this.checkov.scanFile("/Users/yyacoby/repos/terragoat/terraform/aws/ec2.tf", "unknown", "09f77e61-3c9a-4325-ace9-6210dc576c1a")
-        println(results);
-    }
-
     private fun installCheckovOnStartup() {
-        this.checkov.installCheckov()
+        checkov.installCheckov()
     }
 }

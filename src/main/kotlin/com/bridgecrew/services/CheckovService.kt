@@ -3,7 +3,7 @@ package com.bridgecrew.services
 import com.bridgecrew.services.checkov.CheckovRunner
 import com.bridgecrew.services.checkov.DockerCheckovRunner
 import com.bridgecrew.services.checkov.PipCheckovRunner
-import com.intellij.openapi.project.Project
+
 import kotlinx.coroutines.*
 
 open class CheckovService {

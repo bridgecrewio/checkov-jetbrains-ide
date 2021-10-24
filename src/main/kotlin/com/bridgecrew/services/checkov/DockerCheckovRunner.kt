@@ -1,12 +1,12 @@
 package com.bridgecrew.services.checkov
 
-import com.intellij.openapi.project.Project
 import org.apache.commons.io.FilenameUtils
 import java.io.File
 import java.nio.file.Paths
+import kotlinx.coroutines.*
+
 import com.bridgecrew.services.CliService
 import com.bridgecrew.services.CliServiceInstance
-import kotlinx.coroutines.*
 
 const val DOCKER_MOUNT_DIR = "/checkovScan"
 

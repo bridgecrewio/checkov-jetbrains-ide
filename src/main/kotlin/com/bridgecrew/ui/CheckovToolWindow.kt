@@ -12,7 +12,7 @@ import com.google.gson.reflect.TypeToken
 class CheckovToolWindow : SimpleToolWindowPanel(false, true) {
     val gson: Gson = Gson()
     private val resultsList: ArrayList<CheckovResult> = arrayListOf<CheckovResult>()
-    private var results: List<String> = mutableListOf("""{
+    val results: List<String> = mutableListOf("""{
         "check_id": "CKV2_AWS_12",
         "bc_check_id": "BC_AWS_LOGGING_10",
         "check_name": "Ensure VPC flow logging is enabled in all VPCs",

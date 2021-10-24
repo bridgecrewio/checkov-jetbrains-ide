@@ -10,11 +10,9 @@ import java.awt.*
 import java.net.URI
 import java.net.URISyntaxException
 import javax.swing.*
-import java.net.URL
 import com.bridgecrew.utils.*
 import com.intellij.openapi.project.Project
 
-import com.bridgecrew.services.CheckovService
 import com.bridgecrew.services.CheckovServiceInstance
 
 
@@ -24,6 +22,7 @@ class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindow
     var checkIdLabel: JPanel = JPanel()
     var checkGuidelinesLabel: JPanel = JPanel()
     var fixButton: JButton = JButton()
+    var counter: Int = 0
 
     init {
         emptyDescription()
@@ -57,10 +56,38 @@ class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindow
                     updateFile(checkovResult.fixed_definition, project, start, end)
 //                    fixButton.isEnabled = false
                     val checkov = CheckovServiceInstance
-                    checkov.scanFile("/Users/yyacoby/repos/terragoat/terraform/aws/ec2.tf", "unknown", "09f77e61-3c9a-4325-ace9-6210dc576c1a")
+                    if (counter % 2 === 0) {
+                        println("counter is $counter, scanning ec2.tf")
+                        checkov.scanFile("/Users/yyacoby/repos/terragoat/terraform/aws/ec2.tf", "unknown", "09f77e61-3c9a-4325-ace9-6210dc576c1a")
+                    } else {
+                        println("counter is $counter, scanning s3.tf")
+                        checkov.scanFile("/Users/yyacoby/repos/terragoat/terraform/aws/s3.tf", "unknown", "09f77e61-3c9a-4325-ace9-6210dc576c1a")
+                    }
+                    counter++
+
                 }
             }
         }
+
+        //s3:
+//        "summary": {
+//            "passed": 25,
+//            "failed": 25,
+//            "skipped": 0,
+//            "parsing_errors": 0,
+//            "resource_count": 6,
+//            "checkov_version": "2.0.506"
+//        },
+
+        // ec2:
+//        "summary": {
+//            "passed": 8,
+//            "failed": 20,
+//            "skipped": 0,
+//            "parsing_errors": 0,
+//            "resource_count": 16,
+//            "checkov_version": "2.0.506"
+//        },
 
         checkNameLabel = createDescriptionSection(CHECKNAME, checkovResult.check_name)
         checkIdLabel = createDescriptionSection(CHECKID, checkovResult.check_id)

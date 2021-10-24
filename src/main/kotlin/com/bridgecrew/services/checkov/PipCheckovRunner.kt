@@ -1,15 +1,10 @@
 package com.bridgecrew.services.checkov
 
+import java.nio.file.Paths
+import kotlinx.coroutines.*
+
 import com.bridgecrew.services.CliService
 import com.bridgecrew.services.CliServiceInstance
-import com.bridgecrew.ui.CheckovResourceTreeNode
-import com.intellij.openapi.application.PathManager
-import java.nio.file.Paths
-
-import com.bridgecrew.ui.CheckovToolWindow
-import com.bridgecrew.ui.CheckovToolWindowDescriptionPanel
-import com.bridgecrew.ui.CheckovToolWindowTree
-import kotlinx.coroutines.*
 
 
 class PipCheckovRunner : CheckovRunner {
@@ -76,9 +71,7 @@ class PipCheckovRunner : CheckovRunner {
             runJobRunning!!.cancel()
         }
         runJobRunning = scope.launch {
-            val execCommand =
-//                "${checkovPath} -s --skip-check ${SKIP_CHECKS.joinToString(",")} --bc-api-key $bcToken --repo-id yyacoby/terragoat-yuval -f $filePath -o json"
-                "${checkovPath} -s --skip-check ${SKIP_CHECKS.joinToString(",")} -f $filePath -o json"
+            val execCommand = "${checkovPath} -s --skip-check ${SKIP_CHECKS.joinToString(",")} --bc-api-key $bcToken --repo-id yyacoby/terragoat-yuval -f $filePath -o json"
             val res = cliService.run(execCommand)
             if (isActive) {
                 println(res)
