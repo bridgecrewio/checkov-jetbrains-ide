@@ -8,7 +8,6 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel
 import org.json.JSONObject
 import java.io.File
 import java.io.InputStream
-import java.nio.file.Paths
 
 
 
@@ -77,7 +76,7 @@ class CheckovRunnerTesting : SimpleToolWindowPanel(false, true) {
     }""")
 
     fun getResultsList(index: Int, project: Project) {
-        val fileString = readFileAsLinesUsingUseLines("/Users/yyacoby/repos/checkov-jetbrains-ide/src/main/kotlin/com/bridgecrew/a.json")
+        val fileString = readFileAsLinesUsingUseLines("/Users/yorhov/development/checkov-jetbrains-ide/src/main/kotlin/com/bridgecrew/a.json")
         val json: JSONObject = JSONObject(fileString)
         val results = json.getJSONObject("results")
         val failedChecks = results.getJSONArray("failed_checks")
