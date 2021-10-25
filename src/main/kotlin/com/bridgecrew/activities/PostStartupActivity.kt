@@ -8,11 +8,11 @@ class PostStartupActivity : StartupActivity {
     private val checkov = CheckovServiceInstance
 
     override fun runActivity(project: Project) {
-        this.installCheckovOnStartup()
+        this.installCheckovOnStartup(project)
         println("startup finished")
     }
 
-    private fun installCheckovOnStartup() {
-        checkov.installCheckov()
+    private fun installCheckovOnStartup(project: Project) {
+        checkov.installCheckov(project)
     }
 }
