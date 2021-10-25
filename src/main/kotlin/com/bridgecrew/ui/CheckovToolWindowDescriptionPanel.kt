@@ -13,9 +13,6 @@ import javax.swing.*
 import com.bridgecrew.utils.*
 import com.intellij.openapi.project.Project
 
-import com.bridgecrew.services.CheckovServiceInstance
-
-
 class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindowPanel(true, true) {
     val descriptionPanel: JPanel = JPanel()
     var checkNameLabel: JPanel = JPanel()

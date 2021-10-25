@@ -1,6 +1,9 @@
 package com.bridgecrew.services
 
-open class CliService() {
+import com.intellij.openapi.components.Service
+
+@Service
+class CliService() {
 
     fun run(command: String): String {
         println("[CliService] running $command")
@@ -21,10 +24,4 @@ open class CliService() {
 
     }
 
-}
-
-object CliServiceInstance : CliService() {
-    init {
-        println("CliServiceInstance invoked")
-    }
 }

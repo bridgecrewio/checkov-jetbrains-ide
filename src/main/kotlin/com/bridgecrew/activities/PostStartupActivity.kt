@@ -1,11 +1,11 @@
 package com.bridgecrew.activities
+import com.bridgecrew.services.CheckovService
 import com.intellij.openapi.startup.StartupActivity
 import com.intellij.openapi.project.Project
 
-import com.bridgecrew.services.CheckovServiceInstance
+import com.intellij.openapi.components.service
 
 class PostStartupActivity : StartupActivity {
-    private val checkov = CheckovServiceInstance
 
     override fun runActivity(project: Project) {
         this.installCheckovOnStartup(project)
@@ -13,6 +13,6 @@ class PostStartupActivity : StartupActivity {
     }
 
     private fun installCheckovOnStartup(project: Project) {
-        checkov.installCheckov(project)
+       project.service<CheckovService>().installCheckov(project)
     }
 }
