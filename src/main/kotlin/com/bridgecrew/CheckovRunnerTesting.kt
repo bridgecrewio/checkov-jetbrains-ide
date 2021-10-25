@@ -10,6 +10,7 @@ import java.io.File
 import java.io.InputStream
 
 
+
 class CheckovRunnerTesting : SimpleToolWindowPanel(false, true) {
     val gson: Gson = Gson()
     private val resultsList: ArrayList<CheckovResult> = arrayListOf<CheckovResult>()

@@ -47,6 +47,8 @@ class PipCheckovRunner : CheckovRunner {
                 this.checkovPath = this.getPythonUserBasePath()
             }
 
+            println("Using checkov version: ${getVersion()}")
+
             return true
         } catch (err: Exception) {
             println("Failed to install Checkov using pip.")
@@ -55,27 +57,11 @@ class PipCheckovRunner : CheckovRunner {
         }
     }
 
-    override fun run(filePath: String, extensionVersion: String, bcToken: String): String {
-        println("Trying file scan using pip.")
-        val execCommand = "${this.checkovPath} -s --skip-check ${SKIP_CHECKS.joinToString(",")} --bc-api-key $bcToken --repo-id vscode/extension -f $filePath -o json"
-        println("pip Checkov Exec: $execCommand")
-        val checkovProcess = Runtime.getRuntime().exec(execCommand)
-        val checkovExitCode = checkovProcess.waitFor()
-
-        if (checkovExitCode != 0) {
-            println("Failed to run Checkov using pip.")
-            println(checkovProcess.errorStream.bufferedReader().use { it.readText() })
-            throw Exception("Failed to run Checkov using pip")
-        }
-
-        val checkovResult = checkovProcess.inputStream.bufferedReader().use { it.readText() }
-        println("pip Checkov scanned file successfully. Result:")
-        println(checkovResult)
-        return checkovResult
+    override fun getExecCommand(filePath: String, extensionVersion: String, bcToken: String): String {
+            return "${checkovPath} -s --skip-check ${SKIP_CHECKS.joinToString(",")} --bc-api-key $bcToken --repo-id yyacoby/terragoat-yuval -f $filePath -o json"
     }
 
-    override fun getVersion(): String {
-        println("getting checkov version from PipRunner")
+    private fun getVersion(): String {
         val checkovProcess = Runtime.getRuntime().exec("${this.checkovPath} -v")
         return checkovProcess.inputStream.bufferedReader().use { it.readText() }
     }

@@ -6,6 +6,7 @@ import com.bridgecrew.listeners.CheckovInstallerListener
 import com.bridgecrew.listeners.CheckovScanListener
 import com.bridgecrew.listeners.CheckovSettingsListener
 import com.bridgecrew.utils.PANELTYPE
+import com.bridgecrew.services.CheckovService
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
@@ -41,7 +42,6 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
 
                 override fun scanningFinished(scanResults: ArrayList<CheckovResult>) {
                     ApplicationManager.getApplication().invokeLater {
-                        println(scanResults)
                         project.service<CheckovToolWindowManagerPanel>().displayResults(scanResults)
 
                     }
@@ -105,8 +105,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
             override fun fileOpened(source: FileEditorManager, file: VirtualFile) {
                 super.fileOpened(source, file);
                 if (extensionList.contains(file.extension)) {
-                    // TODO: "getResultList will be changed with checkov run function.
-                    CheckovRunnerTesting().getResultsList(0, project)
+                    project.service<CheckovService>().scanFile(file.path, "unknown", "apitoken", project);
                 }
 
             }
@@ -114,8 +113,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
         project.messageBus.connect(project).subscribe(VirtualFileManager.VFS_CHANGES, object : BulkFileListener {
             override fun after(events: MutableList<out VFileEvent>) {
                 if (events.size > 0 && extensionList.contains(events.get(0).file?.extension )) {
-                    // TODO: "getResultList will be changed with checkov run function.
-                    CheckovRunnerTesting().getResultsList(2, project)
+                    project.service<CheckovService>().scanFile(events.get(0).file!!.path, "unknown", "apitoken", project);
                 }
             }
         })
