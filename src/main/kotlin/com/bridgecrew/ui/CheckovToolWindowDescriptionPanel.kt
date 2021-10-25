@@ -22,7 +22,6 @@ class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindow
     var checkIdLabel: JPanel = JPanel()
     var checkGuidelinesLabel: JPanel = JPanel()
     var fixButton: JButton = JButton()
-    var counter: Int = 0
 
     init {
         preScanDescription()
@@ -66,40 +65,10 @@ class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindow
                 ApplicationManager.getApplication().invokeLater {
                     val (start, end) = getOffsetByLines(checkovResult.file_line_range, project)
                     updateFile(checkovResult.fixed_definition, project, start, end)
-//                    fixButton.isEnabled = false
-                    val checkov = CheckovServiceInstance
-                    if (counter % 2 === 0) {
-                        println("counter is $counter, scanning ec2.tf")
-                        checkov.scanFile("/Users/yyacoby/repos/terragoat/terraform/aws/ec2.tf", "unknown", "09f77e61-3c9a-4325-ace9-6210dc576c1a")
-                    } else {
-                        println("counter is $counter, scanning s3.tf")
-                        checkov.scanFile("/Users/yyacoby/repos/terragoat/terraform/aws/s3.tf", "unknown", "09f77e61-3c9a-4325-ace9-6210dc576c1a")
-                    }
-                    counter++
-
+                    fixButton.isEnabled = false
                 }
             }
         }
-
-        //s3:
-//        "summary": {
-//            "passed": 25,
-//            "failed": 25,
-//            "skipped": 0,
-//            "parsing_errors": 0,
-//            "resource_count": 6,
-//            "checkov_version": "2.0.506"
-//        },
-
-        // ec2:
-//        "summary": {
-//            "passed": 8,
-//            "failed": 20,
-//            "skipped": 0,
-//            "parsing_errors": 0,
-//            "resource_count": 16,
-//            "checkov_version": "2.0.506"
-//        },
 
         checkNameLabel = createDescriptionSection(CHECKNAME, checkovResult.check_name)
         checkIdLabel = createDescriptionSection(CHECKID, checkovResult.check_id)

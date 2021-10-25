@@ -6,6 +6,7 @@ import com.bridgecrew.listeners.CheckovInstallerListener
 import com.bridgecrew.listeners.CheckovScanListener
 import com.bridgecrew.listeners.CheckovSettingsListener
 import com.bridgecrew.utils.PANELTYPE
+import com.bridgecrew.services.CheckovServiceInstance
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
@@ -25,6 +26,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
 
     val checkovDescription = CheckovToolWindowDescriptionPanel(project)
     val split = JBSplitter()
+    val checkov = CheckovServiceInstance
     /**
      * Create Splitter element which contains the tree element and description element
      * @return JBSplitter
@@ -105,8 +107,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
             override fun fileOpened(source: FileEditorManager, file: VirtualFile) {
                 super.fileOpened(source, file);
                 if (extensionList.contains(file.extension)) {
-                    // TODO: "getResultList will be changed with checkov run function.
-                    CheckovRunnerTesting().getResultsList(0, project)
+                    checkov.scanFile(file.path, "unknown", "09f77e61-3c9a-4325-ace9-6210dc576c1a", project);
                 }
 
             }
@@ -114,8 +115,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
         project.messageBus.connect(project).subscribe(VirtualFileManager.VFS_CHANGES, object : BulkFileListener {
             override fun after(events: MutableList<out VFileEvent>) {
                 if (events.size > 0 && extensionList.contains(events.get(0).file?.extension )) {
-                    // TODO: "getResultList will be changed with checkov run function.
-                    CheckovRunnerTesting().getResultsList(2, project)
+                    checkov.scanFile(events.get(0).file!!.path, "unknown", "09f77e61-3c9a-4325-ace9-6210dc576c1a", project);
                 }
             }
         })

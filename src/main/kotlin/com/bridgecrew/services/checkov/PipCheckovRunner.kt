@@ -1,17 +1,9 @@
 package com.bridgecrew.services.checkov
 
 import java.nio.file.Paths
-import kotlinx.coroutines.*
-
-import com.bridgecrew.services.CliService
-import com.bridgecrew.services.CliServiceInstance
-
 
 class PipCheckovRunner : CheckovRunner {
     private var checkovPath: String? = null
-    private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
-    private var runJobRunning: Job? = null
-    private val cliService: CliService = CliServiceInstance
 
     private fun isCheckovInstalledGlobally(): Boolean {
         return try {
@@ -65,19 +57,8 @@ class PipCheckovRunner : CheckovRunner {
         }
     }
 
-    override fun run(filePath: String, extensionVersion: String, bcToken: String) = runBlocking {
-        if (runJobRunning !== null) {
-            println("cancelling current running scan job due to newer request")
-            runJobRunning!!.cancel()
-        }
-        runJobRunning = scope.launch {
-            val execCommand = "${checkovPath} -s --skip-check ${SKIP_CHECKS.joinToString(",")} --bc-api-key $bcToken --repo-id yyacoby/terragoat-yuval -f $filePath -o json"
-            val res = cliService.run(execCommand)
-            if (isActive) {
-                println(res)
-                runJobRunning = null
-            }
-        }
+    override fun getExecCommand(filePath: String, extensionVersion: String, bcToken: String): String {
+            return "${checkovPath} -s --skip-check ${SKIP_CHECKS.joinToString(",")} --bc-api-key $bcToken --repo-id yyacoby/terragoat-yuval -f $filePath -o json"
     }
 
     private fun getVersion(): String {
