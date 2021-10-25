@@ -43,7 +43,6 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
 
                 override fun scanningFinished(scanResults: ArrayList<CheckovResult>) {
                     ApplicationManager.getApplication().invokeLater {
-                        println(scanResults)
                         project.service<CheckovToolWindowManagerPanel>().displayResults(scanResults)
 
                     }

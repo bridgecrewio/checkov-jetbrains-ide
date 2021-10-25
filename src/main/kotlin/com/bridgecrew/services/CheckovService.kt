@@ -47,24 +47,24 @@ open class CheckovService {
         }
 
         println("Trying to scan a file using $selectedCheckovRunner")
+        project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningStarted()
 
         val execCommand = selectedCheckovRunner!!.getExecCommand(filePath, extensionVersion, token)
 
         println("Exec command: $execCommand")
 
         runJobRunning = scope.launch {
-            var res = """{}"""
             try {
-                res = cliService.run(execCommand)
-            } catch (e: Exception) {
-                println("Error running cli")
-                e.printStackTrace()
-                runJobRunning = null
-            }
-
-            if (isActive) {
+                val res = cliService.run(execCommand)
                 val listOfCheckovResults = getFailedChecksFromResultString(res)
-                project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished(listOfCheckovResults)
+                if (isActive) {
+                    project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished(listOfCheckovResults)
+                }
+                runJobRunning = null
+            } catch (e: Exception) {
+                println("Error scanning file")
+                e.printStackTrace()
+                project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningError()
                 runJobRunning = null
             }
         }
