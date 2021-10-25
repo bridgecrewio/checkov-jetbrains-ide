@@ -1,20 +1,24 @@
 package com.bridgecrew.services
 
+import com.bridgecrew.listeners.CheckovInstallerListener
+import com.bridgecrew.listeners.CheckovScanListener
 import com.bridgecrew.services.checkov.CheckovRunner
 import com.bridgecrew.services.checkov.DockerCheckovRunner
 import com.bridgecrew.services.checkov.PipCheckovRunner
+import com.intellij.openapi.project.Project
 
 open class CheckovService {
     private var selectedCheckovRunner: CheckovRunner? = null
     private val checkovRunners = arrayOf(DockerCheckovRunner(), PipCheckovRunner())
 
-    fun installCheckov() {
+    fun installCheckov(project: Project) {
         println("Trying to install Checkov")
         for (runner in checkovRunners) {
             var isCheckovInstalled = runner.installOrUpdate()
             if (isCheckovInstalled) {
                 this.selectedCheckovRunner = runner
                 println("Checkov installed successfully using ${runner.javaClass.kotlin}")
+                project.messageBus.syncPublisher(CheckovInstallerListener.INSTALLER_TOPIC).installerFinished()
                 return
             }
         }
