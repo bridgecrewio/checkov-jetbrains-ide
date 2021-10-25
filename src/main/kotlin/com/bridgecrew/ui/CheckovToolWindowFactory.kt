@@ -14,7 +14,6 @@ class CheckovToolWindowFactory : ToolWindowFactory{
         contentManager.addContent(content)
 
         Disposer.register(project, checkovToolWindowPanel)
-        CheckovNotificationBalloon.showError(project, 3)
     }
 
 }

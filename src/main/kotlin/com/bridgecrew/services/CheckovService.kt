@@ -6,6 +6,7 @@ import com.bridgecrew.listeners.CheckovScanListener
 import com.bridgecrew.services.checkov.CheckovRunner
 import com.bridgecrew.services.checkov.DockerCheckovRunner
 import com.bridgecrew.services.checkov.PipCheckovRunner
+import com.bridgecrew.ui.CheckovNotificationBalloon
 import com.intellij.openapi.project.Project
 
 import kotlinx.coroutines.*
@@ -16,6 +17,7 @@ open class CheckovService {
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
     private var runJobRunning: Job? = null
     private val cliService: CliService = CliServiceInstance
+    private var isFirstRun: Boolean = true
 
     fun installCheckov(project: Project) {
         println("Trying to install Checkov")
@@ -59,6 +61,10 @@ open class CheckovService {
                 val listOfCheckovResults = getFailedChecksFromResultString(res)
                 if (isActive) {
                     project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished(listOfCheckovResults)
+                    if (isFirstRun) {
+                        CheckovNotificationBalloon.showError(project, listOfCheckovResults.size)
+                        isFirstRun = false
+                    }
                 }
                 runJobRunning = null
             } catch (e: Exception) {
