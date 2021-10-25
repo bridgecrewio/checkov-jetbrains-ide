@@ -10,7 +10,6 @@ import java.awt.*
 import java.net.URI
 import java.net.URISyntaxException
 import javax.swing.*
-import java.net.URL
 import com.bridgecrew.utils.*
 import com.intellij.openapi.project.Project
 
@@ -23,22 +22,34 @@ class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindow
     var fixButton: JButton = JButton()
 
     init {
-        emptyDescription()
+        preScanDescription()
     }
 
     /**
      * Create display of description before scanning.
      */
-    fun emptyDescription() {
+    fun preScanDescription(): JPanel {
         descriptionPanel.removeAll()
         descriptionPanel.add(JLabel("Scan your project"), BorderLayout.CENTER)
-        descriptionPanel.revalidate()
+        return descriptionPanel
+    }
+
+    fun duringScanDescription(): JPanel {
+        descriptionPanel.removeAll()
+        descriptionPanel.add(JLabel("Checkov is scanning your code, Please wait to see the results"), BorderLayout.CENTER)
+        return descriptionPanel
+    }
+
+    fun errorScanDescription(): JPanel {
+        descriptionPanel.removeAll()
+        descriptionPanel.add(JLabel("Checkov has failed to run on the file"), BorderLayout.CENTER)
+        return descriptionPanel
     }
 
     /**
      * Create description for specific checkov result.
      */
-    fun getDescription(checkovResult: CheckovResult) {
+    fun descriptionOfCheckovScan(checkovResult: CheckovResult) {
         descriptionPanel.removeAll()
 
         descriptionPanel.layout = GridLayoutManager(3, 2)

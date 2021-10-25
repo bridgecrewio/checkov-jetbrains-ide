@@ -20,7 +20,6 @@ import javax.swing.tree.DefaultMutableTreeNode
 
 
 class CheckovToolWindowTree(val project: Project, descriptionPanel: CheckovToolWindowDescriptionPanel) : SimpleToolWindowPanel(true, true), Disposable {
-    val checkovTestAnswer = CheckovToolWindow().getResultsList()
     val testPanel = JPanel(BorderLayout())
     val descriptionPanel =  descriptionPanel
 
@@ -28,8 +27,8 @@ class CheckovToolWindowTree(val project: Project, descriptionPanel: CheckovToolW
      * Create scrollers panel around a Tree element
      * @return JScrollPane of the Tree element
      */
-    fun createScroll(): JScrollPane{
-        val tree = createTree()
+    fun createScroll(checkovResults: ArrayList<CheckovResult>): JScrollPane{
+        val tree = createTree(checkovResults)
         return ScrollPaneFactory.createScrollPane(
             tree,
             ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
@@ -41,7 +40,7 @@ class CheckovToolWindowTree(val project: Project, descriptionPanel: CheckovToolW
      * Create a tree element from checkovResult list
      * @return Panel which contains a tree element
      */
-    fun createTree() : JPanel {
+    fun createTree(checkovTestAnswer: ArrayList<CheckovResult>) : JPanel {
         val rootNode = DefaultMutableTreeNode("")
         checkovTestAnswer.sortBy { it.file_path }
         checkovTestAnswer.forEach {
@@ -80,7 +79,7 @@ class CheckovToolWindowTree(val project: Project, descriptionPanel: CheckovToolW
     private fun navigateAndSelectFailure(tree: Tree, checkovResultObject: CheckovResult){
         val selectionPath = tree.selectionPath
         if (selectionPath.pathCount == CHECKNAMEDEPTH) {
-            descriptionPanel.getDescription(checkovResultObject)
+            descriptionPanel.descriptionOfCheckovScan(checkovResultObject)
             val fileToNavigate: PsiFile? =
                 getPsFileByPath(selectionPath.parentPath.parentPath.lastPathComponent.toString(),
                     project = project)
