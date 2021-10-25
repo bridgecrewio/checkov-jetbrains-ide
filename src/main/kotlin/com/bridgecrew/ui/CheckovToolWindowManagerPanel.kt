@@ -3,6 +3,7 @@ package com.bridgecrew.ui
 import com.bridgecrew.CheckovResult
 import com.bridgecrew.listeners.CheckovScanListener
 import com.bridgecrew.listeners.CheckovSettingsListener
+import com.bridgecrew.settings.CheckovSettingsState
 import com.bridgecrew.utils.CHECKOVERROR
 import com.bridgecrew.utils.CHECKOVPRERSCAN
 import com.bridgecrew.utils.CHECKOVSTARTED
@@ -48,20 +49,12 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                     }
                 }
             })
-        project.messageBus.connect(this)
-            .subscribe(CheckovSettingsListener.SETTINGS_TOPIC, object: CheckovSettingsListener {
-                override fun settingsUpdated() {
-                    ApplicationManager.getApplication().invokeLater {
-                        project.service<CheckovToolWindowManagerPanel>().loadMainPanel()
-                    }
-                }
-            })
-
-
 
         }
 
     fun displayResults(checkovResults: ArrayList<CheckovResult>) {
+        val setting = CheckovSettingsState().getInstance()
+        println(setting?.apiToken)
         removeAll()
         val checkovTree = CheckovToolWindowTree(project, checkovDescription)
         val right = checkovDescription.createScroll()

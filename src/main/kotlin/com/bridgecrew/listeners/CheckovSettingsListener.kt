@@ -1,4 +1,5 @@
 package com.bridgecrew.listeners
+import com.bridgecrew.settings.CheckovSettingsState
 import com.intellij.util.messages.Topic
 
 interface CheckovSettingsListener {
@@ -8,6 +9,6 @@ interface CheckovSettingsListener {
             Topic.create("Checkov settings", CheckovSettingsListener::class.java)
     }
 
-    fun settingsUpdated()
+    fun settingsUpdated(newState: CheckovSettingsState?)
 
 }
