@@ -43,7 +43,7 @@ class CheckovService {
         }
     }
 
-    fun scanFile(filePath: String, extensionVersion: String, token: String, project: Project) = runBlocking {
+    fun scanFile(filePath: String, extensionVersion: String, token: String?, project: Project) = runBlocking {
         if (selectedCheckovRunner == null) {
             throw Exception("Checkov is not installed")
         }
@@ -56,15 +56,18 @@ class CheckovService {
         println("Trying to scan a file using $selectedCheckovRunner")
         project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningStarted()
 
-        val gitRepoName = getGitRepoName(filePath, project)
-        val execCommand = selectedCheckovRunner!!.getExecCommand(filePath, extensionVersion, token, gitRepoName)
-
-        println("Exec command: $execCommand")
-
         var res = ""
         runJobRunning = scope.launch {
             try {
 
+                if (token == null) {
+                    throw Exception("missing api token") // TODO: fix exception type
+                }
+
+                val gitRepoName = getGitRepoName(filePath, project)
+                val execCommand = selectedCheckovRunner!!.getExecCommand(filePath, extensionVersion, token, gitRepoName)
+
+                println("Exec command: $execCommand")
                 res = project.service<CliService>().run(execCommand)
                 val listOfCheckovResults = getFailedChecksFromResultString(res)
                 if (isActive) {
