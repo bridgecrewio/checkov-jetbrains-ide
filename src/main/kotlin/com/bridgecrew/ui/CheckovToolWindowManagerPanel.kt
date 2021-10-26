@@ -4,7 +4,6 @@ import com.bridgecrew.CheckovResult
 import com.bridgecrew.services.CheckovService
 import com.bridgecrew.listeners.CheckovInstallerListener
 import com.bridgecrew.listeners.CheckovScanListener
-import com.bridgecrew.settings.CheckovSettingsState
 import com.bridgecrew.utils.PANELTYPE
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
@@ -25,7 +24,6 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
 
     val checkovDescription = CheckovToolWindowDescriptionPanel(project)
     val split = JBSplitter()
-    val settings = CheckovSettingsState().getInstance()
     /**
      * Create Splitter element which contains the tree element and description element
      * @return JBSplitter
@@ -97,7 +95,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
             override fun fileOpened(source: FileEditorManager, file: VirtualFile) {
                 super.fileOpened(source, file);
                 if (extensionList.contains(file.extension)) {
-                    project.service<CheckovService>().scanFile(file.path, "unknown", settings?.apiToken, project);
+                    project.service<CheckovService>().scanFile(file.path, project);
                 }
 
             }
@@ -105,7 +103,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
         project.messageBus.connect(project).subscribe(VirtualFileManager.VFS_CHANGES, object : BulkFileListener {
             override fun after(events: MutableList<out VFileEvent>) {
                 if (events.size > 0 && extensionList.contains(events.get(0).file?.extension )) {
-                    project.service<CheckovService>().scanFile(events.get(0).file!!.path, "unknown", settings?.apiToken, project);
+                    project.service<CheckovService>().scanFile(events.get(0).file!!.path, project);
                 }
             }
         })

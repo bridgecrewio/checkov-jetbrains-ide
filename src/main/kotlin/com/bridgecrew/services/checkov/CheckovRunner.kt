@@ -6,5 +6,5 @@ val SKIP_CHECKS = arrayOf("CKV_AWS_52")
 
 interface CheckovRunner {
     fun installOrUpdate(project: Project): Boolean
-    fun getExecCommand(filePath: String, extensionVersion: String, bcToken: String, gitRepoName: String): String
+    fun getExecCommand(filePath: String, bcToken: String, gitRepoName: String): String
 }
