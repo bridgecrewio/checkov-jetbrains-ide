@@ -4,6 +4,8 @@ import com.bridgecrew.CheckovResult
 import com.bridgecrew.services.CheckovService
 import com.bridgecrew.listeners.CheckovInstallerListener
 import com.bridgecrew.listeners.CheckovScanListener
+import com.bridgecrew.listeners.CheckovSettingsListener
+import com.bridgecrew.settings.CheckovSettingsState
 import com.bridgecrew.utils.PANELTYPE
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
@@ -29,7 +31,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
      * @return JBSplitter
      */
     init {
-        loadMainPanel(PANELTYPE.CHECKOVPRERSCAN)
+        loadMainPanel()
 
         project.messageBus.connect(this)
             .subscribe(CheckovScanListener.SCAN_TOPIC, object: CheckovScanListener {
@@ -58,7 +60,16 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                     subscribeToListeners()
                 }
             })
+
+        project.messageBus.connect(this)
+            .subscribe(CheckovSettingsListener.SETTINGS_TOPIC, object: CheckovSettingsListener {
+                override fun settingsUpdated() {
+                    loadMainPanel()
+                }
+            })
         }
+
+
 
     fun displayResults(checkovResults: ArrayList<CheckovResult>) {
         removeAll()
@@ -83,6 +94,13 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
             PANELTYPE.CHECKOVPRERSCAN -> {
                 add(checkovDescription.preScanDescription())
             }
+            PANELTYPE.AUTOCHOOSEPANEL ->{
+                val setting = CheckovSettingsState().getInstance()
+                when {
+                    setting?.apiToken.isNullOrEmpty() -> add(checkovDescription.configurationDescription())
+                    else -> add(checkovDescription.preScanDescription())
+                }
+            }
         }
         revalidate()
     }
@@ -103,8 +121,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
         project.messageBus.connect(project).subscribe(VirtualFileManager.VFS_CHANGES, object : BulkFileListener {
             override fun after(events: MutableList<out VFileEvent>) {
                 if (events.size > 0 && extensionList.contains(events.get(0).file?.extension )) {
-                    println(events)
-//                    project.service<CheckovService>().scanFile(events.get(0).file!!.path, "unknown", "apitoken", project);
+                    project.service<CheckovService>().scanFile(events.get(0).file!!.path, "unknown", "apitoken", project);
                 }
             }
         })
