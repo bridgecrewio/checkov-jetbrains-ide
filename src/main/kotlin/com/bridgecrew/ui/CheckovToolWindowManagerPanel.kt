@@ -1,12 +1,10 @@
 package com.bridgecrew.ui
 
 import com.bridgecrew.CheckovResult
-import com.bridgecrew.CheckovRunnerTesting
+import com.bridgecrew.services.CheckovService
 import com.bridgecrew.listeners.CheckovInstallerListener
 import com.bridgecrew.listeners.CheckovScanListener
-import com.bridgecrew.listeners.CheckovSettingsListener
 import com.bridgecrew.utils.PANELTYPE
-import com.bridgecrew.services.CheckovService
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
@@ -50,14 +48,6 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                 override fun scanningError() {
                     ApplicationManager.getApplication().invokeLater {
                         project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOVERROR)
-                    }
-                }
-            })
-        project.messageBus.connect(this)
-            .subscribe(CheckovSettingsListener.SETTINGS_TOPIC, object: CheckovSettingsListener {
-                override fun settingsUpdated() {
-                    ApplicationManager.getApplication().invokeLater {
-                        project.service<CheckovToolWindowManagerPanel>().loadMainPanel()
                     }
                 }
             })
