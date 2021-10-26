@@ -20,6 +20,14 @@
                     factoryClass="com.bridgecrew.ui.CheckovToolWindowFactory"/>
 
         <postStartupActivity implementation="com.bridgecrew.activities.PostStartupActivity"/>
+
+
+        <projectConfigurable id="com.bridgecrew.settings.CheckovSettingsConfigurable"
+                             instance="com.bridgecrew.settings.CheckovSettingsConfigurable"
+                             groupId="tools"
+                             displayName="Checkov"/>
+        <applicationService serviceImplementation="com.bridgecrew.settings.CheckovSettingsState"/>
+
     </extensions>
 
 

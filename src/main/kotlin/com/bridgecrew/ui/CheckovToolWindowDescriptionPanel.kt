@@ -33,6 +33,12 @@ class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindow
         return descriptionPanel
     }
 
+    fun configurationDescription(): JPanel {
+        descriptionPanel.removeAll()
+        descriptionPanel.add(JLabel("No apiToken was found, please go to the settings to set your api token"), BorderLayout.CENTER)
+        return descriptionPanel
+    }
+
     fun duringScanDescription(): JPanel {
         descriptionPanel.removeAll()
         descriptionPanel.add(JLabel("Checkov is scanning your code, Please wait to see the results"), BorderLayout.CENTER)
