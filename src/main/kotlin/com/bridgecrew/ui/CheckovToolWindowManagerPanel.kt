@@ -95,17 +95,16 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
             override fun fileOpened(source: FileEditorManager, file: VirtualFile) {
                 super.fileOpened(source, file);
                 if (extensionList.contains(file.extension)) {
-                    project.service<CheckovService>().scanFile(file.path, "unknown", "09f77e61-3c9a-4325-ace9-6210dc576c1a", project);
+                    project.service<CheckovService>().scanFile(file.path, "unknown", "token", project);
                 }
 
             }
         })
         project.messageBus.connect(project).subscribe(VirtualFileManager.VFS_CHANGES, object : BulkFileListener {
             override fun after(events: MutableList<out VFileEvent>) {
-                println(events[0])
-//                if (events.size > 0 && extensionList.contains(events.get(0).file?.extension )) {
-//                    project.service<CheckovService>().scanFile(events.get(0).file!!.path, "unknown", "09f77e61-3c9a-4325-ace9-6210dc576c1a", project);
-//                }
+                if (events.size > 0 && extensionList.contains(events.get(0).file?.extension )) {
+                    project.service<CheckovService>().scanFile(events.get(0).file!!.path, "unknown", "token", project);
+                }
             }
         })
     }
