@@ -1,12 +1,15 @@
 package com.bridgecrew
 
-import com.intellij.openapi.ui.SimpleToolWindowPanel
-import com.google.gson.Gson
 import com.bridgecrew.listeners.CheckovScanListener
-import java.io.File
-import java.io.InputStream
+import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.SimpleToolWindowPanel
+import org.json.JSONObject
+import java.io.File
+import java.io.InputStream
+
+
 
 class CheckovRunnerTesting : SimpleToolWindowPanel(false, true) {
     val gson: Gson = Gson()
@@ -74,8 +77,11 @@ class CheckovRunnerTesting : SimpleToolWindowPanel(false, true) {
 
     fun getResultsList(index: Int, project: Project) {
         val fileString = readFileAsLinesUsingUseLines("/Users/yorhov/development/checkov-jetbrains-ide/src/main/kotlin/com/bridgecrew/a.json")
+        val json: JSONObject = JSONObject(fileString)
+        val results = json.getJSONObject("results")
+        val failedChecks = results.getJSONArray("failed_checks")
         val resultsList1 = object : TypeToken<List<CheckovResult>>() {}.type
-        val listOfCheckovResults: ArrayList<CheckovResult> = gson.fromJson(fileString, resultsList1)
+        val listOfCheckovResults: ArrayList<CheckovResult> = gson.fromJson(failedChecks.toString(), resultsList1)
         project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished(arrayListOf(listOfCheckovResults.get(index), listOfCheckovResults.get(index+1)))
     }
 

@@ -1,7 +1,5 @@
 package com.bridgecrew.settings
 
-import com.bridgecrew.listeners.CheckovScanListener
-import com.bridgecrew.listeners.CheckovSettingsListener
 import com.bridgecrew.ui.CheckovSettingsComponent
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
