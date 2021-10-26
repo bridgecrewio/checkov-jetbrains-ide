@@ -1,5 +1,8 @@
 package com.bridgecrew.services.checkov
 
+import com.bridgecrew.services.CliService
+import com.intellij.openapi.components.service
+import com.intellij.openapi.project.Project
 import java.nio.file.Paths
 
 class PipCheckovRunner : CheckovRunner {
@@ -27,25 +30,22 @@ class PipCheckovRunner : CheckovRunner {
         return Paths.get(pythonUserBase, "bin", "checkov").toString()
     }
 
-    override fun installOrUpdate(): Boolean {
+    override fun installOrUpdate(project: Project): Boolean {
         try {
-            println("Trying to install Checkov using pip.")
-            val pipInstallProcess = Runtime.getRuntime().exec("pip3 install -U --user --verbose checkov -i https://pypi.org/simple/")
-            pipInstallProcess.inputStream.bufferedReader().use { println(it.readText()) }
-            val pipInstallExitCode = pipInstallProcess.waitFor()
-            if (pipInstallExitCode !== 0) {
-                println("Failed to install Checkov using pip.")
-                println(pipInstallProcess.errorStream.bufferedReader().use { it.readText() })
-                throw Exception("Failed to install Checkov using pip")
+            if (isCheckovInstalledGlobally()) {
+                println("checkov already installed globally")
+                this.checkovPath = "checkov"
+                return true
             }
+
+            println("Trying to install Checkov using pip.")
+            val installCommand = "pip3 install -U --user --verbose checkov -i https://pypi.org/simple/"
+            project.service<CliService>().run(installCommand)
+
+            this.checkovPath = this.getPythonUserBasePath()
 
             println("Checkov installed with pip successfully.")
-
-            if (isCheckovInstalledGlobally()) {
-                this.checkovPath = "checkov"
-            } else {
-                this.checkovPath = this.getPythonUserBasePath()
-            }
+            println("checkovPath: $checkovPath")
 
             println("Using checkov version: ${getVersion()}")
 
@@ -57,8 +57,8 @@ class PipCheckovRunner : CheckovRunner {
         }
     }
 
-    override fun getExecCommand(filePath: String, extensionVersion: String, bcToken: String): String {
-            return "${checkovPath} -s --skip-check ${SKIP_CHECKS.joinToString(",")} --bc-api-key $bcToken --repo-id yyacoby/terragoat-yuval -f $filePath -o json"
+    override fun getExecCommand(filePath: String, extensionVersion: String, bcToken: String, gitRepoName: String): String {
+            return "${checkovPath} -s --bc-api-key $bcToken --repo-id $gitRepoName -f $filePath -o json"
     }
 
     private fun getVersion(): String {

@@ -6,17 +6,20 @@ import com.bridgecrew.listeners.CheckovScanListener
 import com.bridgecrew.services.checkov.CheckovRunner
 import com.bridgecrew.services.checkov.DockerCheckovRunner
 import com.bridgecrew.services.checkov.PipCheckovRunner
+import com.bridgecrew.services.checkov.PipenvCheckovRunner
 import com.bridgecrew.ui.CheckovNotificationBalloon
+import com.bridgecrew.utils.getGitRepoName
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 
 import kotlinx.coroutines.*
+import org.json.JSONException
 
 @Service
 class CheckovService {
     private var selectedCheckovRunner: CheckovRunner? = null
-    private val checkovRunners = arrayOf(DockerCheckovRunner(), PipCheckovRunner())
+    private val checkovRunners = arrayOf(DockerCheckovRunner(), PipCheckovRunner(), PipenvCheckovRunner())
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
     private var runJobRunning: Job? = null
     private var isFirstRun: Boolean = true
@@ -25,7 +28,7 @@ class CheckovService {
         println("Trying to install Checkov")
         scope.launch {
             for (runner in checkovRunners) {
-                val isCheckovInstalled = runner.installOrUpdate()
+                val isCheckovInstalled = runner.installOrUpdate(project)
                 if (isCheckovInstalled) {
                     selectedCheckovRunner = runner
                     println("Checkov installed successfully using ${runner.javaClass.kotlin}")
@@ -53,13 +56,16 @@ class CheckovService {
         println("Trying to scan a file using $selectedCheckovRunner")
         project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningStarted()
 
-        val execCommand = selectedCheckovRunner!!.getExecCommand(filePath, extensionVersion, token)
+        val gitRepoName = getGitRepoName(filePath, project)
+        val execCommand = selectedCheckovRunner!!.getExecCommand(filePath, extensionVersion, token, gitRepoName)
 
         println("Exec command: $execCommand")
 
+        var res = ""
         runJobRunning = scope.launch {
             try {
-                val res = project.service<CliService>().run(execCommand)
+
+                res = project.service<CliService>().run(execCommand)
                 val listOfCheckovResults = getFailedChecksFromResultString(res)
                 if (isActive) {
                     project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished(listOfCheckovResults)
@@ -68,6 +74,13 @@ class CheckovService {
                         isFirstRun = false
                     }
                 }
+                runJobRunning = null
+            } catch (e: JSONException) {
+                println("Error parsing checkov results:")
+                e.printStackTrace()
+                println("raw response:")
+                println(res)
+                project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningError()
                 runJobRunning = null
             } catch (e: Exception) {
                 println("Error scanning file")
