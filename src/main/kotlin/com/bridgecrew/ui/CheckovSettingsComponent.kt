@@ -12,7 +12,7 @@ class CheckovSettingsComponent () {
     private var rootPanel: JPanel = JPanel()
     val apiTokenField: JTextField = JTextField()
     val certificateField: JTextField = JTextField()
-    val checkovVersionField: JTextField = JTextField()
+    val prismaURLField: JTextField = JTextField()
 
     init {
         rootPanel.layout = GridLayoutManager(2, 2, Insets(0, 0, 0, 0), -1, -1)
@@ -79,7 +79,7 @@ class CheckovSettingsComponent () {
         optionalSettingsPanel.border = IdeBorderFactory.createTitledBorder("Optional Settings")
 
 
-        val certificateLabel = JLabel("Checkov: Certificate")
+        val certificateLabel = JLabel("Checkov: CA-Certificate")
         certificateLabel.labelFor = certificateField
         optionalSettingsPanel.add(
             certificateLabel,
@@ -119,10 +119,10 @@ class CheckovSettingsComponent () {
             )
         )
 
-        val checkovVersionLabel = JLabel("Checkov: Checkov Version")
-        checkovVersionLabel.labelFor = checkovVersionField
+        val prismaURLLabel = JLabel("Checkov: Prisma URL ( Required if using Prisma Cloud Access Token)")
+        prismaURLLabel.labelFor = prismaURLField
         optionalSettingsPanel.add(
-            checkovVersionLabel,
+            prismaURLLabel,
             GridConstraints(
                 1,
                 0,
@@ -141,7 +141,7 @@ class CheckovSettingsComponent () {
         )
 
         optionalSettingsPanel.add(
-            checkovVersionField,
+            prismaURLField,
             GridConstraints(
                 1,
                 1,

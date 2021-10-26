@@ -16,7 +16,7 @@ class CheckovSettingsState() : PersistentStateComponent<CheckovSettingsState> {
 
     var apiToken: String? = null
     var certificate: String? = null
-    var checkovVersion: String? = null
+    var prismaURL: String? = null
 
     fun getInstance(): CheckovSettingsState? {
         return ApplicationManager.getApplication().getService(CheckovSettingsState::class.java)
