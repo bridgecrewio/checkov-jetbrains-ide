@@ -64,9 +64,9 @@ class CheckovService {
         runJobRunning = scope.launch {
             try {
 
-                val token = settings?.apiToken ?: throw TokenException("missing api token")
+                val apiToken = settings?.apiToken ?: throw TokenException("missing api token")
                 val envs = getEnvs()
-                val execCommand = prepareExecCommand(filePath, project, token)
+                val execCommand = prepareExecCommand(filePath, project, apiToken)
                 println("Exec command: $execCommand")
 
                 res = project.service<CliService>().run(execCommand, envs)
@@ -101,11 +101,11 @@ class CheckovService {
         }
     }
 
-    private fun prepareExecCommand(filePath: String, project: Project, token: String): String {
+    private fun prepareExecCommand(filePath: String, project: Project, apiToken: String): String {
         val gitRepoName = getGitRepoName(filePath, project)
-        var execCommand = selectedCheckovRunner!!.getExecCommand(filePath, token, gitRepoName)
+        var execCommand = selectedCheckovRunner!!.getExecCommand(filePath, apiToken, gitRepoName)
         val certificateParams = getCertParams()
-        return if (certificateParams != null) "$execCommand $certificateParams" else execCommand
+        return if (!certificateParams.isNullOrEmpty()) "$execCommand $certificateParams" else execCommand
     }
 
     private fun getEnvs(): Array<String>? {
@@ -125,7 +125,7 @@ class CheckovService {
 
     private fun getCertParams(): String? {
         val certPath = settings?.certificate
-        if (certPath?.length != 0) {
+        if (!certPath.isNullOrEmpty()) {
             return "-ca $certPath"
         }
         return null

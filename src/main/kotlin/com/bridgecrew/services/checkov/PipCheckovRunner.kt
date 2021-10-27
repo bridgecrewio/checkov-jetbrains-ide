@@ -57,8 +57,8 @@ class PipCheckovRunner : CheckovRunner {
         }
     }
 
-    override fun getExecCommand(filePath: String, bcToken: String, gitRepoName: String): String {
-            return "${checkovPath} -s --bc-api-key $bcToken --repo-id $gitRepoName -f $filePath -o json"
+    override fun getExecCommand(filePath: String, apiToken: String, gitRepoName: String): String {
+            return "${checkovPath} -s --bc-api-key $apiToken --repo-id $gitRepoName -f $filePath -o json"
     }
 
     private fun getVersion(): String {
