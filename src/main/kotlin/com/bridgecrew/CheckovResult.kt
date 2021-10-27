@@ -11,6 +11,8 @@ data class CheckovResult(
     val bc_check_id: String = "",
     val check_name: String,
     val file_path: String,
+    val repo_file_path: String,
+    val file_abs_path: String,
     val file_line_range: ArrayList<Int>,
     val resource: String,
     val guideline: String = "\"No Guide\")",
