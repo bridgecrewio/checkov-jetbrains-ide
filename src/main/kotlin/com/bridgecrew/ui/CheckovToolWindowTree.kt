@@ -42,9 +42,9 @@ class CheckovToolWindowTree(val project: Project, descriptionPanel: CheckovToolW
      */
     fun createTree(checkovTestAnswer: ArrayList<CheckovResult>) : JPanel {
         val rootNode = DefaultMutableTreeNode("")
-        checkovTestAnswer.sortBy { it.file_path }
+        checkovTestAnswer.sortBy { it.repo_file_path }
         checkovTestAnswer.forEach {
-            val file = DefaultMutableTreeNode(CheckovFileNameTreeNode(it))
+            val file = DefaultMutableTreeNode(CheckovFileNameTreeNode(it, project))
             val resource = DefaultMutableTreeNode(CheckovResourceTreeNode(it))
             val checkName = DefaultMutableTreeNode(CheckovCheckNameTreeNode(it))
             resource.add(checkName)

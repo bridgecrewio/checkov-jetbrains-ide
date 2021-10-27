@@ -113,7 +113,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
             override fun fileOpened(source: FileEditorManager, file: VirtualFile) {
                 super.fileOpened(source, file);
                 if (extensionList.contains(file.extension)) {
-                    project.service<CheckovService>().scanFile(file.path, "unknown", "apitoken", project);
+                    project.service<CheckovService>().scanFile(file.path, project);
                 }
 
             }
@@ -121,7 +121,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
         project.messageBus.connect(project).subscribe(VirtualFileManager.VFS_CHANGES, object : BulkFileListener {
             override fun after(events: MutableList<out VFileEvent>) {
                 if (events.size > 0 && extensionList.contains(events.get(0).file?.extension )) {
-                    project.service<CheckovService>().scanFile(events.get(0).file!!.path, "unknown", "apitoken", project);
+                    project.service<CheckovService>().scanFile(events.get(0).file!!.path, project);
                 }
             }
         })

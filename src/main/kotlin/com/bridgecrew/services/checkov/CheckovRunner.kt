@@ -5,6 +5,6 @@ import com.intellij.openapi.project.Project
 val SKIP_CHECKS = arrayOf("CKV_AWS_52")
 
 interface CheckovRunner {
-    fun installOrUpdate(): Boolean
-    fun getExecCommand(filePath: String, extensionVersion: String, bcToken: String): String
+    fun installOrUpdate(project: Project): Boolean
+    fun getExecCommand(filePath: String, apiToken: String, gitRepoName: String): String
 }
