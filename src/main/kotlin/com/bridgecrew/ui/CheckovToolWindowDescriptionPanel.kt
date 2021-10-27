@@ -35,7 +35,7 @@ class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindow
 
     fun configurationDescription(): JPanel {
         descriptionPanel.removeAll()
-        descriptionPanel.add(JLabel("No apiToken was found, please go to the settings to set your api token"), BorderLayout.CENTER)
+        descriptionPanel.add(CheckovSettingsPanel(project),  BorderLayout.CENTER)
         return descriptionPanel
     }
 
