@@ -2,31 +2,33 @@ package com.bridgecrew.services.checkov
 
 import com.bridgecrew.services.CliService
 import com.intellij.openapi.components.service
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
+private val LOG = logger<PipenvCheckovRunner>()
 
 class PipenvCheckovRunner : CheckovRunner {
     private var checkovPath: String? = null
 
     override fun installOrUpdate(project: Project): Boolean {
         try {
-            println("Trying to install Checkov using pipenv.")
+            LOG.info("Trying to install Checkov using pipenv.")
             val command = "pipenv --python 3 install checkov"
             val res = project.service<CliService>().run(command)
-            println("pipenv install command output: $res")
+            LOG.info("pipenv install command output: $res")
 
             val pipenvPath = project.service<CliService>().run("pipenv run which python")
             val checkovPathArray: MutableList<String> = pipenvPath.split('/').toMutableList()
             checkovPathArray.removeLast()
             checkovPathArray.add("checkov")
             checkovPath = checkovPathArray.joinToString(separator = "/")
-            println("Setting checkovPath: $checkovPath")
+            LOG.info("Setting checkovPath: $checkovPath")
 
-            println("Checkov installed with pipenv successfully.")
-            println("Using checkov version: ${getVersion(project)}")
+            LOG.info("Checkov installed with pipenv successfully.")
+            LOG.info("Using checkov version: ${getVersion(project)}")
 
             return true
         } catch (e: Exception) {
-            println("Failed to install Checkov using pipenv.")
+            LOG.info("Failed to install Checkov using pipenv.")
             e.printStackTrace()
             return false
         }

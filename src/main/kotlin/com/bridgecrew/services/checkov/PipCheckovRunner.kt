@@ -2,8 +2,10 @@ package com.bridgecrew.services.checkov
 
 import com.bridgecrew.services.CliService
 import com.intellij.openapi.components.service
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import java.nio.file.Paths
+private val LOG = logger<PipCheckovRunner>()
 
 class PipCheckovRunner : CheckovRunner {
     private var checkovPath: String? = null
@@ -33,25 +35,24 @@ class PipCheckovRunner : CheckovRunner {
     override fun installOrUpdate(project: Project): Boolean {
         try {
             if (isCheckovInstalledGlobally()) {
-                println("checkov already installed globally")
+                LOG.info("checkov already installed globally")
                 this.checkovPath = "checkov"
                 return true
             }
 
-            println("Trying to install Checkov using pip.")
+            LOG.info("Trying to install Checkov using pip.")
             val installCommand = "pip3 install -U --user --verbose checkov -i https://pypi.org/simple/"
             project.service<CliService>().run(installCommand)
 
             this.checkovPath = this.getPythonUserBasePath()
 
-            println("Checkov installed with pip successfully.")
-            println("checkovPath: $checkovPath")
-
-            println("Using checkov version: ${getVersion()}")
+            LOG.info("Checkov installed with pip successfully.")
+            LOG.info("checkovPath: $checkovPath")
+            LOG.info("Using checkov version: ${getVersion()}")
 
             return true
         } catch (err: Exception) {
-            println("Failed to install Checkov using pip.")
+            LOG.info("Failed to install Checkov using pip.")
             err.printStackTrace()
             return false
         }
