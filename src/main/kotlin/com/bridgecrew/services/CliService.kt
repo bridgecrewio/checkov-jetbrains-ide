@@ -31,8 +31,13 @@ class CliService {
     }
 
     private fun replaceApiToken (command: String): String{
-        val firstPos: Int = command.indexOf("--bc-api-key") + "--bc-api-key".length
-        val lastPos: Int = command.indexOf("--repo-id", firstPos)
-        return command.substring(0, firstPos).toString() + " **-**-**-** " + command.substring(lastPos)
+        val apiToknIndex = command.indexOf("--bc-api-key")
+        return if (apiToknIndex >= 0){
+            val firstPos: Int = apiToknIndex + "--bc-api-key".length
+            val lastPos: Int = command.indexOf("--repo-id", firstPos)
+            command.substring(0, firstPos).toString() + " **-**-**-** " + command.substring(lastPos)
+        } else{
+            command
+        }
     }
 }
