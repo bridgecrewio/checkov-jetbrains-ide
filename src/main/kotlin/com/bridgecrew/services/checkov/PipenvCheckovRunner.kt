@@ -34,7 +34,7 @@ class PipenvCheckovRunner : CheckovRunner {
         }
     }
 
-    override fun getExecCommand(filePath: String, apiToken: String, gitRepoName: String): String {
+    override fun getExecCommand(filePath: String, apiToken: String, gitRepoName: String, pluginVersion: String): String {
         return "${checkovPath} -s --bc-api-key $apiToken --repo-id $gitRepoName -f $filePath -o json"
     }
 

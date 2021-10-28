@@ -2,7 +2,6 @@ package com.bridgecrew.services
 
 import com.bridgecrew.ResourceToCheckovResultsList
 import com.bridgecrew.getFailedChecksFromResultString
-import com.bridgecrew.getFileNameFromChecks
 import com.bridgecrew.groupResultsByResource
 import com.bridgecrew.listeners.CheckovInstallerListener
 import com.bridgecrew.listeners.CheckovScanListener
@@ -17,6 +16,8 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
+import com.intellij.ide.plugins.PluginManagerCore
+import com.intellij.openapi.extensions.PluginId
 
 import kotlinx.coroutines.*
 import org.json.JSONException
@@ -73,18 +74,19 @@ class CheckovService {
         var res = ""
         runJobRunning = scope.launch {
             try {
-
                 val apiToken = settings?.apiToken ?: throw TokenException("missing api token")
-                val envs = getEnvs()
-                val execCommand = prepareExecCommand(filePath, project, apiToken)
+                val pluginVersion = PluginManagerCore.getPlugin(PluginId.getId("com.github.bridgecrewio.checkov"))?.version ?: "UNKNOWN"
+                val envs = getEnvs(pluginVersion)
+                val execCommand = prepareExecCommand(filePath, project, apiToken, pluginVersion)
 
                 res = project.service<CliService>().run(execCommand, envs)
 
-                val (resultsGroupedByResource, fileName, resultsLength) = getGroupedResults(res, project)
+                val filePathRelativeToProject = filePath.replace(project.basePath!!, "")
+                val (resultsGroupedByResource, resultsLength) = getGroupedResults(res, project, filePathRelativeToProject)
 
                 if (isActive) {
                     project.service<ResultsCacheService>().deleteAll() // TODO remove after MVP, where we want to display only one file results
-                    project.service<ResultsCacheService>().setResult(fileName, resultsGroupedByResource)
+                    project.service<ResultsCacheService>().setResult(filePathRelativeToProject, resultsGroupedByResource)
                     project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished()
                     if (isFirstRun) {
                         CheckovNotificationBalloon.showError(project, resultsLength)
@@ -116,27 +118,26 @@ class CheckovService {
         }
     }
 
-    private fun getGroupedResults(res: String, project: Project): Triple<ResourceToCheckovResultsList, String, Int> {
+    private fun getGroupedResults(res: String, project: Project, relativeFilePath: String): Pair<ResourceToCheckovResultsList, Int> {
         val listOfCheckovResults = getFailedChecksFromResultString(res)
-        val fileName = getFileNameFromChecks(listOfCheckovResults, project)
-        return Triple(groupResultsByResource(listOfCheckovResults), fileName, listOfCheckovResults.size)
+        return Pair(groupResultsByResource(listOfCheckovResults, project, relativeFilePath), listOfCheckovResults.size)
     }
 
-    private fun prepareExecCommand(filePath: String, project: Project, apiToken: String): String {
+    private fun prepareExecCommand(filePath: String, project: Project, apiToken: String, pluginVersion: String): String {
         val gitRepoName = getGitRepoName(filePath, project)
-        var execCommand = selectedCheckovRunner!!.getExecCommand(filePath, apiToken, gitRepoName)
+        var execCommand = selectedCheckovRunner!!.getExecCommand(filePath, apiToken, gitRepoName, pluginVersion)
         val certificateParams = getCertParams()
         return if (!certificateParams.isNullOrEmpty()) "$execCommand $certificateParams" else execCommand
     }
 
-    private fun getEnvs(): Array<String>? {
+    private fun getEnvs(pluginVersion: String): Array<String>? {
         // getting current process environment variables
         val currEnvsMap = System.getenv()
         val currEnvList = currEnvsMap.toList().map { "${it.first}=${it.second}" }
 
         // adding checkov environment variables required
         val list: MutableList<String> = mutableListOf()
-        list.add("BC_SOURCE_VERSION=unknown")
+        list.add("BC_SOURCE_VERSION=$pluginVersion")
         list.add("BC_SOURCE=jetbrains")
         list.add("PRISMA_API_URL=${settings?.prismaURL}")
         list.addAll(currEnvList)

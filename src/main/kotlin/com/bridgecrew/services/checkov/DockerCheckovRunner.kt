@@ -28,9 +28,9 @@ class DockerCheckovRunner : CheckovRunner {
         }
     }
 
-    override fun getExecCommand(filePath: String, apiToken: String, gitRepoName: String): String {
+    override fun getExecCommand(filePath: String, apiToken: String, gitRepoName: String, pluginVersion: String): String {
         val scannedFileDirectory = File(filePath).parent.toString()
-        val dockerParams = "docker run --rm --tty --env BC_SOURCE=jetbrains --env BC_SOURCE_VERSION=unknown --volume ${scannedFileDirectory}:$DOCKER_MOUNT_DIR bridgecrew/checkov"
+        val dockerParams = "docker run --rm --tty --env BC_SOURCE=jetbrains --env BC_SOURCE_VERSION=$pluginVersion --volume ${scannedFileDirectory}:$DOCKER_MOUNT_DIR bridgecrew/checkov"
 
         val fileName = Paths.get(filePath).fileName.toString()
         val dockerFilePath = Paths.get(DOCKER_MOUNT_DIR, fileName).toString()
