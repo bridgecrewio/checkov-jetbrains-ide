@@ -2,10 +2,12 @@ package com.bridgecrew.services.checkov
 
 import com.bridgecrew.services.CliService
 import com.intellij.openapi.components.service
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import org.apache.commons.io.FilenameUtils
 import java.io.File
 import java.nio.file.Paths
+private val LOG = logger<DockerCheckovRunner>()
 
 const val DOCKER_MOUNT_DIR = "/checkovScan"
 
@@ -13,15 +15,14 @@ class DockerCheckovRunner : CheckovRunner {
 
     override fun installOrUpdate(project: Project): Boolean {
         try {
-            println("Trying to install Checkov using Docker.")
-
+            LOG.info("Trying to install Checkov using Docker.")
             project.service<CliService>().run("docker pull bridgecrew/checkov")
 
-            println("Checkov installed with Docker successfully.")
-            println("Using checkov version: ${getVersion()}")
+            LOG.info("Checkov installed with Docker successfully.")
+            LOG.info("Using checkov version: ${getVersion()}")
             return true
         } catch (err: Exception) {
-            println("Failed to install Checkov using Docker.")
+            LOG.info("Failed to install Checkov using Docker.")
             err.printStackTrace()
             return false
         }

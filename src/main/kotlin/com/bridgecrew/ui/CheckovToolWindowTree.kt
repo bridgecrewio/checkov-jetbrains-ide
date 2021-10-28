@@ -105,7 +105,7 @@ class CheckovToolWindowTree(val project: Project, descriptionPanel: CheckovToolW
                 navigateToFile(fileToNavigate)
             }
             val range = checkovResultObject.file_line_range
-            val (startOffset, endOffset) = getOffsetByLines(range, project)
+            val (startOffset, endOffset) = getOffsetHighlighByLines(range, project)
             val editor = FileEditorManager.getInstance(project).selectedTextEditor
             editor?.selectionModel?.setSelection(startOffset, endOffset)
         }

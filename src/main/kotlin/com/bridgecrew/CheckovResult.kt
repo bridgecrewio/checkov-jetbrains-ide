@@ -1,4 +1,5 @@
 package com.bridgecrew
+import com.bridgecrew.services.CheckovResultException
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.intellij.openapi.project.Project
@@ -23,6 +24,9 @@ data class CheckovResult(
 typealias ResourceToResultsMap = MutableMap<String, ArrayList<CheckovResult>>
 
 fun getFailedChecksFromResultString(raw: String): ArrayList<CheckovResult> {
+    if (raw.isEmpty()){
+        throw CheckovResultException("Checkov result returned empty")
+    }
     return when (raw[0]) {
         '{' -> getFailedChecksFromObj(JSONObject(raw))
         '[' -> {
@@ -33,10 +37,7 @@ fun getFailedChecksFromResultString(raw: String): ArrayList<CheckovResult> {
             }
             res
         }
-        else -> {
-            println(raw)
-            throw Exception("couldn't parse checkov results output")
-        }
+        else -> throw Exception("couldn't parse checkov results output, reason: $raw")
     }
 }
 

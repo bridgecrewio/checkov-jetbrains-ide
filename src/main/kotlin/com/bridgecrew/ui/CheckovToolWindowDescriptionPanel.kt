@@ -66,7 +66,7 @@ class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindow
             fixButton.isEnabled = true
             fixButton.addActionListener {
                 ApplicationManager.getApplication().invokeLater {
-                    val (start, end) = getOffsetByLines(checkovResult.file_line_range, project)
+                    val (start, end) = getOffsetReplaceByLines(checkovResult.file_line_range, project)
                     updateFile(checkovResult.fixed_definition, project, start, end)
                     fixButton.isEnabled = false
                 }

@@ -1,5 +1,6 @@
 package com.bridgecrew.services
 
+import com.bridgecrew.activities.PostStartupActivity
 import com.bridgecrew.getFailedChecksFromResultString
 import com.bridgecrew.getFileNameFromChecks
 import com.bridgecrew.groupResultsByResource
@@ -14,12 +15,16 @@ import com.bridgecrew.ui.CheckovNotificationBalloon
 import com.bridgecrew.utils.getGitRepoName
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 
 import kotlinx.coroutines.*
 import org.json.JSONException
 
 class TokenException(message:String): Exception(message)
+class CheckovResultException(message:String): Exception(message)
+
+private val LOG = logger<CheckovService>()
 
 @Service
 class CheckovService {
@@ -31,13 +36,14 @@ class CheckovService {
     private val settings = CheckovSettingsState().getInstance()
 
     fun installCheckov(project: Project) {
-        println("Trying to install Checkov")
+        LOG.info("Trying to install Checkov")
         scope.launch {
             for (runner in checkovRunners) {
+                LOG.info("Trying to install Checkov using ${runner.javaClass.kotlin}")
                 val isCheckovInstalled = runner.installOrUpdate(project)
                 if (isCheckovInstalled) {
                     selectedCheckovRunner = runner
-                    println("Checkov installed successfully using ${runner.javaClass.kotlin}")
+                    LOG.info("Checkov installed successfully using ${runner.javaClass.kotlin}")
                     project.messageBus.syncPublisher(CheckovInstallerListener.INSTALLER_TOPIC).installerFinished()
                     break
                 }
@@ -47,6 +53,8 @@ class CheckovService {
                 throw Exception("Could not install Checkov.")
             }
         }
+        LOG.info("Finished installing checkov")
+
     }
 
     fun scanFile(filePath: String, project: Project) = runBlocking {
@@ -55,11 +63,11 @@ class CheckovService {
         }
 
         if (runJobRunning !== null) {
-            println("cancelling current running scan job due to newer request")
+            LOG.info("cancelling current running scan job due to newer request")
             runJobRunning!!.cancel()
         }
 
-        println("Trying to scan a file using $selectedCheckovRunner")
+        LOG.info("Trying to scan a file using $selectedCheckovRunner")
         project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningStarted()
 
         var res = ""
@@ -69,7 +77,6 @@ class CheckovService {
                 val apiToken = settings?.apiToken ?: throw TokenException("missing api token")
                 val envs = getEnvs()
                 val execCommand = prepareExecCommand(filePath, project, apiToken)
-                println("Exec command: $execCommand")
 
                 res = project.service<CliService>().run(execCommand, envs)
                 val listOfCheckovResults = getFailedChecksFromResultString(res)
@@ -88,22 +95,25 @@ class CheckovService {
                 runJobRunning = null
 
             } catch (e: TokenException) {
-                println("Wasn't able to get api token")
+                LOG.warn("Wasn't able to get api token\n" +
+                        "Please insert an Api Token to continue")
                 e.printStackTrace()
                 runJobRunning = null
             } catch (e: JSONException) {
-                println("Error parsing checkov results:")
+                LOG.error("Error parsing checkov results \n" +
+                        "Raw response: $res\n" +
+                        "To report: open a issue at https://github.com/bridgecrewio/checkov-jetbrains-ide/issues\n\n")
                 e.printStackTrace()
-                println("raw response:")
-                println(res)
                 project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningError()
                 runJobRunning = null
             } catch (e: Exception) {
-                println("Error scanning file")
+                LOG.error("Error scanning file\n" +
+                        "To report: open a issue at https://github.com/bridgecrewio/checkov-jetbrains-ide/issues\n\n")
                 e.printStackTrace()
                 project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningError()
                 runJobRunning = null
             }
+
         }
     }
 
