@@ -14,7 +14,7 @@ import com.bridgecrew.utils.*
 import com.intellij.openapi.project.Project
 
 class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindowPanel(true, true) {
-    val descriptionPanel: JPanel = JPanel()
+    var descriptionPanel: JPanel = JPanel()
     var checkNameLabel: JPanel = JPanel()
     var checkIdLabel: JPanel = JPanel()
     var checkGuidelinesLabel: JPanel = JPanel()
@@ -40,7 +40,7 @@ class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindow
     }
 
     fun duringScanDescription(): JPanel {
-        descriptionPanel.removeAll()
+        descriptionPanel = JPanel()
         descriptionPanel.add(JLabel("Checkov is scanning your code, Please wait to see the results"), BorderLayout.CENTER)
         return descriptionPanel
     }
@@ -66,7 +66,7 @@ class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindow
             fixButton.isEnabled = true
             fixButton.addActionListener {
                 ApplicationManager.getApplication().invokeLater {
-                    val (start, end) = getOffsetByLines(checkovResult.file_line_range, project)
+                    val (start, end) = getOffsetReplaceByLines(checkovResult.file_line_range, project)
                     updateFile(checkovResult.fixed_definition, project, start, end)
                     fixButton.isEnabled = false
                 }

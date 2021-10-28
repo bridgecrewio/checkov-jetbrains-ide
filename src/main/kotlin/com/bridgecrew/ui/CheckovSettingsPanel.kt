@@ -1,7 +1,6 @@
 package com.bridgecrew.ui
 
 import com.bridgecrew.settings.CheckovSettingsConfigurable
-import com.bridgecrew.utils.getOffsetByLines
 import com.bridgecrew.utils.updateFile
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.ui.IdeBorderFactory
