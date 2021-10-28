@@ -1,6 +1,7 @@
 package com.bridgecrew
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.intellij.openapi.project.Project
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -19,6 +20,8 @@ data class CheckovResult(
     val fixed_definition: String = ""
     )
 
+typealias ResourceToResultsMap = MutableMap<String, ArrayList<CheckovResult>>
+
 fun getFailedChecksFromResultString(raw: String): ArrayList<CheckovResult> {
     return when (raw[0]) {
         '{' -> getFailedChecksFromObj(JSONObject(raw))
@@ -30,8 +33,23 @@ fun getFailedChecksFromResultString(raw: String): ArrayList<CheckovResult> {
             }
             res
         }
-        else -> throw Exception("couldn't parse checkov results output")
+        else -> {
+            println(raw)
+            throw Exception("couldn't parse checkov results output")
+        }
     }
+}
+
+fun groupResultsByResource(results: ArrayList<CheckovResult>): ResourceToResultsMap {
+    val resourceToResultsMap = mutableMapOf<String, ArrayList<CheckovResult>>()
+
+    results.forEach {
+        val resultsArray = resourceToResultsMap.getOrDefault(it.resource, arrayListOf())
+        resultsArray.add(it)
+        resourceToResultsMap[it.resource] = resultsArray
+    }
+
+    return resourceToResultsMap
 }
 
 fun getFailedChecksFromObj(resultsObj: JSONObject): ArrayList<CheckovResult> {
@@ -39,4 +57,13 @@ fun getFailedChecksFromObj(resultsObj: JSONObject): ArrayList<CheckovResult> {
     val failedChecks = results.getJSONArray("failed_checks")
     val resultsList = object : TypeToken<List<CheckovResult>>() {}.type
     return gson.fromJson(failedChecks.toString(), resultsList)
+}
+
+fun getFileNameFromChecks(results: ArrayList<CheckovResult>, project: Project): String {
+    if (results.size == 0) {
+        throw Exception("can't get file name from empty results")
+        return ""
+    }
+
+    return results[0].file_abs_path.replace(project.basePath!!, "")
 }

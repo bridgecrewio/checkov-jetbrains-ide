@@ -40,9 +40,9 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
 
                 }
 
-                override fun scanningFinished(scanResults: ArrayList<CheckovResult>) {
+                override fun scanningFinished() {
                     ApplicationManager.getApplication().invokeLater {
-                        project.service<CheckovToolWindowManagerPanel>().displayResults(scanResults)
+                        project.service<CheckovToolWindowManagerPanel>().displayResults()
 
                     }
                 }
@@ -71,11 +71,11 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
 
 
 
-    fun displayResults(checkovResults: ArrayList<CheckovResult>) {
+    fun displayResults() {
         removeAll()
         val checkovTree = CheckovToolWindowTree(project, checkovDescription)
         val right = checkovDescription.createScroll()
-        val left = checkovTree.createScroll(checkovResults)
+        val left = checkovTree.createScroll()
         split.setFirstComponent(left)
         split.setSecondComponent(right)
         add(split)

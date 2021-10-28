@@ -1,6 +1,8 @@
 package com.bridgecrew.services
 
 import com.bridgecrew.getFailedChecksFromResultString
+import com.bridgecrew.getFileNameFromChecks
+import com.bridgecrew.groupResultsByResource
 import com.bridgecrew.listeners.CheckovInstallerListener
 import com.bridgecrew.listeners.CheckovScanListener
 import com.bridgecrew.services.checkov.CheckovRunner
@@ -71,9 +73,13 @@ class CheckovService {
 
                 res = project.service<CliService>().run(execCommand, envs)
                 val listOfCheckovResults = getFailedChecksFromResultString(res)
+                val fileName = getFileNameFromChecks(listOfCheckovResults, project)
+                val resultsGroupedByResource = groupResultsByResource(listOfCheckovResults)
 
                 if (isActive) {
-                    project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished(listOfCheckovResults)
+                    project.service<ResultsCacheService>().deleteAll() // TODO remove after MVP, where we want to display only one file results
+                    project.service<ResultsCacheService>().setResult(fileName, resultsGroupedByResource)
+                    project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished()
                     if (isFirstRun) {
                         CheckovNotificationBalloon.showError(project, listOfCheckovResults.size)
                         isFirstRun = false

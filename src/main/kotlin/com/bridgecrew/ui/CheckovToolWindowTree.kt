@@ -4,6 +4,8 @@ import com.bridgecrew.utils.*
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.bridgecrew.CheckovResult
+import com.bridgecrew.ResourceToResultsMap
+import com.bridgecrew.services.ResultsCacheService
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
@@ -11,6 +13,7 @@ import com.intellij.ui.treeStructure.Tree
 
 import javax.swing.*
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.components.service
 import com.intellij.openapi.fileEditor.FileEditorManager
 
 import javax.swing.JPanel
@@ -27,8 +30,8 @@ class CheckovToolWindowTree(val project: Project, descriptionPanel: CheckovToolW
      * Create scrollers panel around a Tree element
      * @return JScrollPane of the Tree element
      */
-    fun createScroll(checkovResults: ArrayList<CheckovResult>): JScrollPane{
-        val tree = createTree(checkovResults)
+    fun createScroll(): JScrollPane{
+        val tree = createTree()
         return ScrollPaneFactory.createScrollPane(
             tree,
             ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
@@ -40,16 +43,14 @@ class CheckovToolWindowTree(val project: Project, descriptionPanel: CheckovToolW
      * Create a tree element from checkovResult list
      * @return Panel which contains a tree element
      */
-    fun createTree(checkovTestAnswer: ArrayList<CheckovResult>) : JPanel {
+    fun createTree() : JPanel {
+        val resultsMap = project.service<ResultsCacheService>().getAllResults()
+
         val rootNode = DefaultMutableTreeNode("")
-        checkovTestAnswer.sortBy { it.repo_file_path }
-        checkovTestAnswer.forEach {
-            val file = DefaultMutableTreeNode(CheckovFileNameTreeNode(it, project))
-            val resource = DefaultMutableTreeNode(CheckovResourceTreeNode(it))
-            val checkName = DefaultMutableTreeNode(CheckovCheckNameTreeNode(it))
-            resource.add(checkName)
-            file.add(resource)
-            rootNode.add(file)
+
+        resultsMap.keys.forEach {
+            val fileNode = createFileTree(resultsMap[it]!!)
+            rootNode.add(fileNode)
         }
 
         val tree = Tree(rootNode).apply {
@@ -66,10 +67,27 @@ class CheckovToolWindowTree(val project: Project, descriptionPanel: CheckovToolW
                     navigateAndSelectFailure(tree, checkoveResult)
                 }
             }
-
         }
+
         testPanel.add(tree)
         return testPanel
+    }
+
+    private fun createFileTree(checkovResults: ResourceToResultsMap): DefaultMutableTreeNode  {
+        val firstEntry = checkovResults.getValue(checkovResults.keys.first())
+        val firstFile = firstEntry.first()
+        val rootNode = DefaultMutableTreeNode(CheckovFileNameTreeNode(firstFile, project))
+
+        checkovResults.forEach { result ->
+            val resource = DefaultMutableTreeNode(CheckovResourceTreeNode(result.value.first()))
+            result.value.forEach {
+                val checkName = DefaultMutableTreeNode(CheckovCheckNameTreeNode(it))
+                resource.add(checkName)
+            }
+            rootNode.add(resource)
+        }
+
+        return rootNode
     }
 
     /**
