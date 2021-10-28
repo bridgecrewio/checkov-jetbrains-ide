@@ -21,7 +21,6 @@ data class CheckovResult(
     )
 
 fun getFailedChecksFromResultString(raw: String): ArrayList<CheckovResult> {
-    println(raw)
     if (raw.isEmpty()){
         throw CheckovResultException("Checkov result returned empty")
     }
