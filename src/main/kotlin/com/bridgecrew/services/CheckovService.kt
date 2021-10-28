@@ -1,6 +1,6 @@
 package com.bridgecrew.services
 
-import com.bridgecrew.activities.PostStartupActivity
+import com.bridgecrew.ResourceToCheckovResultsList
 import com.bridgecrew.getFailedChecksFromResultString
 import com.bridgecrew.getFileNameFromChecks
 import com.bridgecrew.groupResultsByResource
@@ -79,16 +79,15 @@ class CheckovService {
                 val execCommand = prepareExecCommand(filePath, project, apiToken)
 
                 res = project.service<CliService>().run(execCommand, envs)
-                val listOfCheckovResults = getFailedChecksFromResultString(res)
-                val fileName = getFileNameFromChecks(listOfCheckovResults, project)
-                val resultsGroupedByResource = groupResultsByResource(listOfCheckovResults)
+
+                val (resultsGroupedByResource, fileName, resultsLength) = getGroupedResults(res, project)
 
                 if (isActive) {
                     project.service<ResultsCacheService>().deleteAll() // TODO remove after MVP, where we want to display only one file results
                     project.service<ResultsCacheService>().setResult(fileName, resultsGroupedByResource)
                     project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished()
                     if (isFirstRun) {
-                        CheckovNotificationBalloon.showError(project, listOfCheckovResults.size)
+                        CheckovNotificationBalloon.showError(project, resultsLength)
                         isFirstRun = false
                     }
                 }
@@ -115,6 +114,12 @@ class CheckovService {
             }
 
         }
+    }
+
+    private fun getGroupedResults(res: String, project: Project): Triple<ResourceToCheckovResultsList, String, Int> {
+        val listOfCheckovResults = getFailedChecksFromResultString(res)
+        val fileName = getFileNameFromChecks(listOfCheckovResults, project)
+        return Triple(groupResultsByResource(listOfCheckovResults), fileName, listOfCheckovResults.size)
     }
 
     private fun prepareExecCommand(filePath: String, project: Project, apiToken: String): String {

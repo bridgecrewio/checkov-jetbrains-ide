@@ -1,17 +1,17 @@
 package com.bridgecrew.services
 
-import com.bridgecrew.ResourceToResultsMap
+import com.bridgecrew.ResourceToCheckovResultsList
 import com.intellij.openapi.components.Service
 
 @Service
 class ResultsCacheService {
-    private val results: MutableMap<String, ResourceToResultsMap> = mutableMapOf()
+    private val results: MutableMap<String, ResourceToCheckovResultsList> = mutableMapOf()
 
-    fun getAllResults(): MutableMap<String, ResourceToResultsMap> {
+    fun getAllResults(): MutableMap<String, ResourceToCheckovResultsList> {
         return results;
     }
 
-    fun setResult(key: String, value: ResourceToResultsMap) {
+    fun setResult(key: String, value: ResourceToCheckovResultsList) {
         results[key] = value
     }
 

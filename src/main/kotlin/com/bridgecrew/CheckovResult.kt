@@ -21,7 +21,7 @@ data class CheckovResult(
     val fixed_definition: String = ""
     )
 
-typealias ResourceToResultsMap = MutableMap<String, ArrayList<CheckovResult>>
+typealias ResourceToCheckovResultsList = MutableMap<String, ArrayList<CheckovResult>>
 
 fun getFailedChecksFromResultString(raw: String): ArrayList<CheckovResult> {
     if (raw.isEmpty()){
@@ -41,7 +41,7 @@ fun getFailedChecksFromResultString(raw: String): ArrayList<CheckovResult> {
     }
 }
 
-fun groupResultsByResource(results: ArrayList<CheckovResult>): ResourceToResultsMap {
+fun groupResultsByResource(results: ArrayList<CheckovResult>): ResourceToCheckovResultsList {
     val resourceToResultsMap = mutableMapOf<String, ArrayList<CheckovResult>>()
 
     results.forEach {
