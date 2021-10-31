@@ -1,6 +1,12 @@
 package com.bridgecrew.ui
-import com.intellij.openapi.application.ApplicationManager
+
 import com.bridgecrew.CheckovResult
+import com.bridgecrew.services.CheckovService
+import com.bridgecrew.utils.*
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.components.service
+import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.components.labels.LinkLabel
@@ -10,8 +16,8 @@ import java.awt.*
 import java.net.URI
 import java.net.URISyntaxException
 import javax.swing.*
-import com.bridgecrew.utils.*
-import com.intellij.openapi.project.Project
+
+private val LOG = logger<CheckovToolWindowDescriptionPanel>()
 
 class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindowPanel(true, true) {
     var descriptionPanel: JPanel = JPanel()
@@ -27,14 +33,21 @@ class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindow
     /**
      * Create display of description before scanning.
      */
+
+    fun emptyDescription(): JPanel {
+        descriptionPanel = JPanel()
+        descriptionPanel.add(JLabel(""), BorderLayout.CENTER)
+        return descriptionPanel
+    }
+
     fun preScanDescription(): JPanel {
-        descriptionPanel.removeAll()
+        descriptionPanel = JPanel()
         descriptionPanel.add(JLabel("Scan your project"), BorderLayout.CENTER)
         return descriptionPanel
     }
 
     fun configurationDescription(): JPanel {
-        descriptionPanel.removeAll()
+        descriptionPanel = JPanel()
         descriptionPanel.add(CheckovSettingsPanel(project),  BorderLayout.CENTER)
         return descriptionPanel
     }
@@ -46,8 +59,14 @@ class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindow
     }
 
     fun errorScanDescription(): JPanel {
-        descriptionPanel.removeAll()
+        descriptionPanel = JPanel()
         descriptionPanel.add(JLabel("Checkov has failed to run on the file"), BorderLayout.CENTER)
+        return descriptionPanel
+    }
+
+    fun successfulScanDescription(fileName: String): JPanel {
+        descriptionPanel = JPanel()
+        descriptionPanel.add(JLabel("Checkov scanning finished, No errors have been detected in this file: $fileName"), BorderLayout.CENTER)
         return descriptionPanel
     }
 
@@ -65,12 +84,16 @@ class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindow
         else {
             fixButton.isEnabled = true
             fixButton.addActionListener {
+                LOG.info("fix button was presssed")
                 ApplicationManager.getApplication().invokeLater {
-                    val (start, end) = getOffsetReplaceByLines(checkovResult.file_line_range, project)
-                    updateFile(checkovResult.fixed_definition, project, start, end)
-                    fixButton.isEnabled = false
+                        val (start, end) = getOffsetReplaceByLines(checkovResult.file_line_range, project)
+                        updateFile(checkovResult.fixed_definition, project, start, end)
+                        project.service<CheckovService>().scanFile(checkovResult.file_abs_path, project);
+
                 }
+
             }
+
         }
 
         checkNameLabel = createDescriptionSection(CHECKNAME, checkovResult.check_name)

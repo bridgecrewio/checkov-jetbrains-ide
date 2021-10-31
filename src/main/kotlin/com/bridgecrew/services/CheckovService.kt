@@ -5,6 +5,7 @@ import com.bridgecrew.getFailedChecksFromResultString
 import com.bridgecrew.groupResultsByResource
 import com.bridgecrew.listeners.CheckovInstallerListener
 import com.bridgecrew.listeners.CheckovScanListener
+
 import com.bridgecrew.services.checkov.CheckovRunner
 import com.bridgecrew.services.checkov.DockerCheckovRunner
 import com.bridgecrew.services.checkov.PipCheckovRunner
@@ -12,8 +13,10 @@ import com.bridgecrew.services.checkov.PipenvCheckovRunner
 import com.bridgecrew.settings.CheckovSettingsState
 import com.bridgecrew.ui.CheckovNotificationBalloon
 import com.bridgecrew.utils.getGitRepoName
+import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
+import com.intellij.openapi.diagnostic.RuntimeExceptionWithAttachments
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.ide.plugins.PluginManagerCore
@@ -69,12 +72,17 @@ class CheckovService {
         }
 
         LOG.info("Trying to scan a file using $selectedCheckovRunner")
-        project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningStarted()
 
         var res = ""
         runJobRunning = scope.launch {
             try {
-                val apiToken = settings?.apiToken ?: throw TokenException("missing api token")
+                val apiToken = settings?.apiToken
+                if (apiToken.isNullOrEmpty()){
+                    throw TokenException("missing api token")
+                }
+
+                project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningStarted()
+
                 val pluginVersion = PluginManagerCore.getPlugin(PluginId.getId("com.github.bridgecrewio.checkov"))?.version ?: "UNKNOWN"
                 val envs = getEnvs(pluginVersion)
                 val execCommand = prepareExecCommand(filePath, project, apiToken, pluginVersion)
@@ -107,6 +115,11 @@ class CheckovService {
                 e.printStackTrace()
                 project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningError()
                 runJobRunning = null
+            } catch (e: CheckovResultException) {
+                project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished(filePath)
+            } catch (e: RuntimeExceptionWithAttachments){ // temp solution for Access is allowed from event dispatch thread only.
+                project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningStarted()
+                LOG.info("coroutine could not run")
             } catch (e: Exception) {
                 LOG.error("Error scanning file\n" +
                         "To report: open a issue at https://github.com/bridgecrewio/checkov-jetbrains-ide/issues\n\n")
@@ -114,6 +127,9 @@ class CheckovService {
                 project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningError()
                 runJobRunning = null
             }
+
+
+
 
         }
     }

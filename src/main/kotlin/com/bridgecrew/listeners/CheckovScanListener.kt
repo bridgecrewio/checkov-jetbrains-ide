@@ -13,5 +13,7 @@ interface CheckovScanListener {
 
     fun scanningFinished()
 
+    fun scanningFinished(fileName: String)
+
     fun scanningError()
 }

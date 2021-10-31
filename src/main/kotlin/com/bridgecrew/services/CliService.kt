@@ -19,8 +19,8 @@ class CliService {
         val checkovExitCode = checkovProcess.waitFor()
 
         if (checkovExitCode != 0) {
-            println("Failed to run cli $commandToPrint")
-            println(error)
+            LOG.info("Failed to run cli $commandToPrint")
+            LOG.info(error)
             throw Exception("Failed to run cli command")
         }
 
