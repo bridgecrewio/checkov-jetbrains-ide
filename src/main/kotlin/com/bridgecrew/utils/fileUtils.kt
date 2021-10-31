@@ -1,4 +1,5 @@
 package com.bridgecrew.utils
+import com.bridgecrew.services.checkov.DOCKER_MOUNT_DIR
 import com.intellij.ide.util.PsiNavigationSupport
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.fileEditor.FileEditorManager
@@ -70,6 +71,16 @@ fun createGridRowCol(row: Int, col: Int = 0, align: Int = 0): GridConstraints {
         row, col, 1, 1, align, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null,
         null, 1, false
     )
+}
+
+fun normalizeFilePathToAbsolute(fileName: String, projectBasePath: String, fileRelativePath: String = ""): String {
+    return if (fileName.startsWith(DOCKER_MOUNT_DIR)) {
+        val relativePathParts = mutableListOf(fileRelativePath.split("/")).removeLast()
+        val relativeFileDirectory = relativePathParts.joinToString("/")
+        "$projectBasePath${relativeFileDirectory}"
+    } else {
+        fileName
+    }
 }
 
 /**

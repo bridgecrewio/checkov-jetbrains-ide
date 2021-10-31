@@ -11,7 +11,7 @@ interface CheckovScanListener {
 
     fun scanningStarted()
 
-    fun scanningFinished(scanResults: ArrayList<CheckovResult>)
+    fun scanningFinished()
 
     fun scanningError()
 }

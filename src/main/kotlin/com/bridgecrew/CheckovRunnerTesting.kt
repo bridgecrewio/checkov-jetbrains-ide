@@ -75,16 +75,6 @@ class CheckovRunnerTesting : SimpleToolWindowPanel(false, true) {
         "guideline": "https://docs.bridgecrew.io/docs/logging_9-enable-vpc-flow-logging"
     }""")
 
-    fun getResultsList(index: Int, project: Project) {
-        val fileString = readFileAsLinesUsingUseLines("/Users/yorhov/development/checkov-jetbrains-ide/src/main/kotlin/com/bridgecrew/a.json")
-        val json: JSONObject = JSONObject(fileString)
-        val results = json.getJSONObject("results")
-        val failedChecks = results.getJSONArray("failed_checks")
-        val resultsList1 = object : TypeToken<List<CheckovResult>>() {}.type
-        val listOfCheckovResults: ArrayList<CheckovResult> = gson.fromJson(failedChecks.toString(), resultsList1)
-        project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished(arrayListOf(listOfCheckovResults.get(index), listOfCheckovResults.get(index+1)))
-    }
-
     fun readFileAsLinesUsingUseLines(fileName: String): String{
         val inputStream: InputStream = File(fileName).inputStream()
         val inputString = inputStream.bufferedReader().use { it.readText() }
