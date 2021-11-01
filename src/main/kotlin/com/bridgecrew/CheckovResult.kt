@@ -69,7 +69,7 @@ fun getFailedChecksFromObj(resultsObj: JSONObject): ArrayList<CheckovResult> {
     try {
         val summary = resultsObj.getJSONObject("summary")
             val failedSummary = summary.get("failed")
-            val parsingErrorSummary: Int =summary.getInt("parsing_errors")
+            val parsingErrorSummary: Int = summary.getInt("parsing_errors")
             if (parsingErrorSummary > 0 ) {
                 throw CheckovResultParsingException("Checkov parsing error")
             }
