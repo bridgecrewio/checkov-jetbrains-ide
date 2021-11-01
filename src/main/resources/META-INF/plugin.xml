@@ -17,7 +17,8 @@
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="Checkov"
                     anchor="bottom"
-                    factoryClass="com.bridgecrew.ui.CheckovToolWindowFactory"/>
+                    factoryClass="com.bridgecrew.ui.CheckovToolWindowFactory"
+                    icon="/icons/checkov.svg"/>
 
         <postStartupActivity implementation="com.bridgecrew.activities.PostStartupActivity"/>
 

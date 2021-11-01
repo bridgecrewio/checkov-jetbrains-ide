@@ -1,6 +1,5 @@
 package com.bridgecrew.ui
 
-import com.bridgecrew.CheckovResult
 import com.bridgecrew.services.CheckovService
 import com.bridgecrew.listeners.CheckovInstallerListener
 import com.bridgecrew.listeners.CheckovScanListener
@@ -31,7 +30,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
      * @return JBSplitter
      */
     init {
-        loadMainPanel()
+        loadMainPanel(PANELTYPE.CHECKOVINSTALATION)
 
         project.messageBus.connect(this)
             .subscribe(CheckovScanListener.SCAN_TOPIC, object: CheckovScanListener {
@@ -47,9 +46,22 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                     }
                 }
 
+                override fun scanningFinished(fileName: String) {
+                    ApplicationManager.getApplication().invokeLater {
+                        project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOVFINISHED, fileName)
+
+                    }
+                }
+
                 override fun scanningError() {
                     ApplicationManager.getApplication().invokeLater {
                         project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOVERROR)
+                    }
+                }
+
+                override fun scanningParsingError() {
+                    ApplicationManager.getApplication().invokeLater {
+                        project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOVPARSINGERROR)
                     }
                 }
             })
@@ -73,8 +85,8 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
 
     fun displayResults() {
         removeAll()
-        val checkovTree = CheckovToolWindowTree(project, checkovDescription)
-        val right = checkovDescription.createScroll()
+        val checkovTree = CheckovToolWindowTree(project, split, checkovDescription)
+        val right = checkovDescription.emptyDescription()
         val left = checkovTree.createScroll()
         split.setFirstComponent(left)
         split.setSecondComponent(right)
@@ -82,7 +94,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
         revalidate()
     }
 
-    fun loadMainPanel(panelType: Int = PANELTYPE.AUTOCHOOSEPANEL) {
+    fun loadMainPanel(panelType: Int = PANELTYPE.AUTOCHOOSEPANEL, fileName: String = "") {
         removeAll()
         when (panelType) {
             PANELTYPE.CHECKOVERROR -> {
@@ -93,6 +105,15 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
             }
             PANELTYPE.CHECKOVPRERSCAN -> {
                 add(checkovDescription.preScanDescription())
+            }
+            PANELTYPE.CHECKOVFINISHED -> {
+                add(checkovDescription.successfulScanDescription(fileName))
+            }
+            PANELTYPE.CHECKOVPARSINGERROR -> {
+                add(checkovDescription.errorParsingScanDescription())
+            }
+            PANELTYPE.CHECKOVINSTALATION -> {
+                add(checkovDescription.installationDescription())
             }
             PANELTYPE.AUTOCHOOSEPANEL ->{
                 val setting = CheckovSettingsState().getInstance()
@@ -106,6 +127,8 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
     }
 
     private fun subscribeToListeners() {
+        project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOVPRERSCAN)
+
         val extensionList = listOf("tf","yaml", "yaml", "json")
 
         project.messageBus.connect(project).subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, object :

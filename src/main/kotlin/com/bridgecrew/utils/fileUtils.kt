@@ -1,13 +1,13 @@
 package com.bridgecrew.utils
-import com.bridgecrew.services.checkov.DOCKER_MOUNT_DIR
+import com.bridgecrew.services.checkovRunner.DOCKER_MOUNT_DIR
 import com.intellij.ide.util.PsiNavigationSupport
 import com.intellij.openapi.command.WriteCommandAction
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
-import com.intellij.uiDesigner.core.GridConstraints
 import java.net.URL
 
 fun navigateToFile(fileToNavigate: PsiFile) {
@@ -28,7 +28,7 @@ fun getPsFileByPath(path: String, project: Project): PsiFile? {
 }
 
 fun getOffsetHighlighByLines(range:ArrayList<Int>, project: Project): Pair<Int,Int>{
-    val startLine: Int = range.getOrElse(0, { 0 }) - 1
+    val startLine: Int = range.getOrElse(0, { 1 }) - 1
     val editor = FileEditorManager.getInstance(project).selectedTextEditor
     val document = editor?.getDocument();
     var startOffset = document?.getLineStartOffset(startLine)
@@ -43,8 +43,8 @@ fun getOffsetHighlighByLines(range:ArrayList<Int>, project: Project): Pair<Int,I
 }
 
 fun getOffsetReplaceByLines(range:ArrayList<Int>, project: Project): Pair<Int,Int>{
-    val startLine: Int = range.getOrElse(0, { 0 }) - 1
-    val endLine: Int = range.getOrElse(1, { 0 }) - 1
+    val startLine: Int = range.getOrElse(0, { 1 }) - 1
+    val endLine: Int = range.getOrElse(1, { 1 }) - 1
     val editor = FileEditorManager.getInstance(project).selectedTextEditor
     val document = editor?.getDocument();
     var startOffset = document?.getLineStartOffset(startLine)
@@ -64,14 +64,9 @@ fun updateFile(replaceString: String, project: Project, start:Int, end: Int){
     WriteCommandAction.runWriteCommandAction(
         project
     ) { document?.replaceString(start, end, replaceString) }
+    FileDocumentManager.getInstance().saveDocument(document!!)
 }
 
-fun createGridRowCol(row: Int, col: Int = 0, align: Int = 0): GridConstraints {
-    return GridConstraints(
-        row, col, 1, 1, align, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null,
-        null, 1, false
-    )
-}
 
 fun normalizeFilePathToAbsolute(fileName: String, projectBasePath: String, fileRelativePath: String = ""): String {
     return if (fileName.startsWith(DOCKER_MOUNT_DIR)) {

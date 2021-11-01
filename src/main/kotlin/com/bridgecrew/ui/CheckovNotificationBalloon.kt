@@ -12,11 +12,19 @@ class CheckovNotificationBalloon {
         private val GROUP = NotificationGroup(groupNeedAction, NotificationDisplayType.STICKY_BALLOON)
 
         fun showError(project: Project, failureNumber: Int) {
-                val notification = GROUP.createNotification(
-                    "Checkov has detected $failureNumber configuration error(s) in your project. Check out the tool window to analyze your code ",
-                    NotificationType.WARNING
-                )
-                notification.notify(project)
+            var balloonContent: String
+                if (failureNumber == 1){
+                    balloonContent= "Checkov has detected $failureNumber configuration error in your project. Check out the tool window to analyze your code "
+                } else {
+                    balloonContent =
+                        "Checkov has detected $failureNumber configuration errors in your project. Check out the tool window to analyze your code "
+                }
+            val notification = GROUP.createNotification(
+                balloonContent,
+                NotificationType.WARNING
+            )
+            notification.notify(project)
+
         }
     }
 }

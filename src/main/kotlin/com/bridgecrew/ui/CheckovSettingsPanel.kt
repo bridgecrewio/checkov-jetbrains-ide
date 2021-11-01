@@ -1,57 +1,30 @@
 package com.bridgecrew.ui
 
 import com.bridgecrew.settings.CheckovSettingsConfigurable
-import com.bridgecrew.utils.updateFile
+import com.bridgecrew.utils.createGridRowCol
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.ui.IdeBorderFactory
 import com.intellij.uiDesigner.core.GridLayoutManager
 import com.intellij.uiDesigner.core.GridConstraints
 import java.awt.Insets
 import javax.swing.*
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.IconLoader.getIcon
 
 class CheckovSettingsPanel(project: Project): JPanel() {
 
     init {
 
-        layout = GridLayoutManager(3, 1, Insets(0, 0, 0, 0), -1, -1)
+        layout = GridLayoutManager(5, 1, Insets(0, 0, 0, 0), -1, -1)
 
-//        add(JLabel(SnykIcons.LOGO), baseGridConstraints(0))
+        add(JLabel(getIcon("/icons/checkov_l.svg")), createGridRowCol(0,0, GridConstraints.ANCHOR_CENTER))
+        add(JLabel("\n\n"),createGridRowCol(1,0, GridConstraints.ANCHOR_CENTER))
 
-        add(JLabel("Welcome to Checkov Jetbrains Plugin"), GridConstraints(
-            0,
-            0,
-            1,
-            1,
-            GridConstraints.ANCHOR_CENTER,
-            GridConstraints.FILL_HORIZONTAL,
-            GridConstraints.SIZEPOLICY_WANT_GROW,
-            GridConstraints.SIZEPOLICY_FIXED,
-            null,
-            null,
-            null,
-            0,
-            false
-        ))
+        add(JLabel("Checkov Plugin would scan your infrastructure as code files."), createGridRowCol(2,0, GridConstraints.ANCHOR_CENTER))
 
-        add(JLabel("Please add an Api Token to start scanning your code"), GridConstraints(
-            1,
-            0,
-            1,
-            1,
-            GridConstraints.ANCHOR_CENTER,
-            GridConstraints.FILL_HORIZONTAL,
-            GridConstraints.SIZEPOLICY_WANT_GROW,
-            GridConstraints.SIZEPOLICY_FIXED,
-            null,
-            null,
-            null,
-            0,
-            false
-        ))
+        add(JLabel("Add an API Token to start getting results."), createGridRowCol(3,0, GridConstraints.ANCHOR_CENTER))
 
-        val settingsButton = JButton("Go To Checkov Settings")
+        val settingsButton = JButton("Open Settings")
 
         settingsButton.addActionListener {
             ApplicationManager.getApplication().invokeLater {
@@ -59,21 +32,7 @@ class CheckovSettingsPanel(project: Project): JPanel() {
             }
         }
 
-        add(settingsButton, GridConstraints(
-            2,
-            0,
-            1,
-            1,
-            GridConstraints.ANCHOR_CENTER,
-            GridConstraints.FILL_HORIZONTAL,
-            GridConstraints.SIZEPOLICY_WANT_GROW,
-            GridConstraints.SIZEPOLICY_FIXED,
-            null,
-            null,
-            null,
-            0,
-            false
-        ))
+        add(settingsButton, createGridRowCol(4,0, GridConstraints.ANCHOR_CENTER))
 
     }
 }

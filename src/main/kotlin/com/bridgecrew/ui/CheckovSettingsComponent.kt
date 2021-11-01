@@ -1,6 +1,6 @@
 package com.bridgecrew.ui
 
-import com.intellij.ui.IdeBorderFactory
+import com.bridgecrew.utils.createGridRowCol
 import javax.swing.JPanel
 import com.intellij.uiDesigner.core.GridLayoutManager
 import com.intellij.uiDesigner.core.GridConstraints
@@ -15,152 +15,45 @@ class CheckovSettingsComponent () {
     val prismaURLField: JTextField = JTextField()
 
     init {
-        rootPanel.layout = GridLayoutManager(2, 2, Insets(0, 0, 0, 0), -1, -1)
+        rootPanel.layout = GridLayoutManager(1, 2, Insets(0, 0, 0, 0), -1, -1)
 
-        val mandatorySettingsPanel = JPanel(GridLayoutManager(1, 2, Insets(0, 0, 0, 0), -1, -1))
-        mandatorySettingsPanel.border = IdeBorderFactory.createTitledBorder("Mandatory settings")
+        val settingsPanel = JPanel(GridLayoutManager(3, 2, Insets(0, 0, 0, 0), -1, -1))
 
-        val apiTokenLabel = JLabel("Checkov: Token")
+        val apiTokenLabel = JLabel("Token (Required)")
         apiTokenLabel.labelFor = apiTokenField
-        mandatorySettingsPanel.add(
+        settingsPanel.add(
             apiTokenLabel,
-            GridConstraints(
-                0,
-                0,
-                1,
-                1,
-                GridConstraints.ANCHOR_WEST,
-                GridConstraints.FILL_NONE,
-                GridConstraints.SIZEPOLICY_FIXED,
-                GridConstraints.SIZEPOLICY_FIXED,
-                null,
-                null,
-                null,
-                0,
-                false
-            )
-        )
+            createGridRowCol(0,0,GridConstraints.ANCHOR_WEST))
 
-        mandatorySettingsPanel.add(
+        settingsPanel.add(
             apiTokenField,
-            GridConstraints(
-                0,
-                1,
-                1,
-                1,
-                GridConstraints.ANCHOR_WEST,
-                GridConstraints.FILL_HORIZONTAL,
-                GridConstraints.SIZEPOLICY_WANT_GROW,
-                GridConstraints.SIZEPOLICY_FIXED,
-                null,
-                null,
-                null,
-                0,
-                false
-            )
-        )
-        rootPanel.add(mandatorySettingsPanel, GridConstraints(
-            0,
-            0,
-            1,
-            1,
-            GridConstraints.ANCHOR_NORTHWEST,
-            GridConstraints.FILL_HORIZONTAL,
-            GridConstraints.SIZEPOLICY_CAN_SHRINK or GridConstraints.SIZEPOLICY_CAN_GROW,
-            GridConstraints.SIZEPOLICY_FIXED,
-            null,
-            null,
-            null,
-            0,
-            false
-        ))
-
-        val optionalSettingsPanel = JPanel(GridLayoutManager(2, 2, Insets(0, 0, 0, 0), -1, -1))
-        optionalSettingsPanel.border = IdeBorderFactory.createTitledBorder("Optional Settings")
+            createGridRowCol(0,1,GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL))
 
 
-        val certificateLabel = JLabel("Checkov: CA-Certificate")
+        val certificateLabel = JLabel("CA-Certificate")
         certificateLabel.labelFor = certificateField
-        optionalSettingsPanel.add(
+        settingsPanel.add(
             certificateLabel,
-            GridConstraints(
-                0,
-                0,
-                1,
-                1,
-                GridConstraints.ANCHOR_WEST,
-                GridConstraints.FILL_NONE,
-                GridConstraints.SIZEPOLICY_FIXED,
-                GridConstraints.SIZEPOLICY_FIXED,
-                null,
-                null,
-                null,
-                0,
-                false
-            )
-        )
+            createGridRowCol(1,0,GridConstraints.ANCHOR_WEST))
 
-        optionalSettingsPanel.add(
+        settingsPanel.add(
             certificateField,
-            GridConstraints(
-                0,
-                1,
-                1,
-                1,
-                GridConstraints.ANCHOR_WEST,
-                GridConstraints.FILL_HORIZONTAL,
-                GridConstraints.SIZEPOLICY_WANT_GROW,
-                GridConstraints.SIZEPOLICY_FIXED,
-                null,
-                null,
-                null,
-                0,
-                false
-            )
-        )
+            createGridRowCol(1,1,GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL))
 
-        val prismaURLLabel = JLabel("Checkov: Prisma URL ( Required if using Prisma Cloud Access Token)")
+
+        val prismaURLLabel = JLabel("Prisma URL ( Required if using Prisma Cloud Access Token)")
         prismaURLLabel.labelFor = prismaURLField
-        optionalSettingsPanel.add(
+        settingsPanel.add(
             prismaURLLabel,
-            GridConstraints(
-                1,
-                0,
-                1,
-                1,
-                GridConstraints.ANCHOR_WEST,
-                GridConstraints.FILL_NONE,
-                GridConstraints.SIZEPOLICY_FIXED,
-                GridConstraints.SIZEPOLICY_FIXED,
-                null,
-                null,
-                null,
-                0,
-                false
-            )
-        )
+            createGridRowCol(2,0,GridConstraints.ANCHOR_WEST))
 
-        optionalSettingsPanel.add(
+        settingsPanel.add(
             prismaURLField,
-            GridConstraints(
-                1,
-                1,
-                1,
-                1,
-                GridConstraints.ANCHOR_WEST,
-                GridConstraints.FILL_HORIZONTAL,
-                GridConstraints.SIZEPOLICY_WANT_GROW,
-                GridConstraints.SIZEPOLICY_FIXED,
-                null,
-                null,
-                null,
-                0,
-                false
-            )
-        )
+            createGridRowCol(2,1,GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL))
 
-        rootPanel.add(optionalSettingsPanel, GridConstraints(
-            1,
+
+        rootPanel.add(settingsPanel, GridConstraints(
+            0,
             0,
             1,
             1,

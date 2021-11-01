@@ -15,6 +15,7 @@ import javax.swing.*
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
 import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.ui.JBSplitter
 
 import javax.swing.JPanel
 import java.awt.BorderLayout
@@ -22,7 +23,7 @@ import com.intellij.ui.ScrollPaneFactory
 import javax.swing.tree.DefaultMutableTreeNode
 
 
-class CheckovToolWindowTree(val project: Project, private val descriptionPanel: CheckovToolWindowDescriptionPanel) : SimpleToolWindowPanel(true, true), Disposable {
+class CheckovToolWindowTree(val project: Project, val split: JBSplitter, private val descriptionPanel: CheckovToolWindowDescriptionPanel) : SimpleToolWindowPanel(true, true), Disposable {
     private val resultsPanel = JPanel(BorderLayout())
 
     /**
@@ -63,6 +64,7 @@ class CheckovToolWindowTree(val project: Project, private val descriptionPanel: 
                 if (selectionPath.pathCount == CHECKNAMEDEPTH) {
                     val checkovTreeNode = node.userObject as CheckovTreeNode
                     val checkovResult = checkovTreeNode.checkovResultObject
+                    split.setSecondComponent(descriptionPanel.createScroll(checkovResult))
                     navigateAndSelectFailure(tree, checkovResult)
                 }
             }
@@ -94,7 +96,6 @@ class CheckovToolWindowTree(val project: Project, private val descriptionPanel: 
     private fun navigateAndSelectFailure(tree: Tree, checkovResultObject: CheckovResult){
         val selectionPath = tree.selectionPath
         if (selectionPath.pathCount == CHECKNAMEDEPTH) {
-            descriptionPanel.descriptionOfCheckovScan(checkovResultObject)
             val fileToNavigate: PsiFile? =
                 getPsFileByPath(selectionPath.parentPath.parentPath.lastPathComponent.toString(),
                     project = project)
