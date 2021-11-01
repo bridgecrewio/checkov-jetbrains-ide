@@ -28,7 +28,7 @@ fun getPsFileByPath(path: String, project: Project): PsiFile? {
 }
 
 fun getOffsetHighlighByLines(range:ArrayList<Int>, project: Project): Pair<Int,Int>{
-    val startLine: Int = range.getOrElse(0, { 0 }) - 1
+    val startLine: Int = range.getOrElse(0, { 1 }) - 1
     val editor = FileEditorManager.getInstance(project).selectedTextEditor
     val document = editor?.getDocument();
     var startOffset = document?.getLineStartOffset(startLine)
@@ -43,8 +43,8 @@ fun getOffsetHighlighByLines(range:ArrayList<Int>, project: Project): Pair<Int,I
 }
 
 fun getOffsetReplaceByLines(range:ArrayList<Int>, project: Project): Pair<Int,Int>{
-    val startLine: Int = range.getOrElse(0, { 0 }) - 1
-    val endLine: Int = range.getOrElse(1, { 0 }) - 1
+    val startLine: Int = range.getOrElse(0, { 1 }) - 1
+    val endLine: Int = range.getOrElse(1, { 1 }) - 1
     val editor = FileEditorManager.getInstance(project).selectedTextEditor
     val document = editor?.getDocument();
     var startOffset = document?.getLineStartOffset(startLine)

@@ -64,19 +64,18 @@ fun getFailedChecksFromObj(resultsObj: JSONObject): ArrayList<CheckovResult> {
         val failedRaw = resultsObj.get("failed")
         if (failedRaw == 0) {
             throw CheckovResultException("Results empty")
-        }
+            }
+        // if failed does not appear in the raw response
         } catch (e : JSONException) { }
-    try {
         val summary = resultsObj.getJSONObject("summary")
-            val failedSummary = summary.get("failed")
-            val parsingErrorSummary: Int =summary.getInt("parsing_errors")
-            if (parsingErrorSummary > 0 ) {
-                throw CheckovResultParsingException("Checkov parsing error")
-            }
-            if (failedSummary == 0){
-                throw CheckovResultException("Results empty")
-            }
-    } catch (e : JSONException) { }
+        val failedSummary = summary.get("failed")
+        val parsingErrorSummary: Int =summary.getInt("parsing_errors")
+        if (parsingErrorSummary > 0 ) {
+            throw CheckovResultParsingException("Checkov parsing error")
+        }
+        if (failedSummary == 0){
+            throw CheckovResultException("Results empty")
+        }
     val results = resultsObj.getJSONObject("results")
     val failedChecks = results.getJSONArray("failed_checks")
     val resultsList = object : TypeToken<List<CheckovResult>>() {}.type
