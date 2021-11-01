@@ -25,7 +25,7 @@ class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindow
     var fixButton: JButton = JButton()
 
     init {
-        preScanDescription()
+        installationDescription()
     }
 
     /**
@@ -35,6 +35,17 @@ class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindow
     fun emptyDescription(): JPanel {
         descriptionPanel = JPanel()
         descriptionPanel.add(JLabel(""), BorderLayout.CENTER)
+        return descriptionPanel
+    }
+
+    fun installationDescription(): JPanel {
+        descriptionPanel = JPanel()
+        descriptionPanel.layout = GridLayoutManager(1, 1, Insets(0, 0, 0, 0), -1, -1)
+        val scanningPanel = JPanel()
+        scanningPanel.layout = GridLayoutManager(2, 1, Insets(0, 0, 0, 0), -1, -1)
+        scanningPanel.add(JLabel(IconLoader.getIcon("/icons/checkov_m.svg")), createGridRowCol(0,0,GridConstraints.ANCHOR_CENTER))
+        scanningPanel.add(JLabel("Checkov is being installed"),  createGridRowCol(1,0,GridConstraints.ANCHOR_CENTER))
+        descriptionPanel.add(scanningPanel, createGridRowCol(0,0,GridConstraints.ANCHOR_CENTER))
         return descriptionPanel
     }
 
@@ -112,10 +123,6 @@ class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindow
                         updateFile(checkovResult.fixed_definition, project, start, end)
 
                 }
-                ApplicationManager.getApplication().invokeLater{
-                    runCheckov(checkovResult,project)
-                }
-
             }
             descriptions.add(fixButton, createGridRowCol(2, 0, GridConstraints.ANCHOR_NORTHWEST));
         }

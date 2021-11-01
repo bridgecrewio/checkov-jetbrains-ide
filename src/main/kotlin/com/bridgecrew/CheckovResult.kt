@@ -62,18 +62,20 @@ fun groupResultsByResource(results: ArrayList<CheckovResult>, project: Project, 
 fun getFailedChecksFromObj(resultsObj: JSONObject): ArrayList<CheckovResult> {
     try {
         val failedRaw = resultsObj.get("failed")
-        if (failedRaw == 0){
+        if (failedRaw == 0) {
             throw CheckovResultException("Results empty")
         }
+        } catch (e : JSONException) { }
+    try {
         val summary = resultsObj.getJSONObject("summary")
-        val failedSummary = summary.get("failed")
-        val parsingErrorSummary: Int =summary.getInt("parsing_errors")
-        if (parsingErrorSummary > 0 ) {
-            throw CheckovResultParsingException("Checkov parsing error")
-        }
-        if (failedSummary == 0){
-            throw CheckovResultException("Results empty")
-        }
+            val failedSummary = summary.get("failed")
+            val parsingErrorSummary: Int =summary.getInt("parsing_errors")
+            if (parsingErrorSummary > 0 ) {
+                throw CheckovResultParsingException("Checkov parsing error")
+            }
+            if (failedSummary == 0){
+                throw CheckovResultException("Results empty")
+            }
     } catch (e : JSONException) { }
     val results = resultsObj.getJSONObject("results")
     val failedChecks = results.getJSONArray("failed_checks")

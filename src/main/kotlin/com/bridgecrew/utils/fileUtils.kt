@@ -2,6 +2,7 @@ package com.bridgecrew.utils
 import com.bridgecrew.services.checkovRunner.DOCKER_MOUNT_DIR
 import com.intellij.ide.util.PsiNavigationSupport
 import com.intellij.openapi.command.WriteCommandAction
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
@@ -63,6 +64,7 @@ fun updateFile(replaceString: String, project: Project, start:Int, end: Int){
     WriteCommandAction.runWriteCommandAction(
         project
     ) { document?.replaceString(start, end, replaceString) }
+    FileDocumentManager.getInstance().saveDocument(document!!)
 }
 
 

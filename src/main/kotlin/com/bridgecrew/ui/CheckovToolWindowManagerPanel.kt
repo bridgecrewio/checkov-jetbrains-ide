@@ -1,6 +1,5 @@
 package com.bridgecrew.ui
 
-import com.bridgecrew.CheckovResult
 import com.bridgecrew.services.CheckovService
 import com.bridgecrew.listeners.CheckovInstallerListener
 import com.bridgecrew.listeners.CheckovScanListener
@@ -31,7 +30,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
      * @return JBSplitter
      */
     init {
-        loadMainPanel()
+        loadMainPanel(PANELTYPE.CHECKOVINSTALATION)
 
         project.messageBus.connect(this)
             .subscribe(CheckovScanListener.SCAN_TOPIC, object: CheckovScanListener {
@@ -113,6 +112,9 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
             PANELTYPE.CHECKOVPARSINGERROR -> {
                 add(checkovDescription.errorParsingScanDescription())
             }
+            PANELTYPE.CHECKOVINSTALATION -> {
+                add(checkovDescription.installationDescription())
+            }
             PANELTYPE.AUTOCHOOSEPANEL ->{
                 val setting = CheckovSettingsState().getInstance()
                 when {
@@ -125,6 +127,8 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
     }
 
     private fun subscribeToListeners() {
+        project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOVPRERSCAN)
+
         val extensionList = listOf("tf","yaml", "yaml", "json")
 
         project.messageBus.connect(project).subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, object :

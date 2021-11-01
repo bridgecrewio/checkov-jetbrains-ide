@@ -89,7 +89,6 @@ class CheckovService {
                 val execCommand = prepareExecCommand(filePath, project, apiToken, pluginVersion)
 
                 res = project.service<CliService>().run(execCommand, envs)
-
                 val filePathRelativeToProject = filePath.replace(project.basePath!!, "")
                 val (resultsGroupedByResource, resultsLength) = getGroupedResults(res, project, filePathRelativeToProject)
                 if (isActive) {
