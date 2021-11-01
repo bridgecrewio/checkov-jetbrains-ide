@@ -1,11 +1,8 @@
-package com.bridgecrew
+package com.bridgecrew.testing
 
-import com.bridgecrew.listeners.CheckovScanListener
+import com.bridgecrew.CheckovResult
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
-import org.json.JSONObject
 import java.io.File
 import java.io.InputStream
 

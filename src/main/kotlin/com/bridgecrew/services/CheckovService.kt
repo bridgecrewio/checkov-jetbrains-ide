@@ -5,15 +5,15 @@ import com.bridgecrew.getFailedChecksFromResultString
 import com.bridgecrew.groupResultsByResource
 import com.bridgecrew.listeners.CheckovInstallerListener
 import com.bridgecrew.listeners.CheckovScanListener
+import com.bridgecrew.listeners.CheckovSettingsListener
 
-import com.bridgecrew.services.checkov.CheckovRunner
-import com.bridgecrew.services.checkov.DockerCheckovRunner
-import com.bridgecrew.services.checkov.PipCheckovRunner
-import com.bridgecrew.services.checkov.PipenvCheckovRunner
+import com.bridgecrew.services.checkovRunner.CheckovRunner
+import com.bridgecrew.services.checkovRunner.DockerCheckovRunner
+import com.bridgecrew.services.checkovRunner.PipCheckovRunner
+import com.bridgecrew.services.checkovRunner.PipenvCheckovRunner
 import com.bridgecrew.settings.CheckovSettingsState
 import com.bridgecrew.ui.CheckovNotificationBalloon
 import com.bridgecrew.utils.getGitRepoName
-import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.RuntimeExceptionWithAttachments
@@ -27,6 +27,8 @@ import org.json.JSONException
 
 class TokenException(message:String): Exception(message)
 class CheckovResultException(message:String): Exception(message)
+class CheckovResultParsingException(message:String): Exception(message)
+
 
 private val LOG = logger<CheckovService>()
 
@@ -72,6 +74,7 @@ class CheckovService {
         }
 
         LOG.info("Trying to scan a file using $selectedCheckovRunner")
+        project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningStarted()
 
         var res = ""
         runJobRunning = scope.launch {
@@ -81,8 +84,6 @@ class CheckovService {
                     throw TokenException("missing api token")
                 }
 
-                project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningStarted()
-
                 val pluginVersion = PluginManagerCore.getPlugin(PluginId.getId("com.github.bridgecrewio.checkov"))?.version ?: "UNKNOWN"
                 val envs = getEnvs(pluginVersion)
                 val execCommand = prepareExecCommand(filePath, project, apiToken, pluginVersion)
@@ -91,7 +92,6 @@ class CheckovService {
 
                 val filePathRelativeToProject = filePath.replace(project.basePath!!, "")
                 val (resultsGroupedByResource, resultsLength) = getGroupedResults(res, project, filePathRelativeToProject)
-
                 if (isActive) {
                     project.service<ResultsCacheService>().deleteAll() // TODO remove after MVP, where we want to display only one file results
                     project.service<ResultsCacheService>().setResult(filePathRelativeToProject, resultsGroupedByResource)
@@ -104,10 +104,14 @@ class CheckovService {
                 runJobRunning = null
 
             } catch (e: TokenException) {
+                project.messageBus.syncPublisher(CheckovSettingsListener.SETTINGS_TOPIC).settingsUpdated()
                 LOG.warn("Wasn't able to get api token\n" +
                         "Please insert an Api Token to continue")
                 e.printStackTrace()
                 runJobRunning = null
+            } catch (e: CheckovResultParsingException){
+                project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningParsingError()
+
             } catch (e: JSONException) {
                 LOG.error("Error parsing checkov results \n" +
                         "Raw response: $res\n" +
@@ -117,9 +121,6 @@ class CheckovService {
                 runJobRunning = null
             } catch (e: CheckovResultException) {
                 project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished(filePath)
-            } catch (e: RuntimeExceptionWithAttachments){ // temp solution for Access is allowed from event dispatch thread only.
-                project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningStarted()
-                LOG.info("coroutine could not run")
             } catch (e: Exception) {
                 LOG.error("Error scanning file\n" +
                         "To report: open a issue at https://github.com/bridgecrewio/checkov-jetbrains-ide/issues\n\n")
@@ -127,10 +128,6 @@ class CheckovService {
                 project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningError()
                 runJobRunning = null
             }
-
-
-
-
         }
     }
 

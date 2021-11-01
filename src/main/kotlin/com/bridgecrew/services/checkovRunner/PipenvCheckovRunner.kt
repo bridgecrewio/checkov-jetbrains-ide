@@ -1,4 +1,4 @@
-package com.bridgecrew.services.checkov
+package com.bridgecrew.services.checkovRunner
 
 import com.bridgecrew.services.CliService
 import com.intellij.openapi.components.service

@@ -47,11 +47,6 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                     }
                 }
 
-                override fun activateScanning(fileName: String) {
-                    ApplicationManager.getApplication().invokeLater {
-                        project.service<CheckovService>().scanFile(fileName, project);
-                    }
-                }
                 override fun scanningFinished(fileName: String) {
                     ApplicationManager.getApplication().invokeLater {
                         project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOVFINISHED, fileName)
@@ -62,6 +57,12 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                 override fun scanningError() {
                     ApplicationManager.getApplication().invokeLater {
                         project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOVERROR)
+                    }
+                }
+
+                override fun scanningParsingError() {
+                    ApplicationManager.getApplication().invokeLater {
+                        project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOVPARSINGERROR)
                     }
                 }
             })
@@ -85,7 +86,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
 
     fun displayResults() {
         removeAll()
-        val checkovTree = CheckovToolWindowTree(project, checkovDescription)
+        val checkovTree = CheckovToolWindowTree(project, split, checkovDescription)
         val right = checkovDescription.emptyDescription()
         val left = checkovTree.createScroll()
         split.setFirstComponent(left)
@@ -108,6 +109,9 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
             }
             PANELTYPE.CHECKOVFINISHED -> {
                 add(checkovDescription.successfulScanDescription(fileName))
+            }
+            PANELTYPE.CHECKOVPARSINGERROR -> {
+                add(checkovDescription.errorParsingScanDescription())
             }
             PANELTYPE.AUTOCHOOSEPANEL ->{
                 val setting = CheckovSettingsState().getInstance()

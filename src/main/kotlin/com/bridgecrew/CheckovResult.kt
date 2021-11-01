@@ -1,17 +1,15 @@
 package com.bridgecrew
 import com.bridgecrew.services.CheckovResultException
+import com.bridgecrew.services.CheckovResultParsingException
 import com.bridgecrew.utils.normalizeFilePathToAbsolute
-import com.bridgecrew.services.CliService
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 
 val gson = Gson()
-private val LOG = logger<CheckovResult>()
 
 data class CheckovResult(
     val check_id: String,
@@ -62,9 +60,18 @@ fun groupResultsByResource(results: ArrayList<CheckovResult>, project: Project, 
 }
 
 fun getFailedChecksFromObj(resultsObj: JSONObject): ArrayList<CheckovResult> {
-    try{
-        val failed = resultsObj.get("failed")
-        if (failed == 0) {
+    try {
+        val failedRaw = resultsObj.get("failed")
+        if (failedRaw == 0){
+            throw CheckovResultException("Results empty")
+        }
+        val summary = resultsObj.getJSONObject("summary")
+        val failedSummary = summary.get("failed")
+        val parsingErrorSummary: Int =summary.getInt("parsing_errors")
+        if (parsingErrorSummary > 0 ) {
+            throw CheckovResultParsingException("Checkov parsing error")
+        }
+        if (failedSummary == 0){
             throw CheckovResultException("Results empty")
         }
     } catch (e : JSONException) { }
@@ -74,11 +81,3 @@ fun getFailedChecksFromObj(resultsObj: JSONObject): ArrayList<CheckovResult> {
     return gson.fromJson(failedChecks.toString(), resultsList)
 }
 
-fun getFileNameFromChecks(results: ArrayList<CheckovResult>, project: Project): String {
-    if (results.size == 0) {
-        LOG.info("can't get file name from empty results")
-        return ""
-    }
-
-    return results[0].file_abs_path.replace(project.basePath!!, "")
-}

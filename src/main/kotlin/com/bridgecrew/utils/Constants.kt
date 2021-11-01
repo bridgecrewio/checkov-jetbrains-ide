@@ -1,9 +1,7 @@
 package com.bridgecrew.utils
 
 val CHECKNAMEDEPTH = 4
-val CHECKNAME = "Check Name:"
-val CHECKID = "Check ID"
-val GUIDELINES = "Guidlines"
+val POLICYDETAILS = "Policy Details:"
 
 object PANELTYPE {
     val AUTOCHOOSEPANEL = 0
@@ -11,8 +9,5 @@ object PANELTYPE {
     val CHECKOVSTARTED = 2
     val CHECKOVERROR = 3
     val CHECKOVPRERSCAN = 4
-}
-object SETTINGSTATUS {
-    val SETTINGSCONFIGURED = 10
-    val SETTINGSEMPTY = 11
+    val CHECKOVPARSINGERROR = 5
 }

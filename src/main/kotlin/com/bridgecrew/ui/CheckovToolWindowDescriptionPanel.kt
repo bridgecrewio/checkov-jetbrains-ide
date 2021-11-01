@@ -8,6 +8,7 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
+import com.intellij.openapi.util.IconLoader
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.components.labels.LinkLabel
 import com.intellij.uiDesigner.core.GridConstraints
@@ -21,9 +22,6 @@ private val LOG = logger<CheckovToolWindowDescriptionPanel>()
 
 class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindowPanel(true, true) {
     var descriptionPanel: JPanel = JPanel()
-    var checkNameLabel: JPanel = JPanel()
-    var checkIdLabel: JPanel = JPanel()
-    var checkGuidelinesLabel: JPanel = JPanel()
     var fixButton: JButton = JButton()
 
     init {
@@ -42,7 +40,13 @@ class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindow
 
     fun preScanDescription(): JPanel {
         descriptionPanel = JPanel()
-        descriptionPanel.add(JLabel("Scan your project"), BorderLayout.CENTER)
+        descriptionPanel.layout = GridLayoutManager(1, 1, Insets(0, 0, 0, 0), -1, -1)
+        val scanningPanel = JPanel()
+        scanningPanel.layout = GridLayoutManager(3, 1, Insets(0, 0, 0, 0), -1, -1)
+        scanningPanel.add(JLabel(IconLoader.getIcon("/icons/checkov_m.svg")), createGridRowCol(0,0,GridConstraints.ANCHOR_CENTER))
+        scanningPanel.add(JLabel("Checkov is ready to run."),  createGridRowCol(1,0,GridConstraints.ANCHOR_CENTER))
+        scanningPanel.add(JLabel("Save an IaC file to trigger a scan || Scanning would start automatically once an IaC file is saved"), createGridRowCol(2,0,GridConstraints.ANCHOR_CENTER))
+        descriptionPanel.add(scanningPanel, createGridRowCol(0,0,GridConstraints.ANCHOR_CENTER))
         return descriptionPanel
     }
 
@@ -54,13 +58,24 @@ class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindow
 
     fun duringScanDescription(): JPanel {
         descriptionPanel = JPanel()
-        descriptionPanel.add(JLabel("Checkov is scanning your code, Please wait to see the results"), BorderLayout.CENTER)
+        val scanningPanel = JPanel()
+        descriptionPanel.layout = GridLayoutManager(1, 1, Insets(0, 0, 0, 0), -1, -1)
+        scanningPanel.layout = GridLayoutManager(2, 1, Insets(0, 0, 0, 0), -1, -1)
+        scanningPanel.add(JLabel(IconLoader.getIcon("/icons/checkov_m.svg")), createGridRowCol(0,0,GridConstraints.ANCHOR_CENTER))
+        scanningPanel.add(JLabel("Scanning your file..."), createGridRowCol(1,0,GridConstraints.ANCHOR_CENTER))
+        descriptionPanel.add(scanningPanel, createGridRowCol(0,0,GridConstraints.ANCHOR_CENTER))
         return descriptionPanel
     }
 
     fun errorScanDescription(): JPanel {
         descriptionPanel = JPanel()
         descriptionPanel.add(JLabel("Checkov has failed to run on the file"), BorderLayout.CENTER)
+        return descriptionPanel
+    }
+
+    fun errorParsingScanDescription(): JPanel {
+        descriptionPanel = JPanel()
+        descriptionPanel.add(JLabel("Checkov has failed to run on the file due to parsing errors, Please make sure that you file is valid."), BorderLayout.CENTER)
         return descriptionPanel
     }
 
@@ -73,78 +88,47 @@ class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindow
     /**
      * Create description for specific checkov result.
      */
-    fun descriptionOfCheckovScan(checkovResult: CheckovResult) {
-        descriptionPanel.removeAll()
+    fun descriptionOfCheckovScan(checkovResult: CheckovResult): JPanel {
+        descriptionPanel = JPanel()
 
-        descriptionPanel.layout = GridLayoutManager(3, 2)
+        descriptionPanel.layout = GridLayoutManager(1, 1)
+        val descriptions = JPanel()
+        descriptions.layout = GridLayoutManager(4, 1)
+        val policyDetailsTitle = createTitle(POLICYDETAILS,Font.BOLD, 15)
+        val policyDetailsData = JLabel(checkovResult.check_name + "(${checkovResult.check_id})")
+        val guidelines = urlLink("View Guidelines", checkovResult.guideline)
+        descriptions.add(policyDetailsTitle, createGridRowCol(0, 0, GridConstraints.ANCHOR_NORTHWEST));
+        descriptions.add(policyDetailsData, createGridRowCol(1, 0, GridConstraints.ANCHOR_NORTHWEST));
+        descriptions.add(guidelines, createGridRowCol(3, 0, GridConstraints.ANCHOR_NORTHWEST));
+
+
         fixButton = JButton("Fix")
-        if (checkovResult.fixed_definition == null){
-            fixButton.isEnabled = false
-        }
-        else {
+        if (!checkovResult.fixed_definition.isNullOrEmpty()){
             fixButton.isEnabled = true
             fixButton.addActionListener {
                 LOG.info("fix button was presssed")
                 ApplicationManager.getApplication().invokeLater {
                         val (start, end) = getOffsetReplaceByLines(checkovResult.file_line_range, project)
                         updateFile(checkovResult.fixed_definition, project, start, end)
-                        project.service<CheckovService>().scanFile(checkovResult.file_abs_path, project);
 
+                }
+                ApplicationManager.getApplication().invokeLater{
+                    runCheckov(checkovResult,project)
                 }
 
             }
-
+            descriptions.add(fixButton, createGridRowCol(2, 0, GridConstraints.ANCHOR_NORTHWEST));
         }
-
-        checkNameLabel = createDescriptionSection(CHECKNAME, checkovResult.check_name)
-        checkIdLabel = createDescriptionSection(CHECKID, checkovResult.check_id)
-        checkGuidelinesLabel = createDescriptionSection(GUIDELINES, checkovResult.guideline)
-
-        descriptionPanel.add(checkNameLabel, createGridRowCol(0, 0, GridConstraints.ANCHOR_WEST));
-        descriptionPanel.add(checkIdLabel, createGridRowCol(1, 0, GridConstraints.ANCHOR_WEST));
-        descriptionPanel.add(checkGuidelinesLabel, createGridRowCol(2, 0, GridConstraints.ANCHOR_WEST));
-        descriptionPanel.add(fixButton, createGridRowCol(0, 1, GridConstraints.ANCHOR_EAST));
-
-        descriptionPanel.revalidate()
-        descriptionPanel.repaint()
+        descriptionPanel.add(descriptions, createGridRowCol(0,0, GridConstraints.ANCHOR_NORTHWEST))
+        return descriptionPanel
 
     }
 
-    /**
-     * Helper function that creates a single description section with a title and a description.
-     */
-    private fun createDescriptionSection(title: String, description: String): JPanel {
-        val fontTitle = Font("Verdana", Font.BOLD, 15)
 
-        val JSection = JPanel()
-
-        val Jtitle = JTextPane()
-        Jtitle.font = fontTitle
-        Jtitle.text = title
-        val JDescription: JLabel
-
-        if (isUrl(description)) {
-            JDescription = LinkLabel.create(description) {
-                try {
-                    Desktop.getDesktop().browse(URI(description))
-                } catch (ex: URISyntaxException) {
-                }
-            }
-        } else {
-            JDescription = JLabel(description)
-        }
-
-        JSection.layout = GridLayoutManager(2, 1)
-        JSection.add(Jtitle, createGridRowCol(0, 0, GridConstraints.ANCHOR_WEST))
-        JSection.add(JDescription, createGridRowCol(1, 0, GridConstraints.ANCHOR_WEST))
-
-        return JSection
-    }
-
-
-    fun createScroll(): JScrollPane {
+    fun createScroll(checkovResult: CheckovResult): JScrollPane {
+        val descriptionPanelRes = descriptionOfCheckovScan(checkovResult)
         return ScrollPaneFactory.createScrollPane(
-            descriptionPanel,
+            descriptionPanelRes,
             ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
             ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED
         )
