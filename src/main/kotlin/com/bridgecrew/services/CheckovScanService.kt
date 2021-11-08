@@ -10,6 +10,7 @@ import com.bridgecrew.listeners.CheckovSettingsListener
 import com.bridgecrew.services.checkovRunner.CheckovRunner
 import com.bridgecrew.settings.CheckovSettingsState
 import com.bridgecrew.ui.CheckovNotificationBalloon
+import com.bridgecrew.utils.DEFAULT_TIMEOUT
 import com.bridgecrew.utils.defaultRepoName
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.OSProcessHandler
@@ -166,7 +167,7 @@ class CheckovScanService {
 
                 val output = ScriptRunnerUtil.getProcessOutput(processHandler,
                     ScriptRunnerUtil.STDOUT_OR_STDERR_OUTPUT_KEY_FILTER,
-                    720000000)
+                    DEFAULT_TIMEOUT)
             project.service<CheckovScanService>().analyzeScan(output, processHandler.exitCode!!, project, filePath)
             }
         }
