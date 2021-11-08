@@ -31,7 +31,7 @@ class CliService {
         LOG.info("Running command: $commandToPrint")
         val generalCommandLine = GeneralCommandLine(commands)
         generalCommandLine.charset = Charset.forName("UTF-8")
-        generalCommandLine.setWorkDirectory(project.getBasePath())/////////////??????????
+        generalCommandLine.setWorkDirectory(project.getBasePath())
 
         val processHandler: ProcessHandler = OSProcessHandler(generalCommandLine)
         val myBackgroundable =
