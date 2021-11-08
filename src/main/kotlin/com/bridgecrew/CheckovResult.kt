@@ -30,7 +30,6 @@ fun getFailedChecksFromResultString(raw: String): ArrayList<CheckovResult> {
     if (raw.isEmpty()){
         throw CheckovResultException("Checkov result returned empty")
     }
-    println(raw)
     return when (raw[0]) {
         '{' -> getFailedChecksFromObj(JSONObject(raw))
         '[' -> {

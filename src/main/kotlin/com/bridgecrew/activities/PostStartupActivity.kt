@@ -28,8 +28,6 @@ class PostStartupActivity : StartupActivity {
         PipCheckovRunner.getPythonUserBasePath(project)
         getGitRepoName(project)
         subscribe(project)
-        println("This is the current project from pre install activity ${project.getBasePath()}")
-
         LOG.info("Startup activity finished")
     }
 
@@ -76,7 +74,6 @@ class PostStartupActivity : StartupActivity {
         project.messageBus.connect()
             .subscribe(CheckovInstallerListener.INSTALLER_TOPIC, object: CheckovInstallerListener {
                 override fun installerFinished(runnerClass: CheckovRunner) {
-                    println("in subscript installer")
                     project.service<CheckovScanService>().selectedCheckovRunner = runnerClass
                     project.service<CheckovToolWindowManagerPanel>().subscribeToListeners()
                 }
@@ -88,7 +85,6 @@ class PostStartupActivity : StartupActivity {
                     project.service<CheckovToolWindowManagerPanel>().loadMainPanel()
                 }
             })
-        println("end manager init")
 
     }
 }

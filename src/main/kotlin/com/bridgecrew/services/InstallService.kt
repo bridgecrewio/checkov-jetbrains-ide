@@ -66,8 +66,6 @@ class CheckovInstallerService {
                 val output = ScriptRunnerUtil.getProcessOutput(handler,
                     ScriptRunnerUtil.STDOUT_OR_STDERR_OUTPUT_KEY_FILTER,
                     720000000)
-                println(output)
-                println(handler.exitCode)
                 if (handler.exitCode != 0 || output.contains("[ERROR]")) {
                     LOG.info("Failed to install using: ${runnerObject.javaClass.kotlin}")
                     continue

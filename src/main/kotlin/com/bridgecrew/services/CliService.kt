@@ -58,7 +58,6 @@ class CliService {
                 ScriptRunnerUtil.getProcessOutput(processHandler,
                     ScriptRunnerUtil.STDOUT_OR_STDERR_OUTPUT_KEY_FILTER,
                     720000000)
-            println("cliService output $output")
             function(output,  processHandler.exitCode!!, project)
         }
 

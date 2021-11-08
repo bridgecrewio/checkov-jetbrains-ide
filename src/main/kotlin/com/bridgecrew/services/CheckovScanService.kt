@@ -104,7 +104,6 @@ class CheckovScanService {
             project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningError()
             return
         }
-        println(result)
         try {
             if (filePath == currentFile) {  // To show only the last run of checkov ( on the opened file)
                 val filePathRelativeToProject = filePath.replace(project.basePath!!, "")
@@ -169,13 +168,11 @@ class CheckovScanService {
                 val output = ScriptRunnerUtil.getProcessOutput(processHandler,
                     ScriptRunnerUtil.STDOUT_OR_STDERR_OUTPUT_KEY_FILTER,
                     720000000)
-            println(output)
             project.service<CheckovScanService>().analyzeScan(output, processHandler.exitCode!!, project, filePath)
             }
         }
 
     private fun replaceApiToken(command: String): String {
-        println(command)
         val apiToknIndex = command.indexOf("--bc-api-key")
         return if (apiToknIndex >= 0) {
             val firstPos: Int = apiToknIndex + "--bc-api-key".length
