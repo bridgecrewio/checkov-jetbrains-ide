@@ -1,21 +1,16 @@
 package com.bridgecrew.ui
 
 import com.bridgecrew.CheckovResult
-import com.bridgecrew.services.CheckovService
 import com.bridgecrew.utils.*
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.util.IconLoader
 import com.intellij.ui.ScrollPaneFactory
-import com.intellij.ui.components.labels.LinkLabel
 import com.intellij.uiDesigner.core.GridConstraints
 import com.intellij.uiDesigner.core.GridLayoutManager
 import java.awt.*
-import java.net.URI
-import java.net.URISyntaxException
 import javax.swing.*
 
 private val LOG = logger<CheckovToolWindowDescriptionPanel>()
@@ -43,7 +38,7 @@ class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindow
         descriptionPanel.layout = GridLayoutManager(1, 1, Insets(0, 0, 0, 0), -1, -1)
         val scanningPanel = JPanel()
         scanningPanel.layout = GridLayoutManager(2, 1, Insets(0, 0, 0, 0), -1, -1)
-        scanningPanel.add(JLabel(IconLoader.getIcon("/icons/checkov_m.svg")), createGridRowCol(0,0,GridConstraints.ANCHOR_CENTER))
+        scanningPanel.add(JLabel(IconLoader.getIcon("/icons/checkov_m.svg")), createGridRowCol(0,0,GridConstraints.ANCHOR_NORTHEAST))
         scanningPanel.add(JLabel("Checkov is being installed"),  createGridRowCol(1,0,GridConstraints.ANCHOR_CENTER))
         descriptionPanel.add(scanningPanel, createGridRowCol(0,0,GridConstraints.ANCHOR_CENTER))
         return descriptionPanel

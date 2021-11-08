@@ -17,7 +17,7 @@ class CheckovSettingsPanel(project: Project): JPanel() {
 
         layout = GridLayoutManager(5, 1, Insets(0, 0, 0, 0), -1, -1)
 
-        add(JLabel(getIcon("/icons/checkov_l.svg")), createGridRowCol(0,0, GridConstraints.ANCHOR_CENTER))
+        add(JLabel(getIcon("/icons/checkov_m.svg")), createGridRowCol(0,0, GridConstraints.ANCHOR_NORTHEAST))
         add(JLabel("\n\n"),createGridRowCol(1,0, GridConstraints.ANCHOR_CENTER))
 
         add(JLabel("Checkov Plugin would scan your infrastructure as code files."), createGridRowCol(2,0, GridConstraints.ANCHOR_CENTER))
