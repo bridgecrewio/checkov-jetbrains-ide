@@ -40,7 +40,6 @@ private val LOG = logger<CheckovScanService>()
 @Service
 class CheckovScanService {
     var selectedCheckovRunner: CheckovRunner? = null
-    var checkovPath: String = ""
     private var isFirstRun: Boolean = true
     private val settings = CheckovSettingsState().getInstance()
     private var currentFile = ""

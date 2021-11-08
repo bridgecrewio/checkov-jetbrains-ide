@@ -11,37 +11,19 @@ private val LOG = logger<PipCheckovRunner>()
 
 class PipCheckovRunner(val project: Project) : CheckovRunner {
 
-    private fun isCheckovInstalledGlobally(): Boolean {
-        return try {
-            val checkovVersionExitCode = Runtime.getRuntime().exec("checkov -v").waitFor()
-            checkovVersionExitCode == 0
-        } catch (err: Exception) {
-            false
-        }
-    }
-
     override fun getInstallCommand(project: Project): ArrayList<String> {
-        val cmds = ArrayList<String>()
-        cmds.add("pip3")
-        cmds.add("install")
-        cmds.add("-U")
-        cmds.add("--user")
-        cmds.add("checkov")
-        cmds.add("-i")
-        cmds.add("https://pypi.org/simple/")
+        val cmds =arrayListOf("pip3","install","-U","--user","checkov","-i","https://pypi.org/simple/")
         return cmds
     }
 
     override fun getExecCommand(filePath: String, apiToken: String, gitRepoName: String, pluginVersion: String): ArrayList<String> {
         val cmds = arrayListOf(project.service<CliService>().checkovPath, "-s","--bc-api-key",
-            apiToken, "--repo-id", "bridgecrewio/terragoat", "-f", filePath,"-o", "json")
+            apiToken, "--repo-id", gitRepoName, "-f", filePath,"-o", "json")
         return cmds
     }
 
     override fun getVersion(project: Project): ArrayList<String> {
-        val cmds = ArrayList<String>()
-        cmds.add(project.service<CliService>().checkovPath)
-        cmds.add("-v")
+        val cmds = arrayListOf(project.service<CliService>().checkovPath,"-v")
         return cmds
     }
 
