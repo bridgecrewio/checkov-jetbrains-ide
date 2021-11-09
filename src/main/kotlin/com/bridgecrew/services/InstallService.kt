@@ -39,22 +39,18 @@ class CheckovInstallerService {
             commands.add(Pair(servoce, processHandler))
         }
 
-        val myBackgroundable =
-            BackgroundableTask(project, "Installing checkov" ,commands)
+        val installerTask =
+            InstallerTask(project, "Installing checkov" ,commands)
         if (SwingUtilities.isEventDispatchThread()) {
-            ProgressManager.getInstance().run(myBackgroundable)
+            ProgressManager.getInstance().run(installerTask)
         } else {
             ApplicationManager.getApplication().invokeLater {
-                ProgressManager.getInstance().run(myBackgroundable)
+                ProgressManager.getInstance().run(installerTask)
             }
         }
     }
 
-    private class BackgroundableTask(
-        project: Project,
-        title: String,
-        val services: ArrayList<Pair<CheckovService , ProcessHandler>>,
-    ) :
+    private class InstallerTask(project: Project, title: String, val services: ArrayList<Pair<CheckovService , ProcessHandler>>):
         Task.Backgroundable(project, title,true) {
         override fun run(indicator: ProgressIndicator) {
             indicator.isIndeterminate = false

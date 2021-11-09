@@ -79,13 +79,13 @@ class CheckovScanService {
         }
 
         val processHandler: ProcessHandler = OSProcessHandler(generalCommandLine)
-        val myBackgroundable =
-            BackgroundableTask(project, "Checkov scanning file $currentFile",filePath, processHandler)
+        val scanTask =
+            ScanTask(project, "Checkov scanning file $currentFile",filePath, processHandler)
         if (SwingUtilities.isEventDispatchThread()) {
-            ProgressManager.getInstance().run(myBackgroundable)
+            ProgressManager.getInstance().run(scanTask)
         } else {
             ApplicationManager.getApplication().invokeLater {
-                ProgressManager.getInstance().run(myBackgroundable)
+                ProgressManager.getInstance().run(scanTask)
             }
         }
     }
@@ -154,16 +154,10 @@ class CheckovScanService {
         return cmds
     }
 
-    private class BackgroundableTask(
-        project: Project,
-        title: String,
-        val filePath: String,
-        val processHandler: ProcessHandler
-    ) :
+    private class ScanTask(project: Project, title: String, val filePath: String, val processHandler: ProcessHandler):
         Task.Backgroundable(project, title,true) {
         override fun run(indicator: ProgressIndicator) {
             indicator.isIndeterminate = false
-
                 val output = ScriptRunnerUtil.getProcessOutput(processHandler,
                     ScriptRunnerUtil.STDOUT_OR_STDERR_OUTPUT_KEY_FILTER,
                     DEFAULT_TIMEOUT)
