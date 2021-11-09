@@ -1,43 +1,70 @@
-package com.bridgecrew.services
 
 
+import com.intellij.execution.configurations.GeneralCommandLine
+import com.intellij.execution.process.OSProcessHandler
+import com.intellij.execution.process.ProcessHandler
+import com.intellij.execution.process.ScriptRunnerUtil
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.progress.Task
+import com.intellij.openapi.project.Project
 import java.io.File
+import java.nio.charset.Charset
+import javax.swing.SwingUtilities
 
 private val LOG = logger<CliService>()
 
 @Service
 class CliService {
+    var checkovPath: String = ""
+    var checkovVersion: String = ""
 
-    fun run(command: String, env: Array<String>? = null, dir: File? = null): String {
-        val commandToPrint = replaceApiToken(command)
+    fun run(
+        commands: ArrayList<String>,
+        project: Project,
+        function: (output: String, exitCode: Int, project: Project) -> Unit,
+    ) {
+        val commandToPrint = commands.joinToString(" ")
         LOG.info("Running command: $commandToPrint")
-        val checkovProcess = Runtime.getRuntime().exec(command, env, dir)
-        val result = checkovProcess.inputStream.bufferedReader().use { it.readText() }
-        val error = checkovProcess.errorStream.bufferedReader().use { it.readText() }
-        val checkovExitCode = checkovProcess.waitFor()
+        val generalCommandLine = GeneralCommandLine(commands)
+        generalCommandLine.charset = Charset.forName("UTF-8")
+        generalCommandLine.setWorkDirectory(project.getBasePath())
 
-        if (checkovExitCode != 0) {
-            LOG.info("Failed to run cli $commandToPrint")
-            LOG.info(error)
-            throw Exception("Failed to run cli command")
+        val processHandler: ProcessHandler = OSProcessHandler(generalCommandLine)
+        val myBackgroundable =
+            BackgroundableTask(project, "running cli command $commandToPrint", processHandler, function )
+        if (SwingUtilities.isEventDispatchThread()) {
+            ProgressManager.getInstance().run(myBackgroundable)
+        } else {
+            ApplicationManager.getApplication().invokeLater {
+                ProgressManager.getInstance().run(myBackgroundable)
+            }
         }
+    }
 
-        LOG.info("Finished running command: $commandToPrint")
-
-        return result
+    private class BackgroundableTask(
+        project: Project,
+        title: String,
+        val processHandler: ProcessHandler,
+        val function: (output: String, exitCode: Int, project: Project) -> Unit,
+    ) :
+        Task.Backgroundable(project, title,true) {
+        override fun run(indicator: ProgressIndicator) {
+            indicator.isIndeterminate = false
+            val output =
+                ScriptRunnerUtil.getProcessOutput(processHandler,
+                    ScriptRunnerUtil.STDOUT_OR_STDERR_OUTPUT_KEY_FILTER,
+                    720000000)
+            function(output,  processHandler.exitCode!!, project)
+        }
 
     }
 
-    private fun replaceApiToken (command: String): String{
-        val apiToknIndex = command.indexOf("--bc-api-key")
-        return if (apiToknIndex >= 0){
-            val firstPos: Int = apiToknIndex + "--bc-api-key".length
-            val lastPos: Int = command.indexOf("--repo-id", firstPos)
-            command.substring(0, firstPos).toString() + " **-**-**-** " + command.substring(lastPos)
-        } else{
-            command
-        }
-    }
 }
+
+
+
+

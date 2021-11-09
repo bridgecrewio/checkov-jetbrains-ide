@@ -1,7 +1,7 @@
 package com.bridgecrew.utils
 
 import com.bridgecrew.CheckovResult
-import com.bridgecrew.services.CheckovService
+import com.bridgecrew.services.CheckovScanService
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.ui.components.labels.LinkLabel
@@ -25,11 +25,6 @@ fun urlLink(title:String, url: String): JLabel{
         }
     }
     return link
-}
-
-fun runCheckov(checkovResult: CheckovResult, project:Project){
-    project.service<CheckovService>().scanFile(checkovResult.file_abs_path, project);
-
 }
 
 fun createTitle(title: String, font: Int, size: Int): JTextPane {

@@ -1,55 +1,64 @@
 package com.bridgecrew.utils
 
-import com.bridgecrew.services.CliService
+import CliService
+import com.bridgecrew.services.CheckovScanService
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
-import java.io.File
 
 val defaultRepoName = "jetbrains/extension"
 
-fun getGitRepoName(path: String, project: Project): String {
-    try {
-        val output = project.service<CliService>().run("git remote -v", null, File(project.basePath))
-        val lines = output.split("\n")
+fun getGitRepoName(project: Project) {
+        val cmds = ArrayList<String>()
+        cmds.add("git")
+        cmds.add("remote")
+        cmds.add("-v")
+        project.service<CliService>().run(cmds, project,::getRepo)
+}
 
-        var firstLine: String? = null // we'll save this and come back to it if we don't find 'origin'
-        var result: String? = null
-        for (line in lines) {
-            if (firstLine == null) {
-                firstLine = line;
-            }
+fun getRepo(output: String, exitCode: Int, project: Project){
+    try{
+    val lines = output.split("\n")
 
-            if (line.startsWith("origin")) {
-                // remove the upstream name from the front
-                val repoUrl = line.split('\t')[1]
-                val repoName = parseRepoName(repoUrl)
-                if (repoName != null) {
-                    result = repoName
-                    break
-                }
-            }
+    var firstLine: String? = null // we'll save this and come back to it if we don't find 'origin'
+    var result: String? = null
+    for (line in lines) {
+        if (firstLine == null) {
+            firstLine = line;
         }
-        // if we're here, then there is no 'origin', so just take the first line as a default (regardless of how many upstreams there happen to be)
-        if (firstLine != null) {
-            val repoUrl = firstLine.split('\t')[1];
-            val repoName = parseRepoName(repoUrl);
+
+        if (line.startsWith("origin")) {
+            // remove the upstream name from the front
+            val repoUrl = line.split('\t')[1]
+            val repoName = parseRepoName(repoUrl)
             if (repoName != null) {
-                result = repoName;
+                result = repoName
+                break
             }
         }
-
-        return if (result != null) {
-            result
-        } else {
-            println("something went wrong and couldn't get git repo name, returning default value")
-            defaultRepoName
+    }
+    // if we're here, then there is no 'origin', so just take the first line as a default (regardless of how many upstreams there happen to be)
+    if (firstLine != null) {
+        val repoUrl = firstLine.split('\t')[1];
+        val repoName = parseRepoName(repoUrl);
+        if (repoName != null) {
+            result = repoName;
         }
+    }
 
-    } catch (e: Exception) {
+    if (result != null) {
+        project.service<CheckovScanService>().gitRepo = result
+
+    } else {
+        println("something went wrong and couldn't get git repo name, returning default value")
+        project.service<CheckovScanService>().gitRepo = defaultRepoName
+    }
+
+} catch (e: Exception) {
         println("Error in getGitRepoName, returning default repo name")
         e.printStackTrace()
-        return defaultRepoName
+        project.service<CheckovScanService>().gitRepo = defaultRepoName
     }
+
 }
 
 
