@@ -27,7 +27,7 @@ class PostStartupActivity : StartupActivity {
         PipCheckovRunner.getPythonUserBasePath(project)
         getGitRepoName(project)
         installCheckovOnStartup(project)
-        subscribe(project)
+        project.service<CheckovToolWindowManagerPanel>().subscribe(project)
         LOG.info("Startup activity finished")
     }
 
@@ -37,54 +37,5 @@ class PostStartupActivity : StartupActivity {
         LOG.info("Checkov Installation finished")
     }
 
-    private fun subscribe(project: Project){
-        project.messageBus.connect()
-            .subscribe(CheckovScanListener.SCAN_TOPIC, object: CheckovScanListener {
-                override fun scanningStarted() {
-                    project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOVSTARTED)
-                }
 
-                override fun scanningFinished() {
-                    ApplicationManager.getApplication().invokeLater {
-                        project.service<CheckovToolWindowManagerPanel>().displayResults()
-
-                    }
-                }
-
-                override fun scanningFinished(fileName: String) {
-                    ApplicationManager.getApplication().invokeLater {
-                        project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOVFINISHED, fileName)
-
-                    }
-                }
-
-                override fun scanningError() {
-                    ApplicationManager.getApplication().invokeLater {
-                        project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOVERROR)
-                    }
-                }
-
-                override fun scanningParsingError() {
-                    ApplicationManager.getApplication().invokeLater {
-                        project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOVPARSINGERROR)
-                    }
-                }
-            })
-
-        project.messageBus.connect()
-            .subscribe(CheckovInstallerListener.INSTALLER_TOPIC, object: CheckovInstallerListener {
-                override fun installerFinished(runnerClass: CheckovRunner) {
-                    project.service<CheckovScanService>().selectedCheckovRunner = runnerClass
-                    project.service<CheckovToolWindowManagerPanel>().subscribeToListeners()
-                }
-            })
-
-        project.messageBus.connect()
-            .subscribe(CheckovSettingsListener.SETTINGS_TOPIC, object: CheckovSettingsListener {
-                override fun settingsUpdated() {
-                    project.service<CheckovToolWindowManagerPanel>().loadMainPanel()
-                }
-            })
-
-    }
 }

@@ -13,8 +13,8 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
-import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
@@ -101,11 +101,61 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
         })
         project.messageBus.connect(project).subscribe(VirtualFileManager.VFS_CHANGES, object : BulkFileListener {
             override fun after(events: MutableList<out VFileEvent>) {
-                if (events.size > 0 && extensionList.contains(events.get(0).file?.extension )) {
+                if (events.size > 0 && extensionList.contains(events.get(0).file?.extension) &&  ProjectRootManager.getInstance(project).fileIndex.isInContent(events.get(0).file!!)){
                     project.service<CheckovScanService>().scanFile(events.get(0).file!!.path, project);
                 }
             }
         })
+
+    }
+    fun subscribe(project: Project){
+        project.messageBus.connect(this)
+            .subscribe(CheckovScanListener.SCAN_TOPIC, object: CheckovScanListener {
+                override fun scanningStarted() {
+                    project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOVSTARTED)
+                }
+
+                override fun scanningFinished() {
+                    ApplicationManager.getApplication().invokeLater {
+                        project.service<CheckovToolWindowManagerPanel>().displayResults()
+
+                    }
+                }
+
+                override fun scanningFinished(fileName: String) {
+                    ApplicationManager.getApplication().invokeLater {
+                        project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOVFINISHED, fileName)
+
+                    }
+                }
+
+                override fun scanningError() {
+                    ApplicationManager.getApplication().invokeLater {
+                        project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOVERROR)
+                    }
+                }
+
+                override fun scanningParsingError() {
+                    ApplicationManager.getApplication().invokeLater {
+                        project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOVPARSINGERROR)
+                    }
+                }
+            })
+
+        project.messageBus.connect(this)
+            .subscribe(CheckovInstallerListener.INSTALLER_TOPIC, object: CheckovInstallerListener {
+                override fun installerFinished(runnerClass: CheckovRunner) {
+                    project.service<CheckovScanService>().selectedCheckovRunner = runnerClass
+                    project.service<CheckovToolWindowManagerPanel>().subscribeToListeners()
+                }
+            })
+
+        project.messageBus.connect(this)
+            .subscribe(CheckovSettingsListener.SETTINGS_TOPIC, object: CheckovSettingsListener {
+                override fun settingsUpdated() {
+                    project.service<CheckovToolWindowManagerPanel>().loadMainPanel()
+                }
+            })
 
     }
 
