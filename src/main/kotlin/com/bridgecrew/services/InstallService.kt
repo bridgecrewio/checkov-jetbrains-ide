@@ -1,11 +1,10 @@
 
 
 import com.bridgecrew.listeners.CheckovInstallerListener
-import com.bridgecrew.listeners.CheckovScanListener
-import com.bridgecrew.services.checkovRunner.CheckovRunner
-import com.bridgecrew.services.checkovRunner.DockerCheckovRunner
-import com.bridgecrew.services.checkovRunner.PipCheckovRunner
-import com.bridgecrew.services.checkovRunner.PipenvCheckovRunner
+import com.bridgecrew.services.checkovService.CheckovService
+import com.bridgecrew.services.checkovService.DockerCheckovService
+import com.bridgecrew.services.checkovService.PipCheckovService
+import com.bridgecrew.services.checkovService.PipenvCheckovService
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.OSProcessHandler
 import com.intellij.execution.process.ProcessHandler
@@ -19,7 +18,6 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
 import java.nio.charset.Charset
-import java.nio.file.Paths
 import javax.swing.SwingUtilities
 
 
@@ -31,14 +29,14 @@ class CheckovInstallerService {
     fun install(
         project: Project,
     ) {
-        val commands = ArrayList<Pair<CheckovRunner , ProcessHandler>>()
-        val checkovRunners = arrayOf(DockerCheckovRunner(project), PipCheckovRunner(project), PipenvCheckovRunner(project) )
-        for (runner in checkovRunners){
-            val command = runner.getInstallCommand(project)
+        val commands = ArrayList<Pair<CheckovService , ProcessHandler>>()
+        val checkovServices = arrayOf(DockerCheckovService(project), PipCheckovService(project), PipenvCheckovService(project) )
+        for (servoce in checkovServices){
+            val command = servoce.getInstallCommand(project)
             val generalCommandLine = GeneralCommandLine(command)
             generalCommandLine.charset = Charset.forName("UTF-8")
             val processHandler: ProcessHandler = OSProcessHandler(generalCommandLine)
-            commands.add(Pair(runner, processHandler))
+            commands.add(Pair(servoce, processHandler))
         }
 
         val myBackgroundable =
@@ -55,27 +53,27 @@ class CheckovInstallerService {
     private class BackgroundableTask(
         project: Project,
         title: String,
-        val runners: ArrayList<Pair<CheckovRunner , ProcessHandler>>,
+        val services: ArrayList<Pair<CheckovService , ProcessHandler>>,
     ) :
         Task.Backgroundable(project, title,true) {
         override fun run(indicator: ProgressIndicator) {
             indicator.isIndeterminate = false
-            for (runner in runners) {
-                val runnerObject = runner.first
-                val handler = runner.second
+            for (service in services) {
+                val serviceObject = service.first
+                val handler = service.second
                 val output = ScriptRunnerUtil.getProcessOutput(handler,
                     ScriptRunnerUtil.STDOUT_OR_STDERR_OUTPUT_KEY_FILTER,
                     720000000)
                 if (handler.exitCode != 0 || output.contains("[ERROR]")) {
-                    LOG.info("Failed to install using: ${runnerObject.javaClass.kotlin}")
+                    LOG.info("Failed to install using: ${serviceObject.javaClass.kotlin}")
                     continue
                 }
-                if (runnerObject is PipenvCheckovRunner){
-                    PipenvCheckovRunner.getCheckovPath(project)
+                if (serviceObject is PipenvCheckovService){
+                    PipenvCheckovService.getCheckovPath(project)
                 }
-                LOG.info("Checkov installed successfully using ${runnerObject.javaClass.kotlin}")
-                project.messageBus.syncPublisher(CheckovInstallerListener.INSTALLER_TOPIC).installerFinished(runnerObject)
-                project.service<CliService>().run(runnerObject.getVersion(project), project, ::printCheckovVersion)
+                LOG.info("Checkov installed successfully using ${serviceObject.javaClass.kotlin}")
+                project.messageBus.syncPublisher(CheckovInstallerListener.INSTALLER_TOPIC).installerFinished(serviceObject)
+                project.service<CliService>().run(serviceObject.getVersion(project), project, ::printCheckovVersion)
                 break
             }
         }

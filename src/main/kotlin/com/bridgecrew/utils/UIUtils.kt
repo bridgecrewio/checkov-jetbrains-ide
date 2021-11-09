@@ -27,11 +27,6 @@ fun urlLink(title:String, url: String): JLabel{
     return link
 }
 
-fun runCheckov(checkovResult: CheckovResult, project:Project){
-    project.service<CheckovScanService>().scanFile(checkovResult.file_abs_path, project);
-
-}
-
 fun createTitle(title: String, font: Int, size: Int): JTextPane {
     val fontTitle = Font("Verdana", font, size)
     val Jtitle = JTextPane()

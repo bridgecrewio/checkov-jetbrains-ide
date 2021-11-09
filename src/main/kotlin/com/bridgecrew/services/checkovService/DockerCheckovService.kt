@@ -1,16 +1,14 @@
-package com.bridgecrew.services.checkovRunner
+package com.bridgecrew.services.checkovService
 
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
-import org.apache.commons.io.FilenameUtils
-import java.io.File
 import java.nio.file.Paths
 
-private val LOG = logger<DockerCheckovRunner>()
+private val LOG = logger<DockerCheckovService>()
 
 const val DOCKER_MOUNT_DIR = "/checkovScan"
 
-class DockerCheckovRunner(val project: Project) : CheckovRunner {
+class DockerCheckovService(val project: Project) : CheckovService {
 
     override fun getInstallCommand(project: Project): ArrayList<String> {
         val cmds =arrayListOf("docker","pull","bridgecrew/checkov")

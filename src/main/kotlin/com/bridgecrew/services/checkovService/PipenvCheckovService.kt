@@ -1,18 +1,16 @@
-package com.bridgecrew.services.checkovRunner
+package com.bridgecrew.services.checkovService
 
 import CliService
-import com.bridgecrew.listeners.CheckovScanListener
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
-import com.intellij.util.messages.Topic
-import java.nio.file.Paths
-private val LOG = logger<PipCheckovRunner>()
 
-class PipCheckovRunner(val project: Project) : CheckovRunner {
+private val LOG = logger<PipenvCheckovService>()
+
+class PipenvCheckovService(val project: Project) : CheckovService {
 
     override fun getInstallCommand(project: Project): ArrayList<String> {
-        val cmds =arrayListOf("pip3","install","-U","--user","checkov","-i","https://pypi.org/simple/")
+        val cmds =arrayListOf("pipenv","--python","3","install","checkov")
         return cmds
     }
 
@@ -28,17 +26,22 @@ class PipCheckovRunner(val project: Project) : CheckovRunner {
     }
 
     companion object {
-         fun getPythonUserBasePath(project: Project) {
-            val command = arrayListOf("python3", "-c", "import site; print(site.USER_BASE)")
-            project.service<CliService>().run(command,project,::updatePath)
+        fun getCheckovPath(project: Project) {
+            val cmds =arrayListOf("pipenv","run","which","python")
+            project.service<CliService>().run(cmds, project, ::updateCheckovPath)
         }
 
-        fun updatePath(output: String, exitCode: Int, project: Project){
+        fun updateCheckovPath(output: String, exitCode: Int, project: Project) {
             if (exitCode != 0 || output.contains("[ERROR]")) {
                 LOG.warn("Failed to get checkovPath")
                 return
             }
-            project.service<CliService>().checkovPath =  Paths.get(output.trim(), "bin", "checkov").toString()
+            val result = output.trim()
+            val checkovPathArray: MutableList<String> = result.split('/').toMutableList()
+            checkovPathArray.removeLast()
+            checkovPathArray.add("checkov")
+            project.service<CliService>().checkovPath = checkovPathArray.joinToString(separator = "/")
+            LOG.info("Setting checkovPath: ${project.service<CliService>().checkovPath}")
         }
     }
 }
