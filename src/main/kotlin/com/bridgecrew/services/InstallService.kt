@@ -32,11 +32,16 @@ class CheckovInstallerService {
         val commands = ArrayList<Pair<CheckovService , ProcessHandler>>()
         val checkovServices = arrayOf(DockerCheckovService(project), PipCheckovService(project), PipenvCheckovService(project) )
         for (servoce in checkovServices){
-            val command = servoce.getInstallCommand(project)
-            val generalCommandLine = GeneralCommandLine(command)
-            generalCommandLine.charset = Charset.forName("UTF-8")
-            val processHandler: ProcessHandler = OSProcessHandler(generalCommandLine)
-            commands.add(Pair(servoce, processHandler))
+            try {
+                val command = servoce.getInstallCommand(project)
+                val generalCommandLine = GeneralCommandLine(command)
+                generalCommandLine.charset = Charset.forName("UTF-8")
+                val processHandler: ProcessHandler = OSProcessHandler(generalCommandLine)
+                commands.add(Pair(servoce, processHandler))
+            } catch(e: Exception){
+                LOG.info("Process is not installed in the machine, will not try to install $e")
+                continue
+            }
         }
 
         val installerTask =

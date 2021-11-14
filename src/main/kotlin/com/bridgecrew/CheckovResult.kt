@@ -30,10 +30,21 @@ fun getFailedChecksFromResultString(raw: String): ArrayList<CheckovResult> {
     if (raw.isEmpty()){
         throw CheckovResultException("Checkov result returned empty")
     }
-    return when (raw[0]) {
-        '{' -> getFailedChecksFromObj(JSONObject(raw))
+    var checkovResult = "checkovResult"
+    val outputListOfLines = raw.split("\n").map { it.trim() }
+    for (i in outputListOfLines.indices) {
+        if (outputListOfLines[i].contains("[WARNI]")){
+            continue
+        }
+        checkovResult = outputListOfLines.subList(i,outputListOfLines.size-1).joinToString("\n")
+        break
+    }
+    checkovResult = checkovResult.replace("\u001B[0m","")
+
+    return when (checkovResult[0]) {
+        '{' -> getFailedChecksFromObj(JSONObject(checkovResult))
         '[' -> {
-            val results = JSONArray(raw)
+            val results = JSONArray(checkovResult)
             var res: ArrayList<CheckovResult> = arrayListOf()
             for (obj in results) {
                 res.addAll(getFailedChecksFromObj(obj as JSONObject))
