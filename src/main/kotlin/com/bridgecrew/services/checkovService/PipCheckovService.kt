@@ -46,7 +46,6 @@ class PipCheckovService(val project: Project) : CheckovService {
                 LOG.warn("Failed to get checkovPath")
                 return
             }
-            println("In update python path $output")
             project.service<CliService>().checkovPath =  Paths.get(output.trim(), "bin", "checkov").toString()
         }
 
