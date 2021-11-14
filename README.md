@@ -49,7 +49,7 @@ Plugin features include:
 
 * [Python](https://www.python.org/downloads/) >= 3.7 or [Pipenv](https://docs.pipenv.org/) or [Docker](https://www.docker.com/products/docker-desktop) daemon running
 
-The Checkov extension will invoke the latest version of ```Checkov```.
+The Checkov plugin will invoke the latest version of ```Checkov```.
 
 ### Configuration
 
