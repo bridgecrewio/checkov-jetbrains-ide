@@ -33,6 +33,7 @@ dependencies {
     implementation("com.beust:klaxon:5.5")
     implementation("com.google.code.gson:gson:2.8.8")
     implementation("org.json:json:20171018")
+    implementation("commons-io:commons-io:2.11.0")
 }
 
 // Configure gradle-intellij-plugin plugin.

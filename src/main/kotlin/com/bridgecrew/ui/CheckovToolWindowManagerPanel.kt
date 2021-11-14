@@ -100,10 +100,12 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
         // subscribe to update file events
         project.messageBus.connect(project).subscribe(VirtualFileManager.VFS_CHANGES, object : BulkFileListener {
             override fun after(events: MutableList<out VFileEvent>) {
-                val relevantFile = extensionList.contains(events.get(0).file?.extension)
-                val relevantProject = ProjectRootManager.getInstance(project).fileIndex.isInContent(events.get(0).file!!)
-                if (events.size > 0 && relevantFile && relevantProject ){
-                    project.service<CheckovScanService>().scanFile(events.get(0).file!!.path, project);
+                if (events.size>0 && events.get(0).file != null){
+                    val relevantFile = extensionList.contains(events.get(0).file?.extension)
+                    val relevantProject = ProjectRootManager.getInstance(project).fileIndex.isInContent(events.get(0).file!!)
+                    if (events.size > 0 && relevantFile && relevantProject ){
+                        project.service<CheckovScanService>().scanFile(events.get(0).file!!.path, project);
+                    }
                 }
             }
         })

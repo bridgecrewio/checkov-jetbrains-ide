@@ -29,19 +29,24 @@ class CliService {
     ) {
         val commandToPrint = commands.joinToString(" ")
         LOG.info("Running command: $commandToPrint")
-        val generalCommandLine = GeneralCommandLine(commands)
-        generalCommandLine.charset = Charset.forName("UTF-8")
-        generalCommandLine.setWorkDirectory(project.getBasePath())
+        try {
 
-        val processHandler: ProcessHandler = OSProcessHandler(generalCommandLine)
-        val myBackgroundable =
-            BackgroundableTask(project, "running cli command $commandToPrint", processHandler, function )
-        if (SwingUtilities.isEventDispatchThread()) {
-            ProgressManager.getInstance().run(myBackgroundable)
-        } else {
-            ApplicationManager.getApplication().invokeLater {
+            val generalCommandLine = GeneralCommandLine(commands)
+            generalCommandLine.charset = Charset.forName("UTF-8")
+            generalCommandLine.setWorkDirectory(project.getBasePath())
+
+            val processHandler: ProcessHandler = OSProcessHandler(generalCommandLine)
+            val myBackgroundable =
+                BackgroundableTask(project, "running cli command $commandToPrint", processHandler, function)
+            if (SwingUtilities.isEventDispatchThread()) {
                 ProgressManager.getInstance().run(myBackgroundable)
+            } else {
+                ApplicationManager.getApplication().invokeLater {
+                    ProgressManager.getInstance().run(myBackgroundable)
+                }
             }
+        } catch (e: Exception){
+            LOG.warn("Cli command $commandToPrint could not run due to exception: $e")
         }
     }
 
