@@ -30,7 +30,7 @@ class CheckovInstallerService {
         project: Project,
     ) {
         val commands = ArrayList<Pair<CheckovService , ProcessHandler>>()
-        val checkovServices = arrayOf(DockerCheckovService(project), PipenvCheckovService(project), PipCheckovService(project) )
+        val checkovServices = arrayOf(DockerCheckovService(project), PipCheckovService(project), PipenvCheckovService(project))
         for (service in checkovServices){
             try {
                 val command = service.getInstallCommand(project)
