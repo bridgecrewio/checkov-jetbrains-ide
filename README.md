@@ -16,7 +16,7 @@ The Checkov Plugin for Intellij enables developers to get real-time scan results
 #TODO PLUGIN GIF DEMO
 
 
-The extension is currently available for download directly from the [IntelliJ Plugin Marketplace](link-to-plugin.com) and its source code is available in an [Apache 2.0 licensed repository](link-to-license.com).
+The plugin is currently available for download directly from the [IntelliJ Plugin Marketplace](link-to-plugin.com) and its source code is available in an [Apache 2.0 licensed repository](link-to-license.com).
 
 Activating the plugin requires submission of one-time Bridgecrew API Token that can be obtained by [creating a new Bridgecrew platform account](https://docs.bridgecrew.io/docs/get-api-token). It uses open [Bridgecrew Developer APIs](https://docs.bridgecrew.io/reference) to evaluate code and offer automated inline fixes. For more information about data shared with Bridgecrew see the [Disclaimer](#disclaimer) section below).
 
