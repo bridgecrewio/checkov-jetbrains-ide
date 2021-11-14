@@ -29,6 +29,11 @@ class PipCheckovService(val project: Project) : CheckovService {
     }
 
     companion object {
+        fun isCheckovInstalledGloablly(project: Project){
+            val cmds =arrayListOf("checkov","-v")
+            project.service<CliService>().run(cmds,project,::updateGlobalCheckov)
+        }
+
          fun getPythonUserBasePath(project: Project) {
              val os = System.getProperty("os.name").toLowerCase()
              if (os.contains("win")){
@@ -64,7 +69,15 @@ class PipCheckovService(val project: Project) : CheckovService {
             }
         }
 
+        private fun updateGlobalCheckov(output: String, exitCode: Int, project: Project) {
+            if (exitCode != 0 || output.contains("[ERROR]")) {
+                LOG.info("Checkov is not installed globally, running local command")
+                project.service<CliService>().isCheckovInstalledGlobally = false
+            } else {
+                LOG.info("Checkov installed globally, will use it")
+                project.service<CliService>().isCheckovInstalledGlobally = true
+            }
+        }
     }
-
 }
 

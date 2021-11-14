@@ -15,6 +15,7 @@ class PostStartupActivity : StartupActivity {
 
     override fun runActivity(project: Project) {
         LOG.info("Startup activity starting")
+        PipCheckovService.isCheckovInstalledGloablly(project)
         PipCheckovService.getPythonUserBasePath(project)
         getGitRepoName(project)
         installCheckovOnStartup(project)
