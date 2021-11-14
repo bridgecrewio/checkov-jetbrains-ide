@@ -96,6 +96,6 @@ If you need direct support you can contact us at [info@bridgecrew.io](mailto:inf
 
 
 ---
-The plugin is based on the [IntelliJ Platform Plugin Template][template].
+The plugin is based on the [Jetbrains Platform Plugin Template][template].
 
 [template]: https://github.com/JetBrains/intellij-platform-plugin-template
