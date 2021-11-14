@@ -37,7 +37,7 @@ fun getRepo(output: String, exitCode: Int, project: Project){
         }
     }
     // if we're here, then there is no 'origin', so just take the first line as a default (regardless of how many upstreams there happen to be)
-    if (firstLine != null) {
+    if (firstLine != null && !firstLine.contains("fatal: not a git repository")) {
         val repoUrl = firstLine.split('\t')[1];
         val repoName = parseRepoName(repoUrl);
         if (repoName != null) {
