@@ -84,11 +84,9 @@ class PipCheckovService(val project: Project) : CheckovService {
 
         private fun updateGlobalCheckov(output: String, exitCode: Int, project: Project) {
             if (exitCode != 0 || output.contains("[ERROR]")) {
-                println("updateGlobalCheckov not global")
                 LOG.info("Checkov is not installed globally, running local command")
                 project.service<CliService>().isCheckovInstalledGlobally = false
             } else {
-                println("updateGlobalCheckov global")
                 LOG.info("Checkov installed globally, will use it")
                 project.service<CliService>().isCheckovInstalledGlobally = true
             }
