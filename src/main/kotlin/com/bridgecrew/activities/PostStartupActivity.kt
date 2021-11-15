@@ -15,19 +15,10 @@ class PostStartupActivity : StartupActivity {
 
     override fun runActivity(project: Project) {
         LOG.info("Startup activity starting")
-        PipCheckovService.isCheckovInstalledGloablly(project)
-        PipCheckovService.getPythonUserBasePath(project)
+        PipCheckovService.setCheckovPath(project)
         getGitRepoName(project)
-        installCheckovOnStartup(project)
+        project.service<CheckovInstallerService>().install(project)
         project.service<CheckovToolWindowManagerPanel>().subscribeToInternalEvents(project)
         LOG.info("Startup activity finished")
     }
-
-    private fun installCheckovOnStartup(project: Project) {
-        LOG.info("Checkov Installation starting")
-        project.service<CheckovInstallerService>().install(project)
-        LOG.info("Checkov Installation finished")
-    }
-
-
 }
