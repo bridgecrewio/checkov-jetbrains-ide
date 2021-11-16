@@ -69,10 +69,11 @@ The Checkov plugin will invoke the latest version of ```Checkov```.
 * Click a check to see its details. Details including  violating policy and a link to step-by-step fix guidelines.
 * In most cases, the Details will include a fix option. This will either add, remove or replace an unwanted configuration, based on the Checkov fix dictionaries.
 * You can skip checks by adding an inline skip annotation ```checkov:skip=<check_id>:<suppression_comment>```. For more details see the [docs](https://github.com/bridgecrewio/checkov/blob/master/docs/2.Concepts/Suppressions.md).
+* To get Checkov results updated as you code you can configure the IDE to autosave modified files at regular time intervals.
 
 ### Troubleshooting logs
 
-To access checkov-intellij logs directory, go to `Help` and select `Show Log in Finder` (Mac) or `Show Log in Explorer` (Windows).
+To access checkov-intellij logs directory, go to `Help` and select `Show Log in Finder` (for macOS) or `Show Log in Explorer` (for Windows).
 
 ## Contributing
 
