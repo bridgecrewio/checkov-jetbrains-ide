@@ -2,8 +2,8 @@
 
 [![Maintained by Bridgecrew.io](https://img.shields.io/badge/maintained%20by-bridgecrew.io-blueviolet)](https://bridgecrew.io/?utm_source=github&utm_medium=organic_oss&utm_campaign=checkov-vscode)
 ![Build](https://github.com/bridgecrewio/checkov-jetbrains-idea/workflows/Build/badge.svg)
-[![Version](https://img.shields.io/jetbrains/plugin/v/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
-[![Downloads](https://img.shields.io/jetbrains/plugin/d/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
+[![Version](https://img.shields.io/jetbrains/plugin/v/17721-checkov.svg)](https://plugins.jetbrains.com/plugin/17721-checkov)
+[![Downloads](https://img.shields.io/jetbrains/plugin/d/17721-checkov.svg)](https://plugins.jetbrains.com/plugin/17721-checkov)
 [![slack-community](https://img.shields.io/badge/Slack-contact%20us-lightgrey.svg?logo=slack)](https://slack.bridgecrew.io/?utm_source=github&utm_medium=organic_oss&utm_campaign=checkov-intellij)
 
 # Checkov Plugin for Jetbrains IDEA
@@ -13,10 +13,10 @@
 The Checkov Plugin for Intellij enables developers to get real-time scan results, as well as inline fix suggestions as they develop cloud infrastructure.
 
 
-#TODO PLUGIN GIF DEMO
+<!-- TODO PLUGIN GIF DEMO -->
 <!-- Plugin description -->
 
-The plugin is currently available for download directly from the [IntelliJ Plugin Marketplace](link-to-plugin.com) and its source code is available in an [Apache 2.0 licensed repository](link-to-license.com).
+The plugin is currently available for download directly from the [IntelliJ Plugin Marketplace](https://plugins.jetbrains.com/plugin/17721-checkov) and its source code is available in an [Apache 2.0 licensed repository](https://github.com/bridgecrewio/checkov-jetbrains-ide).
 
 Activating the plugin requires submission of one-time Bridgecrew API Token that can be obtained by [creating a new Bridgecrew platform account](https://docs.bridgecrew.io/docs/get-api-token). It uses open [Bridgecrew Developer APIs](https://docs.bridgecrew.io/reference) to evaluate code and offer automated inline fixes. For more information about data shared with Bridgecrew see the [Disclaimer](#disclaimer) section below).
 
