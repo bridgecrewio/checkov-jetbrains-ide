@@ -30,20 +30,22 @@ class CheckovInstallerService {
         project: Project,
     ) {
         val commands = ArrayList<Pair<CheckovService , ProcessHandler>>()
-        val checkovServices = arrayOf(DockerCheckovService(project), PipCheckovService(project), PipenvCheckovService(project) )
-        for (servoce in checkovServices){
+        val checkovServices = arrayOf(DockerCheckovService(project), PipCheckovService(project), PipenvCheckovService(project))
+        for (service in checkovServices){
             try {
-                val command = servoce.getInstallCommand(project)
+                val command = service.getInstallCommand(project)
                 val generalCommandLine = GeneralCommandLine(command)
                 generalCommandLine.charset = Charset.forName("UTF-8")
                 val processHandler: ProcessHandler = OSProcessHandler(generalCommandLine)
-                commands.add(Pair(servoce, processHandler))
+                commands.add(Pair(service, processHandler))
             } catch(e: Exception){
                 LOG.info("Process is not installed in the machine, will not try to install $e")
                 continue
             }
         }
-
+        if (commands.isEmpty()){
+            LOG.error("Checkov could not be installed, your machine is missing all 3 installtion options.\n Please install docker | pip | pipenv")
+        }
         val installerTask =
             InstallerTask(project, "Installing checkov" ,commands)
         if (SwingUtilities.isEventDispatchThread()) {
