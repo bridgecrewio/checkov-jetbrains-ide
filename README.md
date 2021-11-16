@@ -6,7 +6,6 @@
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
 [![slack-community](https://img.shields.io/badge/Slack-contact%20us-lightgrey.svg?logo=slack)](https://slack.bridgecrew.io/?utm_source=github&utm_medium=organic_oss&utm_campaign=checkov-intellij)
 
-<!-- Plugin description --> 
 # Checkov Plugin for Jetbrains IDEA
 
 [Checkov](https://github.com/bridgecrewio/checkov) is a static code analysis tool for infrastructure-as-code.
@@ -15,7 +14,7 @@ The Checkov Plugin for Intellij enables developers to get real-time scan results
 
 
 #TODO PLUGIN GIF DEMO
-
+<!-- Plugin description -->
 
 The plugin is currently available for download directly from the [IntelliJ Plugin Marketplace](link-to-plugin.com) and its source code is available in an [Apache 2.0 licensed repository](link-to-license.com).
 
@@ -30,6 +29,8 @@ Plugin features include:
 * Supports inline [suppression](https://github.com/bridgecrewio/checkov/blob/master/docs/2.Basics/Suppressing%20and%20Skipping%20Policies.md) via comments.
 * Links to policy descriptions, rationales as well as step by step instructions for fixing known misconfigurations.
 * Fix suggestions for commonly misconfigured Terraform and CloudFormation attributes.
+
+<!-- Plugin description end -->
 
 ## Getting started
 
@@ -69,10 +70,11 @@ The Checkov plugin will invoke the latest version of ```Checkov```.
 * Click a check to see its details. Details including  violating policy and a link to step-by-step fix guidelines.
 * In most cases, the Details will include a fix option. This will either add, remove or replace an unwanted configuration, based on the Checkov fix dictionaries.
 * You can skip checks by adding an inline skip annotation ```checkov:skip=<check_id>:<suppression_comment>```. For more details see the [docs](https://github.com/bridgecrewio/checkov/blob/master/docs/2.Concepts/Suppressions.md).
+* To get Checkov results updated as you code you can configure the IDE to autosave modified files at regular time intervals.
 
 ### Troubleshooting logs
 
-To access checkov-intellij logs directory, go to `Help` and select `Show Log in Finder` (Mac) or `Show Log in Explorer` (Windows).
+To access checkov-intellij logs directory, go to `Help` and select `Show Log in Finder` (for macOS) or `Show Log in Explorer` (for Windows).
 
 ## Contributing
 
@@ -95,10 +97,7 @@ Start with our [Documentation](https://bridgecrewio.github.io/checkov/) for quic
 
 If you need direct support you can contact us at [info@bridgecrew.io](mailto:info@bridgecrew.io).
 
-
 ---
 The plugin is based on the [Jetbrains Platform Plugin Template][template].
 
 [template]: https://github.com/JetBrains/intellij-platform-plugin-template
-
- <!-- Plugin description end -->
