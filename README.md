@@ -6,6 +6,7 @@
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
 [![slack-community](https://img.shields.io/badge/Slack-contact%20us-lightgrey.svg?logo=slack)](https://slack.bridgecrew.io/?utm_source=github&utm_medium=organic_oss&utm_campaign=checkov-intellij)
 
+<!-- Plugin description --> 
 # Checkov Plugin for Jetbrains IDEA
 
 [Checkov](https://github.com/bridgecrewio/checkov) is a static code analysis tool for infrastructure-as-code.
@@ -99,3 +100,5 @@ If you need direct support you can contact us at [info@bridgecrew.io](mailto:inf
 The plugin is based on the [Jetbrains Platform Plugin Template][template].
 
 [template]: https://github.com/JetBrains/intellij-platform-plugin-template
+
+ <!-- Plugin description end -->
