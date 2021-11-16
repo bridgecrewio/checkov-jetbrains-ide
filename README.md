@@ -88,6 +88,8 @@ Looking to contribute new checks? Learn how to write a new check (AKA policy) [h
 To use this checkov-jetbrains plugin, you will need to create a free account at bridgecrew.cloud using your e-mail, the plugin uses Bridgecrew.cloud's fixes API to analyse and produce code fixes, and enrich the results provided into jetbrains IDE. Please notice bridgecrew [privacy policy](https://bridgecrew.io/privacy-policy/?utm_source=github&utm_medium=organic_oss&utm_campaign=checkov-vscode) for more details on collected data when using bridgecrew application.
 To generate fixes, files found to have triggered checkov violations are made available to the fixes API for the sole purpose of generating inline fixes code recommendations.
 
+<!-- Plugin description end -->
+
 ## Support
 
 [Bridgecrew](https://bridgecrew.io/?utm_source=github&utm_medium=organic_oss&utm_campaign=checkov-vscode) builds and maintains Checkov to make policy-as-code simple and accessible.
@@ -96,10 +98,7 @@ Start with our [Documentation](https://bridgecrewio.github.io/checkov/) for quic
 
 If you need direct support you can contact us at [info@bridgecrew.io](mailto:info@bridgecrew.io).
 
-
 ---
 The plugin is based on the [Jetbrains Platform Plugin Template][template].
 
 [template]: https://github.com/JetBrains/intellij-platform-plugin-template
-
- <!-- Plugin description end -->
