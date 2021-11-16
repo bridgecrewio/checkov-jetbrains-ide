@@ -71,7 +71,7 @@ The Checkov plugin will invoke the latest version of ```Checkov```.
 
 ### Troubleshooting logs
 
-To access checkov-intellij logs directory, go to `Help` and select `Show Log in Finder`.
+To access checkov-intellij logs directory, go to `Help` and select `Show Log in Finder` (Mac) or `Show Log in Explorer` (Windows).
 
 ## Contributing
 
