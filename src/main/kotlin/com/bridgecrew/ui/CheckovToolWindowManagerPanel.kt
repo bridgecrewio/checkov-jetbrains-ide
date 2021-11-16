@@ -80,10 +80,10 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
         val extensionList = listOf("tf","yaml", "yml", "json")
 
         if (SwingUtilities.isEventDispatchThread()) {
-            project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_PRE_SCAN)
+            project.service<CheckovToolWindowManagerPanel>().loadMainPanel()
         } else {
             ApplicationManager.getApplication().invokeLater {
-                project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_PRE_SCAN)
+                project.service<CheckovToolWindowManagerPanel>().loadMainPanel()
             }
         }
         // subscribe to open file events
