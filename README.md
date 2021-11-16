@@ -37,7 +37,7 @@ Plugin features include:
 
 - Using IDE built-in plugin system:
   
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for checkov</kbd> >
+  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "checkov"</kbd> >
   <kbd>Install Plugin</kbd>
   
 - Manually:
