@@ -30,7 +30,6 @@ Plugin features include:
 * Links to policy descriptions, rationales as well as step by step instructions for fixing known misconfigurations.
 * Fix suggestions for commonly misconfigured Terraform and CloudFormation attributes.
 
-<!-- Plugin description end -->
 
 ## Getting started
 
@@ -38,7 +37,7 @@ Plugin features include:
 
 - Using IDE built-in plugin system:
   
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "checkov-jetbrains-idea"</kbd> >
+  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "checkov"</kbd> >
   <kbd>Install Plugin</kbd>
   
 - Manually:
@@ -101,3 +100,5 @@ If you need direct support you can contact us at [info@bridgecrew.io](mailto:inf
 The plugin is based on the [Jetbrains Platform Plugin Template][template].
 
 [template]: https://github.com/JetBrains/intellij-platform-plugin-template
+
+<!-- Plugin description end -->
