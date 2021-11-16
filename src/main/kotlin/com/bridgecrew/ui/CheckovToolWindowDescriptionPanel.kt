@@ -51,7 +51,7 @@ class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindow
         scanningPanel.layout = GridLayoutManager(3, 1, Insets(0, 0, 0, 0), -1, -1)
         scanningPanel.add(JLabel(IconLoader.getIcon("/icons/checkov_m.svg")), createGridRowCol(0,0,GridConstraints.ANCHOR_CENTER))
         scanningPanel.add(JLabel("Checkov is ready to run."),  createGridRowCol(1,0,GridConstraints.ANCHOR_CENTER))
-        scanningPanel.add(JLabel("Save an IaC file to trigger a scan || Scanning would start automatically once an IaC file is saved"), createGridRowCol(2,0,GridConstraints.ANCHOR_CENTER))
+        scanningPanel.add(JLabel("Scanning would start automatically once an IaC file is opened or saved"), createGridRowCol(2,0,GridConstraints.ANCHOR_CENTER))
         descriptionPanel.add(scanningPanel, createGridRowCol(0,0,GridConstraints.ANCHOR_CENTER))
         return descriptionPanel
     }
