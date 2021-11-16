@@ -13,7 +13,7 @@
 The Checkov Plugin for Intellij enables developers to get real-time scan results, as well as inline fix suggestions as they develop cloud infrastructure.
 
 
-#TODO PLUGIN GIF DEMO
+<!-- TODO PLUGIN GIF DEMO -->
 <!-- Plugin description -->
 
 The plugin is currently available for download directly from the [IntelliJ Plugin Marketplace](https://plugins.jetbrains.com/plugin/17721-checkov) and its source code is available in an [Apache 2.0 licensed repository](link-to-license.com).
