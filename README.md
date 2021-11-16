@@ -6,7 +6,6 @@
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
 [![slack-community](https://img.shields.io/badge/Slack-contact%20us-lightgrey.svg?logo=slack)](https://slack.bridgecrew.io/?utm_source=github&utm_medium=organic_oss&utm_campaign=checkov-intellij)
 
-<!-- Plugin description --> 
 # Checkov Plugin for Jetbrains IDEA
 
 [Checkov](https://github.com/bridgecrewio/checkov) is a static code analysis tool for infrastructure-as-code.
@@ -15,7 +14,7 @@ The Checkov Plugin for Intellij enables developers to get real-time scan results
 
 
 #TODO PLUGIN GIF DEMO
-
+<!-- Plugin description -->
 
 The plugin is currently available for download directly from the [IntelliJ Plugin Marketplace](link-to-plugin.com) and its source code is available in an [Apache 2.0 licensed repository](link-to-license.com).
 
@@ -30,6 +29,8 @@ Plugin features include:
 * Supports inline [suppression](https://github.com/bridgecrewio/checkov/blob/master/docs/2.Basics/Suppressing%20and%20Skipping%20Policies.md) via comments.
 * Links to policy descriptions, rationales as well as step by step instructions for fixing known misconfigurations.
 * Fix suggestions for commonly misconfigured Terraform and CloudFormation attributes.
+
+<!-- Plugin description end -->
 
 ## Getting started
 
@@ -87,8 +88,6 @@ Looking to contribute new checks? Learn how to write a new check (AKA policy) [h
 
 To use this checkov-jetbrains plugin, you will need to create a free account at bridgecrew.cloud using your e-mail, the plugin uses Bridgecrew.cloud's fixes API to analyse and produce code fixes, and enrich the results provided into jetbrains IDE. Please notice bridgecrew [privacy policy](https://bridgecrew.io/privacy-policy/?utm_source=github&utm_medium=organic_oss&utm_campaign=checkov-vscode) for more details on collected data when using bridgecrew application.
 To generate fixes, files found to have triggered checkov violations are made available to the fixes API for the sole purpose of generating inline fixes code recommendations.
-
-<!-- Plugin description end -->
 
 ## Support
 
