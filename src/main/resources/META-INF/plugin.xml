@@ -1,6 +1,6 @@
 <idea-plugin>
     <id>com.github.bridgecrewio.checkov</id>
-    <name>Checkov (Beta)</name>
+    <name>Checkov</name>
     <vendor email="info@bridgecrew.io">bridgecrewio</vendor>
     <description><![CDATA[
     Prevent cloud misconfigurations during build-time for Terraform,
