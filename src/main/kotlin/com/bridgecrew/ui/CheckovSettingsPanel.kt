@@ -15,13 +15,10 @@ class CheckovSettingsPanel(project: Project): JPanel() {
 
     init {
 
-        layout = GridLayoutManager(5, 1, Insets(0, 0, 0, 0), -1, -1)
+        layout = GridLayoutManager(3, 1, Insets(0, 0, 0, 0), -1, -1)
 
-        add(JLabel(getIcon("/icons/checkov_m.svg")), createGridRowCol(0,0, GridConstraints.ANCHOR_CENTER))
-
-        add(JLabel("\n\n"),createGridRowCol(1,0, GridConstraints.ANCHOR_CENTER))
-        add(JLabel("Checkov Plugin would scan your infrastructure as code files."), createGridRowCol(2,0, GridConstraints.ANCHOR_CENTER))
-        add(JLabel("Add an API Token to start getting results."), createGridRowCol(3,0, GridConstraints.ANCHOR_CENTER))
+        add(JLabel("Checkov Plugin would scan your infrastructure as code files."), createGridRowCol(0,0, GridConstraints.ANCHOR_CENTER))
+        add(JLabel("Add an API Token to start getting results."), createGridRowCol(1,0, GridConstraints.ANCHOR_CENTER))
         val settingsButton = JButton("Open Settings")
 
         settingsButton.addActionListener {
@@ -30,7 +27,7 @@ class CheckovSettingsPanel(project: Project): JPanel() {
             }
         }
 
-        add(settingsButton, createGridRowCol(4,0, GridConstraints.ANCHOR_CENTER))
+        add(settingsButton, createGridRowCol(2,0, GridConstraints.ANCHOR_CENTER))
 
     }
 }
