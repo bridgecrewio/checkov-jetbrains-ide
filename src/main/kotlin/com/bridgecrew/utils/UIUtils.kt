@@ -7,14 +7,13 @@ import java.awt.Font
 import java.net.URI
 import java.net.URISyntaxException
 import javax.swing.JLabel
+import javax.swing.JPanel
 import javax.swing.JTextPane
 
-fun urlLink(title:String, guideline: String): JLabel{
-    val guidelineLabel = JLabel()
-    val titleName = JLabel(title)
-    guidelineLabel.add(titleName)
+fun urlLink(guideline: String?): JPanel{
+    val guidelineLabel = JPanel()
     if (isUrl(guideline)) {
-        val url = LinkLabel.create(guideline) {
+        val url = LinkLabel.create(GUIDELINES_TITLE) {
             try {
                 Desktop.getDesktop().browse(URI(guideline))
             } catch (ex: URISyntaxException) {
@@ -22,7 +21,9 @@ fun urlLink(title:String, guideline: String): JLabel{
         }
         guidelineLabel.add(url)
     } else {
+        val titleName = JLabel(CUSTOM_GUIDELINES_TITLE)
         val customGuideline = JLabel(guideline)
+        guidelineLabel.add(titleName)
         guidelineLabel.add(customGuideline)
     }
     return guidelineLabel

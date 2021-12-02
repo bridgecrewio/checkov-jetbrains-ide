@@ -112,7 +112,7 @@ class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindow
         descriptions.layout = GridLayoutManager(4, 1)
         val policyDetailsTitle = createTitle(POLICYDETAILS,Font.BOLD, 15)
         val policyDetailsData = JLabel(checkovResult.check_name + "(${checkovResult.check_id})")
-        val guidelines = urlLink("Guidelines:", checkovResult.guideline)
+        val guidelines = urlLink(checkovResult.guideline)
         descriptions.add(policyDetailsTitle, createGridRowCol(0, 0, GridConstraints.ANCHOR_NORTHWEST));
         descriptions.add(policyDetailsData, createGridRowCol(1, 0, GridConstraints.ANCHOR_NORTHWEST));
         descriptions.add(guidelines, createGridRowCol(3, 0, GridConstraints.ANCHOR_NORTHWEST));
