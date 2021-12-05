@@ -31,7 +31,7 @@ repositories {
 dependencies {
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.19.0")
     implementation("com.beust:klaxon:5.5")
-    implementation("com.google.code.gson:gson:2.8.8")
+    implementation("com.google.code.gson:gson:2.8.9")
     implementation("org.json:json:20210307")
     implementation("commons-io:commons-io:2.11.0")
 }
