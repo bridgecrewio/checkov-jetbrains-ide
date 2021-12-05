@@ -10,9 +10,21 @@ import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.JTextPane
 
-fun urlLink(guideline: String?): JPanel{
+fun urlLink(guideline: String?, checkID: String): JPanel{
     val guidelineLabel = JPanel()
     if (guideline.isNullOrEmpty()){
+        if (!checkID.startsWith("CKV")){
+            // custom policy that does not include guidelines
+            val noGuidelinesTitle = JLabel("No guidelines were provided for this policy. You can add your guidelines")
+            val noGuidelines = LinkLabel.create("here") {
+                try {
+                    Desktop.getDesktop().browse(URI("https://www.bridgecrew.cloud/policies/edit/${checkID}"))
+                } catch (ex: URISyntaxException) {
+                }
+            }
+            guidelineLabel.add(noGuidelinesTitle)
+            guidelineLabel.add(noGuidelines)
+        }
         return guidelineLabel
     }
     if (isUrl(guideline)) {
