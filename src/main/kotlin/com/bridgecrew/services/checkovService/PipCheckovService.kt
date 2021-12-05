@@ -12,7 +12,7 @@ private val LOG = logger<PipCheckovService>()
 class PipCheckovService(val project: Project) : CheckovService {
 
     override fun getInstallCommand(project: Project): ArrayList<String> {
-        val cmds =arrayListOf("pip3","install","-U","--user","checkov","-i","https://pypi.org/simple/")
+        val cmds = arrayListOf("pip3","install","-U","--user","checkov","-i","https://pypi.org/simple/")
         return cmds
     }
 
@@ -29,7 +29,17 @@ class PipCheckovService(val project: Project) : CheckovService {
     }
 
     companion object {
-         fun getPythonUserBasePath(project: Project) {
+        fun setCheckovPath(project: Project){
+            // check if checkov installed globally
+            isCheckovInstalledGloablly(project)
+            // after this check, will check how to run checkov
+        }
+        private fun isCheckovInstalledGloablly(project: Project){
+            val cmds =arrayListOf("checkov.cmd","-v")
+            project.service<CliService>().run(cmds,project,::updateGlobalCheckov)
+        }
+
+         private fun getPythonUserBasePath(project: Project) {
              val os = System.getProperty("os.name").toLowerCase()
              if (os.contains("win")){
                  val command = arrayListOf("pip3", "show", "checkov")
@@ -46,12 +56,20 @@ class PipCheckovService(val project: Project) : CheckovService {
                 LOG.warn("Failed to get checkovPath")
                 return
             }
+            if (project.service<CliService>().isCheckovInstalledGlobally){
+                project.service<CliService>().checkovPath = "checkov"
+                return
+            }
             project.service<CliService>().checkovPath =  Paths.get(output.trim(), "bin", "checkov").toString()
         }
 
         private fun updatePathWin(output: String, exitCode: Int, project: Project){
             if (exitCode != 0 || output.contains("[ERROR]")) {
                 LOG.warn("Failed to get checkovPath")
+                return
+            }
+            if (project.service<CliService>().isCheckovInstalledGlobally){
+                project.service<CliService>().checkovPath = "checkov.cmd"
                 return
             }
             val outputLine = output.split('\n')
@@ -64,7 +82,16 @@ class PipCheckovService(val project: Project) : CheckovService {
             }
         }
 
+        private fun updateGlobalCheckov(output: String, exitCode: Int, project: Project) {
+            if (exitCode != 0 || output.contains("[ERROR]")) {
+                LOG.info("Checkov is not installed globally, running local command")
+                project.service<CliService>().isCheckovInstalledGlobally = false
+            } else {
+                LOG.info("Checkov installed globally, will use it")
+                project.service<CliService>().isCheckovInstalledGlobally = true
+            }
+            getPythonUserBasePath(project)
+        }
     }
-
 }
 

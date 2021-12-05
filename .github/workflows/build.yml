@@ -31,7 +31,7 @@ jobs:
 
       # Check out current repository
       - name: Fetch Sources
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v2.4.0
 
       # Validate wrapper
       - name: Gradle Wrapper Validation
@@ -46,7 +46,7 @@ jobs:
 
       # Check out current repository
       - name: Fetch Sources
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v2.4.0
 
       # Setup Java 11 environment for the next steps
       - name: Setup Java
@@ -67,7 +67,7 @@ jobs:
           echo "::set-output name=pluginVerifierHomeDir::~/.pluginVerifier"
       # Cache Plugin Verifier IDEs
       - name: Setup Plugin Verifier IDEs Cache
-        uses: actions/cache@v2.1.6
+        uses: actions/cache@v2.1.7
         with:
           path: ${{ steps.properties.outputs.pluginVerifierHomeDir }}/ides
           key: ${{ runner.os }}-plugin-verifier-${{ steps.properties.outputs.ideVersions }}
@@ -97,7 +97,7 @@ jobs:
 
       # Check out current repository
       - name: Fetch Sources
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v2.4.0
 
       # Setup Java 11 environment for the next steps
       - name: Setup Java
@@ -146,7 +146,7 @@ jobs:
 
       # Check out current repository
       - name: Fetch Sources
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v2.4.0
 
       - name: Install gh cli
         run: |
