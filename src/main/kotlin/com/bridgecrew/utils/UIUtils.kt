@@ -12,6 +12,9 @@ import javax.swing.JTextPane
 
 fun urlLink(guideline: String?): JPanel{
     val guidelineLabel = JPanel()
+    if (guideline.isNullOrEmpty()){
+        return guidelineLabel
+    }
     if (isUrl(guideline)) {
         val url = LinkLabel.create(GUIDELINES_TITLE) {
             try {
