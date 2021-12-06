@@ -2,6 +2,8 @@ package com.bridgecrew.utils
 
 val CHECKNAMEDEPTH = 4
 val POLICYDETAILS = "Policy Details:"
+val GUIDELINES_TITLE = "View Guidelines"
+val CUSTOM_GUIDELINES_TITLE = "Guidelines:"
 
 object PANELTYPE {
     val AUTO_CHOOSE_PANEL = 0

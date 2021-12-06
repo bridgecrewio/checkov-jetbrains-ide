@@ -81,7 +81,7 @@ fun normalizeFilePathToAbsolute(fileName: String, projectBasePath: String, fileR
 /**
  * Helper function that validates url string.
  */
-fun isUrl(url: String): Boolean {
+fun isUrl(url: String?): Boolean {
     if (url.isNullOrEmpty()) {
         return false
     }

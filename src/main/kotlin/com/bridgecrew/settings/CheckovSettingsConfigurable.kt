@@ -27,9 +27,9 @@ class CheckovSettingsConfigurable(val project: Project) : Configurable {
     override fun apply() {
         val settings = CheckovSettingsState().getInstance()
         val apiTokenModified = !checkovSettingsComponent.apiTokenField.text.equals(settings?.apiToken)
-        settings?.apiToken = checkovSettingsComponent.apiTokenField.text
-        settings?.certificate = checkovSettingsComponent.certificateField.text
-        settings?.prismaURL = checkovSettingsComponent.prismaURLField.text
+        settings?.apiToken = checkovSettingsComponent.apiTokenField.text.trim()
+        settings?.certificate = checkovSettingsComponent.certificateField.text.trim()
+        settings?.prismaURL = checkovSettingsComponent.prismaURLField.text.trim()
         if (apiTokenModified){
             project.messageBus.syncPublisher(CheckovSettingsListener.SETTINGS_TOPIC).settingsUpdated()
         }
