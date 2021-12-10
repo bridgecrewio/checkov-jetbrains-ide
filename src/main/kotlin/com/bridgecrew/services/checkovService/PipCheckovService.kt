@@ -36,7 +36,7 @@ class PipCheckovService(val project: Project) : CheckovService {
         }
         private fun isCheckovInstalledGloablly(project: Project){
             val cmds =arrayListOf("checkov.cmd","-v")
-            project.service<CliService>().run(cmds,project,::updateGlobalCheckov)
+            project.service<CliService>().run(cmds,project,::updateGlobalCheckov, ::updateGlobalCheckov)
         }
 
          private fun getPythonUserBasePath(project: Project) {
@@ -87,7 +87,7 @@ class PipCheckovService(val project: Project) : CheckovService {
                 LOG.info("Checkov is not installed globally, running local command")
                 project.service<CliService>().isCheckovInstalledGlobally = false
             } else {
-                LOG.info("Checkov installed globally, will use it")
+                    LOG.info("Checkov installed globally, will use it")
                 project.service<CliService>().isCheckovInstalledGlobally = true
             }
             getPythonUserBasePath(project)
