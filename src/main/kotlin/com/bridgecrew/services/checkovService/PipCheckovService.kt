@@ -36,7 +36,7 @@ class PipCheckovService(val project: Project) : CheckovService {
         }
         private fun isCheckovInstalledGloablly(project: Project){
             val cmds =arrayListOf("checkov.cmd","-v")
-            project.service<CliService>().run(cmds,project,::updateGlobalCheckov)
+            project.service<CliService>().run(cmds,project,::updateGlobalCheckov, ::updateGlobalCheckov)
         }
 
          private fun getPythonUserBasePath(project: Project) {

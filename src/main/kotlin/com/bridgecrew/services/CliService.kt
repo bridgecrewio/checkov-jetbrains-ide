@@ -11,7 +11,6 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
-import java.io.File
 import java.nio.charset.Charset
 import javax.swing.SwingUtilities
 
@@ -26,8 +25,9 @@ class CliService {
     fun run(
         commands: ArrayList<String>,
         project: Project,
-        function: (output: String, exitCode: Int, project: Project) -> Unit,
-    ) {
+        onSuccessFunction: (output: String, exitCode: Int, project: Project) -> Unit,
+        onFailureFunction: ((output: String, exitCode: Int, project: Project) -> Unit)? =  null
+        ) {
         val commandToPrint = commands.joinToString(" ")
         LOG.info("Running command: $commandToPrint")
         try {
@@ -38,7 +38,7 @@ class CliService {
 
             val processHandler: ProcessHandler = OSProcessHandler(generalCommandLine)
             val myBackgroundable =
-                BackgroundableTask(project, "running cli command $commandToPrint", processHandler, function)
+                BackgroundableTask(project, "running cli command $commandToPrint", processHandler, onSuccessFunction)
             if (SwingUtilities.isEventDispatchThread()) {
                 ProgressManager.getInstance().run(myBackgroundable)
             } else {
@@ -48,6 +48,9 @@ class CliService {
             }
         } catch (e: Exception){
             LOG.warn("Cli command $commandToPrint could not run due to exception: $e")
+            if (onFailureFunction != null) {
+                onFailureFunction("",  1, project)
+            }
         }
     }
 
