@@ -5,7 +5,6 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import org.apache.commons.io.FilenameUtils
-import java.io.File
 import java.nio.file.Paths
 private val LOG = logger<PipCheckovService>()
 
@@ -38,12 +37,7 @@ class PipCheckovService(val project: Project) : CheckovService {
         private fun isCheckovInstalledGloablly(project: Project){
             LOG.info("Checking global checkov installation with `checkov`")
             val cmds =arrayListOf("checkov","-v")
-            project.service<CliService>().run(cmds,project,::updateGlobalCheckov, ::updateGlobalCheckov)
-            if (!project.service<CliService>().isCheckovInstalledGlobally) {
-                LOG.info("Checking global checkov installation with `checkov.cmd`")
-                val cmds =arrayListOf("checkov.cmd","-v")
-                project.service<CliService>().run(cmds,project,::updateGlobalCheckov, ::updateGlobalCheckov)
-            }
+            project.service<CliService>().run(cmds,project,::checkGlobalCheckovCmd, ::checkGlobalCheckovCmd)
         }
 
          private fun getPythonUserBasePath(project: Project) {
@@ -89,10 +83,22 @@ class PipCheckovService(val project: Project) : CheckovService {
             }
         }
 
-        private fun updateGlobalCheckov(output: String, exitCode: Int, project: Project) {
+        private fun updateCheckovInstalledGlobally(output: String, exitCode: Int, project: Project) {
             if (exitCode != 0 || output.contains("[ERROR]")) {
                 LOG.info("Checkov is not installed globally, running local command")
                 project.service<CliService>().isCheckovInstalledGlobally = false
+            } else {
+                LOG.info("Checkov installed globally, will use it")
+                project.service<CliService>().isCheckovInstalledGlobally = true
+            }
+            getPythonUserBasePath(project)
+        }
+
+        private fun checkGlobalCheckovCmd(output: String, exitCode: Int, project: Project) {
+            if (exitCode != 0 || output.contains("[ERROR]")) {
+                LOG.info("Checking global checkov installation with `checkov.cmd`")
+                val cmds =arrayListOf("checkov.cmd","-v")
+                project.service<CliService>().run(cmds,project,::updateCheckovInstalledGlobally, ::updateCheckovInstalledGlobally)
             } else {
                 LOG.info("Checkov installed globally, will use it")
                 project.service<CliService>().isCheckovInstalledGlobally = true
