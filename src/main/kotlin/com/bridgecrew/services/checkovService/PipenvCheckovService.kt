@@ -15,7 +15,7 @@ class PipenvCheckovService(val project: Project) : CheckovService {
         return cmds
     }
 
-    override fun getExecCommand(filePath: String, apiToken: String, gitRepoName: String, pluginVersion: String): ArrayList<String> {
+    override fun getExecCommand(filePath: String, apiToken: String, gitRepoName: String, pluginVersion: String, prismaUrl: String?): ArrayList<String> {
         val relevantFilePath = FilenameUtils.separatorsToSystem(filePath)
         val cmds = arrayListOf(project.service<CliService>().checkovPath, "-s","--bc-api-key",
             apiToken, "--repo-id", gitRepoName, "-f", relevantFilePath,"-o", "json")

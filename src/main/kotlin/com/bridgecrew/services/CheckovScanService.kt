@@ -65,15 +65,15 @@ class CheckovScanService {
         currentFile = filePath
         val pluginVersion =
             PluginManagerCore.getPlugin(PluginId.getId("com.github.bridgecrewio.checkov"))?.version ?: "UNKNOWN"
+        val prismaUrl = settings?.prismaURL
 
-        val execCommand = prepareExecCommand(filePath, project, apiToken, pluginVersion)
+        val execCommand = prepareExecCommand(filePath, project, apiToken, pluginVersion, prismaUrl)
         val commandToPrint = replaceApiToken(execCommand.joinToString(" "))
         LOG.info("Running command: $commandToPrint")
         val generalCommandLine = GeneralCommandLine(execCommand)
         generalCommandLine.charset = Charset.forName("UTF-8")
         generalCommandLine.environment["BC_SOURCE_VERSION"] = pluginVersion
         generalCommandLine.environment["BC_SOURCE"] = "jetbrains"
-        val prismaUrl = settings?.prismaURL
         if (!prismaUrl.isNullOrEmpty()) {
             generalCommandLine.environment["PRISMA_API_URL"] = prismaUrl
         }
@@ -138,8 +138,8 @@ class CheckovScanService {
         return Pair(groupResultsByResource(listOfCheckovResults, project, relativeFilePath), listOfCheckovResults.size)
     }
 
-    private fun prepareExecCommand(filePath: String, project: Project, apiToken: String, pluginVersion: String): ArrayList<String> {
-        val execCommand = selectedCheckovScanner!!.getExecCommand(filePath, apiToken, gitRepo, pluginVersion)
+    private fun prepareExecCommand(filePath: String, project: Project, apiToken: String, pluginVersion: String, prismaUrl: String? = ""): ArrayList<String> {
+        val execCommand = selectedCheckovScanner!!.getExecCommand(filePath, apiToken, gitRepo, pluginVersion, prismaUrl)
         return getCertParams(execCommand)
     }
 
