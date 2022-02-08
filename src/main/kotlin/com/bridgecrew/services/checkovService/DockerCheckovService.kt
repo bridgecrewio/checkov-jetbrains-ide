@@ -15,11 +15,15 @@ class DockerCheckovService(val project: Project) : CheckovService {
         return cmds
     }
 
-    override fun getExecCommand(filePath: String, apiToken: String, gitRepoName: String, pluginVersion: String): ArrayList<String> {
+    override fun getExecCommand(filePath: String, apiToken: String, gitRepoName: String, pluginVersion: String, prismaUrl: String?): ArrayList<String> {
         val fileName = Paths.get(filePath).fileName.toString()
         val image = "bridgecrew/checkov"
         val fileDir = "$filePath:/checkovScan/$fileName"
-        val dockerCommand = arrayListOf("docker","run","--rm", "--tty","--env","BC_SOURCE=jetbrains","--env","BC_SOURCE_VERSION=$pluginVersion", "--volume", fileDir, image)
+        val dockerCommand = arrayListOf("docker","run","--rm", "--tty","--env","BC_SOURCE=jetbrains","--env","BC_SOURCE_VERSION=$pluginVersion")
+        if (!prismaUrl.isNullOrEmpty()){
+            dockerCommand.addAll(arrayListOf("--env", "PRISMA_API_URL=${prismaUrl}"))
+        }
+        dockerCommand.addAll(arrayListOf("--volume", fileDir, image))
         val checkovCommand = arrayListOf("-d", "/checkovScan", "-s", "--bc-api-key", apiToken, "--repo-id", gitRepoName, "-o", "json" )
         val cmds= ArrayList<String>()
         cmds.addAll(dockerCommand)
