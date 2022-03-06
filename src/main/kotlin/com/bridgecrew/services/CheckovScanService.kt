@@ -74,6 +74,7 @@ class CheckovScanService {
         generalCommandLine.charset = Charset.forName("UTF-8")
         generalCommandLine.environment["BC_SOURCE_VERSION"] = pluginVersion
         generalCommandLine.environment["BC_SOURCE"] = "jetbrains"
+        generalCommandLine.environment["LOG_LEVEL"] = "DEBUG"
         if (!prismaUrl.isNullOrEmpty()) {
             generalCommandLine.environment["PRISMA_API_URL"] = prismaUrl
         }

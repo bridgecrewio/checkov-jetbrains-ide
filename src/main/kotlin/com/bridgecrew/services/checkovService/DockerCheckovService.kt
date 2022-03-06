@@ -19,7 +19,7 @@ class DockerCheckovService(val project: Project) : CheckovService {
         val fileName = Paths.get(filePath).fileName.toString()
         val image = "bridgecrew/checkov"
         val fileDir = "$filePath:/checkovScan/$fileName"
-        val dockerCommand = arrayListOf("docker","run","--rm", "--tty","--env","BC_SOURCE=jetbrains","--env","BC_SOURCE_VERSION=$pluginVersion")
+        val dockerCommand = arrayListOf("docker","run","--rm", "--tty","--env","BC_SOURCE=jetbrains","--env","BC_SOURCE_VERSION=$pluginVersion","--env","LOG_LEVEL=DEBUG")
         if (!prismaUrl.isNullOrEmpty()){
             dockerCommand.addAll(arrayListOf("--env", "PRISMA_API_URL=${prismaUrl}"))
         }
