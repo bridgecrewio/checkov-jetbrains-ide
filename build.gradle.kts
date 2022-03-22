@@ -29,7 +29,7 @@ repositories {
 dependencies {
     implementation("com.beust:klaxon:5.6")
     implementation("com.google.code.gson:gson:2.8.9")
-    implementation("org.json:json:20211205")
+    implementation("org.json:json:20220320")
     implementation("commons-io:commons-io:2.11.0")
 }
 
