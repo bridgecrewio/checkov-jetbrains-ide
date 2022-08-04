@@ -158,11 +158,13 @@ class CheckovScanService {
     private class ScanTask(project: Project, title: String, val filePath: String, val processHandler: ProcessHandler):
         Task.Backgroundable(project, title,true) {
         override fun run(indicator: ProgressIndicator) {
-            indicator.isIndeterminate = false
+                indicator.isIndeterminate = false
                 val output = ScriptRunnerUtil.getProcessOutput(processHandler,
                     ScriptRunnerUtil.STDOUT_OR_STDERR_OUTPUT_KEY_FILTER,
                     DEFAULT_TIMEOUT)
-            project.service<CheckovScanService>().analyzeScan(output, processHandler.exitCode!!, project, filePath)
+                LOG.info("Checkov task output:")
+                LOG.info(output)
+                project.service<CheckovScanService>().analyzeScan(output, processHandler.exitCode!!, project, filePath)
             }
         }
 

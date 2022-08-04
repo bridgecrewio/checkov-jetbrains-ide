@@ -33,7 +33,9 @@ fun getFailedChecksFromResultString(raw: String): ArrayList<CheckovResult> {
     var checkovResult = "checkovResult"
     val outputListOfLines = raw.split("\n").map { it.trim() }
     for (i in outputListOfLines.indices) {
-        if (!outputListOfLines[i].startsWith('{') && !outputListOfLines[i].startsWith('[') || outputListOfLines[i].startsWith("[Clang")){
+        // filter lines that can appear in the Python version output, like '[GCC 10.2.1 20210110]'
+        if (!outputListOfLines[i].startsWith('{') && !outputListOfLines[i].startsWith('[') ||
+                (outputListOfLines[i].startsWith("[") && outputListOfLines[i].endsWith("]"))){
             continue
         }
         checkovResult = outputListOfLines.subList(i,outputListOfLines.size-1).joinToString("\n")
