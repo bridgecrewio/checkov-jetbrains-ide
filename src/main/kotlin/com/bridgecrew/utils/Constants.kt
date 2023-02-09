@@ -16,3 +16,5 @@ object PANELTYPE {
     val CHECKOV_INSTALATION_STARTED = 7
 }
 val DEFAULT_TIMEOUT: Long = 80000
+
+val GIT_DEFAULT_REPOSITORY_NAME = "jetbrains/extension"

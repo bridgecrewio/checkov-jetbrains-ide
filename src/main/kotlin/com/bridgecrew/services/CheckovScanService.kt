@@ -43,7 +43,7 @@ class CheckovScanService {
     private var isFirstRun: Boolean = true
     private val settings = CheckovSettingsState().getInstance()
     private var currentFile = ""
-    var gitRepo = defaultRepoName
+//    var gitRepo = defaultRepoName
 
 
     fun scanFile(filePath: String, project: Project) {
@@ -54,7 +54,7 @@ class CheckovScanService {
         LOG.info("Trying to scan a file using $selectedCheckovScanner")
         project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningStarted()
 
-        val apiToken = settings?.apiToken
+//        val apiToken = settings?.apiToken
         if (apiToken.isNullOrEmpty()) {
             project.messageBus.syncPublisher(CheckovSettingsListener.SETTINGS_TOPIC).settingsUpdated()
             LOG.warn("Wasn't able to get api token\n" +

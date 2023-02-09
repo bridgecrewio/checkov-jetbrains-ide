@@ -33,7 +33,7 @@ class CheckovInstallerService {
         val checkovServices = arrayOf(DockerCheckovService(project), PipCheckovService(project), PipenvCheckovService(project))
         for (service in checkovServices){
             try {
-                val command = service.getInstallCommand(project)
+                val command = service.getInstallCommand()
                 val generalCommandLine = GeneralCommandLine(command)
                 generalCommandLine.charset = Charset.forName("UTF-8")
                 val processHandler: ProcessHandler = OSProcessHandler(generalCommandLine)

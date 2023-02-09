@@ -1,21 +1,25 @@
 package com.bridgecrew.utils
 
 import CliService
-import com.bridgecrew.services.CheckovScanService
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 
-val defaultRepoName = "jetbrains/extension"
+//val defaultRepoName = "jetbrains/extension"
 
-fun getGitRepoName(project: Project) {
+var repoName = GIT_DEFAULT_REPOSITORY_NAME
+fun getRepoName(): String {
+    return repoName
+}
+
+fun initializeRepoName(project: Project) {
         val cmds = ArrayList<String>()
         cmds.add("git")
         cmds.add("remote")
         cmds.add("-v")
-        project.service<CliService>().run(cmds, project,::getRepo)
+        project.service<CliService>().run(cmds, project,::extractRepoNameFromOutput)
 }
 
-fun getRepo(output: String, exitCode: Int, project: Project){
+fun extractRepoNameFromOutput(output: String, exitCode: Int, project: Project){
     try{
     val lines = output.split("\n")
 
@@ -46,17 +50,18 @@ fun getRepo(output: String, exitCode: Int, project: Project){
     }
 
     if (result != null) {
-        project.service<CheckovScanService>().gitRepo = result
+//        project.service<CheckovScanService>().gitRepo = result
+        repoName = result
 
     } else {
         println("something went wrong and couldn't get git repo name, returning default value")
-        project.service<CheckovScanService>().gitRepo = defaultRepoName
+//        project.service<CheckovScanService>().gitRepo = defaultRepoName
     }
 
 } catch (e: Exception) {
         println("Error in getGitRepoName, returning default repo name")
         e.printStackTrace()
-        project.service<CheckovScanService>().gitRepo = defaultRepoName
+//        project.service<CheckovScanService>().gitRepo = defaultRepoName
     }
 
 }

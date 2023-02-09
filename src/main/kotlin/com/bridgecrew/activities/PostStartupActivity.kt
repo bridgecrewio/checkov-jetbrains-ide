@@ -1,8 +1,10 @@
 package com.bridgecrew.activities
 import CheckovInstallerService
+import com.bridgecrew.listeners.InitializationListener.Companion.INITIALIZATION_TOPIC
 import com.bridgecrew.services.checkovService.PipCheckovService
 import com.bridgecrew.ui.CheckovToolWindowManagerPanel
-import com.bridgecrew.utils.getGitRepoName
+import com.bridgecrew.utils.initializeRepoName
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.startup.StartupActivity
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.diagnostic.logger
@@ -15,10 +17,17 @@ class PostStartupActivity : StartupActivity {
 
     override fun runActivity(project: Project) {
         LOG.info("Startup activity starting")
-        PipCheckovService.setCheckovPath(project)
-        getGitRepoName(project)
-        project.service<CheckovInstallerService>().install(project)
-        project.service<CheckovToolWindowManagerPanel>().subscribeToInternalEvents(project)
+        initializeProject(project)
+        val messageBusConnection = ApplicationManager.getApplication().messageBus.connect()
+        messageBusConnection.subscribe(INITIALIZATION_TOPIC).run {
+            project.service<CheckovInstallerService>().install(project)
+            project.service<CheckovToolWindowManagerPanel>().subscribeToInternalEvents(project)
+        }
         LOG.info("Startup activity finished")
+    }
+
+    private fun initializeProject(project: Project) {
+        PipCheckovService.setCheckovPath(project)
+        initializeRepoName(project)
     }
 }
