@@ -4,6 +4,7 @@ import com.bridgecrew.services.CheckovScanService
 import com.bridgecrew.listeners.CheckovInstallerListener
 import com.bridgecrew.listeners.CheckovScanListener
 import com.bridgecrew.listeners.CheckovSettingsListener
+import com.bridgecrew.listeners.InitializationListener
 import com.bridgecrew.services.checkovService.CheckovService
 import com.bridgecrew.settings.CheckovSettingsState
 import com.bridgecrew.utils.PANELTYPE
@@ -144,8 +145,9 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
         project.messageBus.connect(this)
             .subscribe(CheckovInstallerListener.INSTALLER_TOPIC, object: CheckovInstallerListener {
                 override fun installerFinished(serviceClass: CheckovService) {
+                    project.messageBus.syncPublisher(InitializationListener.INITIALIZATION_TOPIC).initializationCompleted()
                     project.service<CheckovScanService>().selectedCheckovScanner = serviceClass
-                    project.service<CheckovToolWindowManagerPanel>().subscribeToProjectEventChange()
+//                    project.service<CheckovToolWindowManagerPanel>().subscribeToProjectEventChange()
                 }
             })
 

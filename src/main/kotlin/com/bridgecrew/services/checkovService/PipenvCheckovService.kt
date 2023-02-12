@@ -8,23 +8,31 @@ import org.apache.commons.io.FilenameUtils
 
 private val LOG = logger<PipenvCheckovService>()
 
-class PipenvCheckovService(val project: Project) : CheckovService {
+class PipenvCheckovService(project: Project) : CheckovService(project) {
 
     override fun getInstallCommand(): ArrayList<String> {
-        val cmds =arrayListOf("pipenv","--python","3","install","checkov")
+        val cmds = arrayListOf("pipenv","--python","3","install","checkov")
         return cmds
     }
 
-    override fun getExecCommand(filePath: String, apiToken: String, gitRepoName: String, prismaUrl: String?): ArrayList<String> {
-        val relevantFilePath = FilenameUtils.separatorsToSystem(filePath)
-        val cmds = arrayListOf(project.service<CliService>().checkovPath, "-s","--bc-api-key",
-            apiToken, "--repo-id", gitRepoName, "-f", relevantFilePath,"-o", "json")
-        return cmds
-    }
+//    override fun getExecCommand(filePath: String, apiToken: String, gitRepoName: String, prismaUrl: String?): ArrayList<String> {
+//        val relevantFilePath = FilenameUtils.separatorsToSystem(filePath)
+//        val cmds = arrayListOf(project.service<CliService>().checkovPath, "-s","--bc-api-key",
+//            apiToken, "--repo-id", gitRepoName, "-f", relevantFilePath,"-o", "json")
+//        return cmds
+//    }
 
     override fun getVersion(project: Project): ArrayList<String> {
         val cmds = arrayListOf(project.service<CliService>().checkovPath,"-v")
         return cmds
+    }
+
+    override fun getCheckovRunningCommandByServiceType(): ArrayList<String> {
+        return arrayListOf(project.service<CliService>().checkovPath)
+    }
+
+    override fun getDirectory(): String {
+        return FilenameUtils.separatorsToSystem(project.basePath!!)
     }
 
     companion object {

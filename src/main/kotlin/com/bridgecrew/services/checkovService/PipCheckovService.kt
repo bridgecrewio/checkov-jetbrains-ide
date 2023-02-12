@@ -1,6 +1,9 @@
 package com.bridgecrew.services.checkovService
 
+import CheckovInstallerService
 import CliService
+import com.bridgecrew.listeners.CheckovScanListener
+import com.bridgecrew.listeners.InitializationListener
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
@@ -9,23 +12,31 @@ import java.nio.file.Paths
 
 private val LOG = logger<PipCheckovService>()
 
-class PipCheckovService(val project: Project) : CheckovService {
+class PipCheckovService(project: Project) : CheckovService(project) {
 
     override fun getInstallCommand(): ArrayList<String> {
         val cmds = arrayListOf("pip3", "install", "-U", "--user", "checkov", "-i", "https://pypi.org/simple/")
         return cmds
     }
 
-    override fun getExecCommand(filePath: String, apiToken: String, gitRepoName: String, prismaUrl: String?): ArrayList<String> {
-        val relevantFilePath = FilenameUtils.separatorsToSystem(filePath)
-        val cmds = arrayListOf(project.service<CliService>().checkovPath, "-s", "--bc-api-key",
-                apiToken, "--repo-id", gitRepoName, "-f", relevantFilePath, "-o", "json")
-        return cmds
-    }
+//    override fun getExecCommand(filePath: String, apiToken: String, gitRepoName: String, prismaUrl: String?): ArrayList<String> {
+//        val relevantFilePath = FilenameUtils.separatorsToSystem(filePath)
+//        val cmds = arrayListOf(project.service<CliService>().checkovPath, "-s", "--bc-api-key",
+//                apiToken, "--repo-id", gitRepoName, "-f", relevantFilePath, "-o", "json")
+//        return cmds
+//    }
 
     override fun getVersion(project: Project): ArrayList<String> {
         val cmds = arrayListOf(project.service<CliService>().checkovPath, "-v")
         return cmds
+    }
+
+    override fun getCheckovRunningCommandByServiceType(): ArrayList<String> {
+        return arrayListOf(project.service<CliService>().checkovPath)
+    }
+
+    override fun getDirectory(): String {
+        return FilenameUtils.separatorsToSystem(project.basePath!!)
     }
 
     companion object {
@@ -57,25 +68,31 @@ class PipCheckovService(val project: Project) : CheckovService {
         private fun updatePathUnix(output: String, exitCode: Int, project: Project) {
             if (exitCode != 0 || output.contains("[ERROR]")) {
                 LOG.warn("Failed to get checkovPath")
+                project.service<CheckovInstallerService>().install(project)
                 return
             }
             if (project.service<CliService>().isCheckovInstalledGlobally) {
                 project.service<CliService>().checkovPath = "checkov"
-                return
+            } else {
+                project.service<CliService>().checkovPath = Paths.get(output.trim(), "bin", "checkov").toString()
             }
-            project.service<CliService>().checkovPath = Paths.get(output.trim(), "bin", "checkov").toString()
             //here
+            project.messageBus.syncPublisher(InitializationListener.INITIALIZATION_TOPIC).initializationCompleted()
         }
 
         private fun updatePathWin(output: String, exitCode: Int, project: Project) {
             if (exitCode != 0 || output.contains("[ERROR]")) {
                 LOG.warn("Failed to get checkovPath")
+                project.service<CheckovInstallerService>().install(project)
                 return
             }
+
             if (project.service<CliService>().isCheckovInstalledGlobally) {
                 project.service<CliService>().checkovPath = "checkov.cmd"
+                project.messageBus.syncPublisher(InitializationListener.INITIALIZATION_TOPIC).initializationCompleted()
                 return
             }
+            
             val outputLine = output.split('\n')
             for (line in outputLine) {
                 if (line.trim().contains("Location: ")) {
@@ -85,6 +102,7 @@ class PipCheckovService(val project: Project) : CheckovService {
                 }
             }
             //here
+            project.messageBus.syncPublisher(InitializationListener.INITIALIZATION_TOPIC).initializationCompleted()
 
         }
 

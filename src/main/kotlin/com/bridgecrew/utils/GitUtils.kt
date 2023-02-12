@@ -6,9 +6,9 @@ import com.intellij.openapi.project.Project
 
 //val defaultRepoName = "jetbrains/extension"
 
-var repoName = GIT_DEFAULT_REPOSITORY_NAME
+var projectRepoName = GIT_DEFAULT_REPOSITORY_NAME
 fun getRepoName(): String {
-    return repoName
+    return projectRepoName
 }
 
 fun initializeRepoName(project: Project) {
@@ -51,17 +51,19 @@ fun extractRepoNameFromOutput(output: String, exitCode: Int, project: Project){
 
     if (result != null) {
 //        project.service<CheckovScanService>().gitRepo = result
-        repoName = result
+        projectRepoName = result
 
     } else {
         println("something went wrong and couldn't get git repo name, returning default value")
 //        project.service<CheckovScanService>().gitRepo = defaultRepoName
+//        repoName = GIT_DEFAULT_REPOSITORY_NAME
     }
 
 } catch (e: Exception) {
         println("Error in getGitRepoName, returning default repo name")
         e.printStackTrace()
 //        project.service<CheckovScanService>().gitRepo = defaultRepoName
+//        repoName = GIT_DEFAULT_REPOSITORY_NAME
     }
 
 }

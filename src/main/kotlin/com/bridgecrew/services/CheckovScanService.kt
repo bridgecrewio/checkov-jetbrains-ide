@@ -10,7 +10,7 @@ import com.bridgecrew.services.checkovService.CheckovService
 import com.bridgecrew.settings.CheckovSettingsState
 import com.bridgecrew.ui.CheckovNotificationBalloon
 import com.bridgecrew.utils.DEFAULT_TIMEOUT
-import com.bridgecrew.utils.defaultRepoName
+//import com.bridgecrew.utils.defaultRepoName
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.OSProcessHandler
 import com.intellij.execution.process.ProcessHandler
@@ -47,47 +47,52 @@ class CheckovScanService {
 
 
     fun scanFile(filePath: String, project: Project) {
-        if (selectedCheckovScanner == null) {
-            LOG.warn("Checkov is not installed")
-        }
+        try {
+            if (selectedCheckovScanner == null) {
+                LOG.warn("Checkov is not installed")
+            }
 
-        LOG.info("Trying to scan a file using $selectedCheckovScanner")
-        project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningStarted()
+            LOG.info("Trying to scan a file using $selectedCheckovScanner")
+            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningStarted()
 
 //        val apiToken = settings?.apiToken
-        if (apiToken.isNullOrEmpty()) {
-            project.messageBus.syncPublisher(CheckovSettingsListener.SETTINGS_TOPIC).settingsUpdated()
-            LOG.warn("Wasn't able to get api token\n" +
-                    "Please insert an Api Token to continue")
-            return
-        }
+//            if (apiToken.isNullOrEmpty()) {
+//                project.messageBus.syncPublisher(CheckovSettingsListener.SETTINGS_TOPIC).settingsUpdated()
+//                LOG.warn("Wasn't able to get api token\n" +
+//                        "Please insert an Api Token to continue")
+//                return
+//            }
 
-        currentFile = filePath
-        val pluginVersion =
-            PluginManagerCore.getPlugin(PluginId.getId("com.github.bridgecrewio.checkov"))?.version ?: "UNKNOWN"
-        val prismaUrl = settings?.prismaURL
+            currentFile = filePath
+            val pluginVersion =
+                    PluginManagerCore.getPlugin(PluginId.getId("com.github.bridgecrewio.checkov"))?.version ?: "UNKNOWN"
+            val prismaUrl = settings?.prismaURL
 
-        val execCommand = prepareExecCommand(filePath, project, apiToken, pluginVersion, prismaUrl)
-        val commandToPrint = replaceApiToken(execCommand.joinToString(" "))
-        LOG.info("Running command: $commandToPrint")
-        val generalCommandLine = GeneralCommandLine(execCommand)
-        generalCommandLine.charset = Charset.forName("UTF-8")
-        generalCommandLine.environment["BC_SOURCE_VERSION"] = pluginVersion
-        generalCommandLine.environment["BC_SOURCE"] = "jetbrains"
-        generalCommandLine.environment["LOG_LEVEL"] = "DEBUG"
-        if (!prismaUrl.isNullOrEmpty()) {
-            generalCommandLine.environment["PRISMA_API_URL"] = prismaUrl
-        }
-
-        val processHandler: ProcessHandler = OSProcessHandler(generalCommandLine)
-        val scanTask =
-            ScanTask(project, "Checkov scanning file $currentFile",filePath, processHandler)
-        if (SwingUtilities.isEventDispatchThread()) {
-            ProgressManager.getInstance().run(scanTask)
-        } else {
-            ApplicationManager.getApplication().invokeLater {
-                ProgressManager.getInstance().run(scanTask)
+            val execCommand = prepareExecCommand(filePath)
+            val commandToPrint = replaceApiToken(execCommand.joinToString(" "))
+            LOG.info("Running command: $commandToPrint")
+            val generalCommandLine = GeneralCommandLine(execCommand)
+            generalCommandLine.charset = Charset.forName("UTF-8")
+            generalCommandLine.environment["BC_SOURCE_VERSION"] = pluginVersion
+            generalCommandLine.environment["BC_SOURCE"] = "jetbrains"
+            generalCommandLine.environment["LOG_LEVEL"] = "DEBUG"
+            if (!prismaUrl.isNullOrEmpty()) {
+                generalCommandLine.environment["PRISMA_API_URL"] = prismaUrl
             }
+
+            val processHandler: ProcessHandler = OSProcessHandler(generalCommandLine)
+            val scanTask =
+                    ScanTask(project, "Checkov scanning file $currentFile",filePath, processHandler)
+            if (SwingUtilities.isEventDispatchThread()) {
+                ProgressManager.getInstance().run(scanTask)
+            } else {
+                ApplicationManager.getApplication().invokeLater {
+                    ProgressManager.getInstance().run(scanTask)
+                }
+            }
+        } catch (e: Exception) {
+            LOG.error(e)
+            return
         }
     }
 
@@ -139,8 +144,9 @@ class CheckovScanService {
         return Pair(groupResultsByResource(listOfCheckovResults, project, relativeFilePath), listOfCheckovResults.size)
     }
 
-    private fun prepareExecCommand(filePath: String, project: Project, apiToken: String, pluginVersion: String, prismaUrl: String? = ""): ArrayList<String> {
-        val execCommand = selectedCheckovScanner!!.getExecCommand(filePath, apiToken, gitRepo, pluginVersion, prismaUrl)
+    private fun prepareExecCommand(filePath: String): ArrayList<String> {
+//        val execCommand = selectedCheckovScanner!!.getExecCommand(filePath, apiToken, gitRepo, pluginVersion, prismaUrl)
+        val execCommand = selectedCheckovScanner!!.getExecCommandForSingleFile(filePath)
         return getCertParams(execCommand)
     }
 

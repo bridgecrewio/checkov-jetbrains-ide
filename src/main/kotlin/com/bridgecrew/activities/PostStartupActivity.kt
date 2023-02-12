@@ -1,5 +1,6 @@
 package com.bridgecrew.activities
 import CheckovInstallerService
+import com.bridgecrew.listeners.InitializationListener
 import com.bridgecrew.listeners.InitializationListener.Companion.INITIALIZATION_TOPIC
 import com.bridgecrew.services.checkovService.PipCheckovService
 import com.bridgecrew.ui.CheckovToolWindowManagerPanel
@@ -17,12 +18,17 @@ class PostStartupActivity : StartupActivity {
 
     override fun runActivity(project: Project) {
         LOG.info("Startup activity starting")
+//        val messageBusConnection = ApplicationManager.getApplication().messageBus.connect()
+        project.messageBus.connect(project).subscribe(INITIALIZATION_TOPIC, object: InitializationListener {
+            override fun initializationCompleted() {
+//                project.service<CheckovInstallerService>().install(project)
+                project.service<CheckovToolWindowManagerPanel>().subscribeToInternalEvents(project)
+                project.service<CheckovToolWindowManagerPanel>().subscribeToProjectEventChange()
+
+            }
+
+        })
         initializeProject(project)
-        val messageBusConnection = ApplicationManager.getApplication().messageBus.connect()
-        messageBusConnection.subscribe(INITIALIZATION_TOPIC).run {
-            project.service<CheckovInstallerService>().install(project)
-            project.service<CheckovToolWindowManagerPanel>().subscribeToInternalEvents(project)
-        }
         LOG.info("Startup activity finished")
     }
 
