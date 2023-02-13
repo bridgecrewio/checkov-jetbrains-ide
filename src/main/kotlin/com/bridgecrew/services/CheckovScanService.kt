@@ -136,6 +136,8 @@ class CheckovScanService {
 
     private fun getGroupedResults(res: String, project: Project, relativeFilePath: String): Pair<ResourceToCheckovResultsList, Int> {
         val listOfCheckovResults = getFailedChecksFromResultString(res)
+//        project.service<ResultsCacheService>().setMockCheckovResultsFromResultsList(listOfCheckovResults) // MOCK
+
         return Pair(groupResultsByResource(listOfCheckovResults, project, relativeFilePath), listOfCheckovResults.size)
     }
 

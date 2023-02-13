@@ -1,0 +1,2126 @@
+[
+    {
+        "check_type": "terraform",
+        "results": {
+            "failed_checks": [
+                {
+                    "check_id": "CKV_AWS_28",
+                    "bc_check_id": "BC_AWS_GENERAL_6",
+                    "check_name": "Ensure Dynamodb point in time recovery (backup) is enabled",
+                    "check_result": {
+                        "result": "FAILED",
+                        "evaluated_keys": [
+                            "point_in_time_recovery/[0]/enabled"
+                        ]
+                    },
+                    "code_block": [
+                        [
+                            149,
+                            "resource \"aws_dynamodb_table\" \"token_cache\" {\n"
+                        ],
+                        [
+                            150,
+                            "  name         = \"authorization_token_cache_v2_${var.unique_tag}\"\n"
+                        ],
+                        [
+                            151,
+                            "  hash_key     = \"id\"\n"
+                        ],
+                        [
+                            152,
+                            "  billing_mode = \"PAY_PER_REQUEST\"\n"
+                        ],
+                        [
+                            153,
+                            "\n"
+                        ],
+                        [
+                            154,
+                            "  attribute {\n"
+                        ],
+                        [
+                            155,
+                            "    name = \"id\"\n"
+                        ],
+                        [
+                            156,
+                            "    type = \"S\"\n"
+                        ],
+                        [
+                            157,
+                            "  }\n"
+                        ],
+                        [
+                            158,
+                            "\n"
+                        ],
+                        [
+                            159,
+                            "  ttl {\n"
+                        ],
+                        [
+                            160,
+                            "    attribute_name = \"cache_ttl\"\n"
+                        ],
+                        [
+                            161,
+                            "    enabled        = true\n"
+                        ],
+                        [
+                            162,
+                            "  }\n"
+                        ],
+                        [
+                            163,
+                            "  tags = {\n"
+                        ],
+                        [
+                            164,
+                            "    git_commit           = \"60b7f0f1a1e8870220a610beabb3ac2f35457f2f\"\n"
+                        ],
+                        [
+                            165,
+                            "    git_file             = \"src/microStacks/authorizationStack/main.tf\"\n"
+                        ],
+                        [
+                            166,
+                            "    git_last_modified_at = \"2022-11-15 15:11:38\"\n"
+                        ],
+                        [
+                            167,
+                            "    git_last_modified_by = \"yyacoby@paloaltonetworks.com\"\n"
+                        ],
+                        [
+                            168,
+                            "    git_modifiers        = \"yyacoby\"\n"
+                        ],
+                        [
+                            169,
+                            "    git_org              = \"bridgecrew\"\n"
+                        ],
+                        [
+                            170,
+                            "    git_repo             = \"platform\"\n"
+                        ],
+                        [
+                            171,
+                            "    team                 = \"unknown\"\n"
+                        ],
+                        [
+                            172,
+                            "    yor_trace            = \"d83756b2-4d01-4514-9c0e-18352121c7f1\"\n"
+                        ],
+                        [
+                            173,
+                            "  }\n"
+                        ],
+                        [
+                            174,
+                            "}"
+                        ]
+                    ],
+                    "file_path": "/main.tf",
+                    "file_abs_path": "/Users/mshavit/IdeaProjects/untitled1/src/main.tf",
+                    "repo_file_path": "/main.tf",
+                    "file_line_range": [
+                        149,
+                        174
+                    ],
+                    "resource": "aws_dynamodb_table.token_cache",
+                    "evaluations": null,
+                    "check_class": "checkov.terraform.checks.resource.aws.DynamodbRecovery",
+                    "fixed_definition": null,
+                    "entity_tags": {
+                        "git_commit": "60b7f0f1a1e8870220a610beabb3ac2f35457f2f",
+                        "git_file": "src/microStacks/authorizationStack/main.tf",
+                        "git_last_modified_at": "2022-11-15 15:11:38",
+                        "git_last_modified_by": "yyacoby@paloaltonetworks.com",
+                        "git_modifiers": "yyacoby",
+                        "git_org": "bridgecrew",
+                        "git_repo": "platform",
+                        "team": "unknown",
+                        "yor_trace": "d83756b2-4d01-4514-9c0e-18352121c7f1"
+                    },
+                    "caller_file_path": null,
+                    "caller_file_line_range": null,
+                    "resource_address": null,
+                    "severity": "HIGH",
+                    "bc_category": "General",
+                    "benchmarks": {
+                        "FEDRAMP (MODERATE)": [
+                            {
+                                "name": "CP-9(b)",
+                                "description": "The organization: b. Conducts backups of system-level information contained in the information system (daily incremental; weekly full)."
+                            },
+                            {
+                                "name": "CP-10",
+                                "description": "The organization provides for the recovery and reconstitution of the information system to a known state after a disruption, compromise, or failure."
+                            },
+                            {
+                                "name": "SI-12",
+                                "description": "The organization handles and retains information within the information system and information output from the system in accordance with applicable federal laws, Executive Orders, directives, policies, regulations, standards, and operational requirements."
+                            }
+                        ]
+                    },
+                    "description": null,
+                    "short_description": null,
+                    "vulnerability_details": null,
+                    "connected_node": null,
+                    "guideline": "https://docs.bridgecrew.io/docs/general_6",
+                    "details": [],
+                    "check_len": null,
+                    "definition_context_file_path": "/Users/mshavit/IdeaProjects/untitled1/src/main.tf"
+                },
+                {
+                    "check_id": "CKV_AWS_119",
+                    "bc_check_id": "BC_AWS_GENERAL_52",
+                    "check_name": "Ensure DynamoDB Tables are encrypted using a KMS Customer Managed CMK",
+                    "check_result": {
+                        "result": "FAILED",
+                        "evaluated_keys": [
+                            "server_side_encryption/[0]/enabled",
+                            "server_side_encryption/[0]/kms_key_arn"
+                        ]
+                    },
+                    "code_block": [
+                        [
+                            149,
+                            "resource \"aws_dynamodb_table\" \"token_cache\" {\n"
+                        ],
+                        [
+                            150,
+                            "  name         = \"authorization_token_cache_v2_${var.unique_tag}\"\n"
+                        ],
+                        [
+                            151,
+                            "  hash_key     = \"id\"\n"
+                        ],
+                        [
+                            152,
+                            "  billing_mode = \"PAY_PER_REQUEST\"\n"
+                        ],
+                        [
+                            153,
+                            "\n"
+                        ],
+                        [
+                            154,
+                            "  attribute {\n"
+                        ],
+                        [
+                            155,
+                            "    name = \"id\"\n"
+                        ],
+                        [
+                            156,
+                            "    type = \"S\"\n"
+                        ],
+                        [
+                            157,
+                            "  }\n"
+                        ],
+                        [
+                            158,
+                            "\n"
+                        ],
+                        [
+                            159,
+                            "  ttl {\n"
+                        ],
+                        [
+                            160,
+                            "    attribute_name = \"cache_ttl\"\n"
+                        ],
+                        [
+                            161,
+                            "    enabled        = true\n"
+                        ],
+                        [
+                            162,
+                            "  }\n"
+                        ],
+                        [
+                            163,
+                            "  tags = {\n"
+                        ],
+                        [
+                            164,
+                            "    git_commit           = \"60b7f0f1a1e8870220a610beabb3ac2f35457f2f\"\n"
+                        ],
+                        [
+                            165,
+                            "    git_file             = \"src/microStacks/authorizationStack/main.tf\"\n"
+                        ],
+                        [
+                            166,
+                            "    git_last_modified_at = \"2022-11-15 15:11:38\"\n"
+                        ],
+                        [
+                            167,
+                            "    git_last_modified_by = \"yyacoby@paloaltonetworks.com\"\n"
+                        ],
+                        [
+                            168,
+                            "    git_modifiers        = \"yyacoby\"\n"
+                        ],
+                        [
+                            169,
+                            "    git_org              = \"bridgecrew\"\n"
+                        ],
+                        [
+                            170,
+                            "    git_repo             = \"platform\"\n"
+                        ],
+                        [
+                            171,
+                            "    team                 = \"unknown\"\n"
+                        ],
+                        [
+                            172,
+                            "    yor_trace            = \"d83756b2-4d01-4514-9c0e-18352121c7f1\"\n"
+                        ],
+                        [
+                            173,
+                            "  }\n"
+                        ],
+                        [
+                            174,
+                            "}"
+                        ]
+                    ],
+                    "file_path": "/main.tf",
+                    "file_abs_path": "/Users/mshavit/IdeaProjects/untitled1/src/main.tf",
+                    "repo_file_path": "/main.tf",
+                    "file_line_range": [
+                        149,
+                        174
+                    ],
+                    "resource": "aws_dynamodb_table.token_cache",
+                    "evaluations": null,
+                    "check_class": "checkov.terraform.checks.resource.aws.DynamoDBTablesEncrypted",
+                    "fixed_definition": null,
+                    "entity_tags": {
+                        "git_commit": "60b7f0f1a1e8870220a610beabb3ac2f35457f2f",
+                        "git_file": "src/microStacks/authorizationStack/main.tf",
+                        "git_last_modified_at": "2022-11-15 15:11:38",
+                        "git_last_modified_by": "yyacoby@paloaltonetworks.com",
+                        "git_modifiers": "yyacoby",
+                        "git_org": "bridgecrew",
+                        "git_repo": "platform",
+                        "team": "unknown",
+                        "yor_trace": "d83756b2-4d01-4514-9c0e-18352121c7f1"
+                    },
+                    "caller_file_path": null,
+                    "caller_file_line_range": null,
+                    "resource_address": null,
+                    "severity": "LOW",
+                    "bc_category": "General",
+                    "benchmarks": {},
+                    "description": null,
+                    "short_description": null,
+                    "vulnerability_details": null,
+                    "connected_node": null,
+                    "guideline": "https://docs.bridgecrew.io/docs/ensure-that-dynamodb-tables-are-encrypted",
+                    "details": [],
+                    "check_len": null,
+                    "definition_context_file_path": "/Users/mshavit/IdeaProjects/untitled1/src/main.tf"
+                }
+            ]
+        },
+        "summary": {
+            "passed": 2,
+            "failed": 2,
+            "skipped": 0,
+            "parsing_errors": 0,
+            "resource_count": 7,
+            "checkov_version": "2.3.4"
+        }
+    },
+    {
+        "check_type": "dockerfile",
+        "results": {
+            "failed_checks": [
+                {
+                    "check_id": "CKV_DOCKER_2",
+                    "bc_check_id": "BC_DKR_2",
+                    "check_name": "Ensure that HEALTHCHECK instructions have been added to container images",
+                    "check_result": {
+                        "result": "FAILED",
+                        "results_configuration": null
+                    },
+                    "code_block": [
+                        [
+                            1,
+                            "FROM base:1\n"
+                        ],
+                        [
+                            2,
+                            "ENV aws_access_key=AKIA4***************\n"
+                        ],
+                        [
+                            3,
+                            "USER bob\n"
+                        ],
+                        [
+                            4,
+                            "ENV AWS_ACCESS_KEY_ID=\"wJalrX**********************************\"\n"
+                        ],
+                        [
+                            5,
+                            "ENV SEC_4=\"dsapi45202d12abdce73c004a9e0be24a21b2\"\n"
+                        ],
+                        [
+                            6,
+                            "ENV MY_SEC_1=\"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\"\n"
+                        ],
+                        [
+                            7,
+                            "ENV MY_SEC_2=\"glpat-KDNon6sfvHRKL8NtFfNR\"\n"
+                        ],
+                        [
+                            8,
+                            "ENV CIRCLE=\"2065ae463be4e434bb1d074a366d44e7a776d472\"\n"
+                        ],
+                        [
+                            9,
+                            "ENV SEC_3=\"eyJrIjoiNUwyZU7TMmRxQXNVcnR7UXB0ME4zYkhRaTk2STVhR0MiLCJuIjoidGVtcCIsImlkIjoxfQ==\"\n"
+                        ],
+                        [
+                            10,
+                            "ENV JIRA=\"5FP0NmFYz81U32XdjNb42762\""
+                        ]
+                    ],
+                    "file_path": "/Dockerfile",
+                    "file_abs_path": "/Users/mshavit/IdeaProjects/untitled1/src/Dockerfile",
+                    "repo_file_path": "/Dockerfile",
+                    "file_line_range": [
+                        1,
+                        10
+                    ],
+                    "resource": "/Dockerfile.",
+                    "evaluations": null,
+                    "check_class": "checkov.dockerfile.checks.HealthcheckExists",
+                    "fixed_definition": null,
+                    "entity_tags": null,
+                    "caller_file_path": null,
+                    "caller_file_line_range": null,
+                    "resource_address": null,
+                    "severity": "LOW",
+                    "bc_category": null,
+                    "benchmarks": null,
+                    "description": null,
+                    "short_description": null,
+                    "vulnerability_details": null,
+                    "connected_node": null,
+                    "guideline": "https://docs.bridgecrew.io/docs/ensure-that-healthcheck-instructions-have-been-added-to-container-images",
+                    "details": [],
+                    "check_len": null,
+                    "definition_context_file_path": null
+                }
+            ]
+        },
+        "summary": {
+            "passed": 4,
+            "failed": 1,
+            "skipped": 0,
+            "parsing_errors": 0,
+            "resource_count": 1,
+            "checkov_version": "2.3.4"
+        }
+    },
+    {
+        "check_type": "secrets",
+        "results": {
+            "failed_checks": [
+                {
+                    "check_id": "CKV_SECRET_2",
+                    "bc_check_id": "BC_GIT_2",
+                    "check_name": "AWS Access Key",
+                    "check_result": {
+                        "result": "FAILED"
+                    },
+                    "code_block": [
+                        [
+                            2,
+                            "ENV aws_access_key=AKIA4***************\n"
+                        ]
+                    ],
+                    "file_path": "/Dockerfile",
+                    "file_abs_path": "/Users/mshavit/IdeaProjects/untitled1/src/Dockerfile",
+                    "repo_file_path": "/Dockerfile",
+                    "file_line_range": [
+                        2,
+                        3
+                    ],
+                    "resource": "f135b88f4252dea626eaa3b955db754e98228f85",
+                    "evaluations": null,
+                    "check_class": "",
+                    "fixed_definition": null,
+                    "entity_tags": null,
+                    "caller_file_path": null,
+                    "caller_file_line_range": null,
+                    "resource_address": null,
+                    "severity": "LOW",
+                    "bc_category": null,
+                    "benchmarks": null,
+                    "description": null,
+                    "short_description": null,
+                    "vulnerability_details": null,
+                    "connected_node": null,
+                    "guideline": "https://docs.bridgecrew.io/docs/git_secrets_2",
+                    "details": [],
+                    "check_len": null,
+                    "definition_context_file_path": null,
+                    "validation_status": "Unavailable"
+                },
+                {
+                    "check_id": "CKV_SECRET_2",
+                    "bc_check_id": "BC_GIT_2",
+                    "check_name": "AWS Access Key",
+                    "check_result": {
+                        "result": "FAILED"
+                    },
+                    "code_block": [
+                        [
+                            4,
+                            "ENV AWS_ACCESS_KEY_ID=\"wJalrX**********************************\"\n"
+                        ]
+                    ],
+                    "file_path": "/Dockerfile",
+                    "file_abs_path": "/Users/mshavit/IdeaProjects/untitled1/src/Dockerfile",
+                    "repo_file_path": "/Dockerfile",
+                    "file_line_range": [
+                        4,
+                        5
+                    ],
+                    "resource": "d70eab08607a4d05faa2d0d6647206599e9abc65",
+                    "evaluations": null,
+                    "check_class": "",
+                    "fixed_definition": null,
+                    "entity_tags": null,
+                    "caller_file_path": null,
+                    "caller_file_line_range": null,
+                    "resource_address": null,
+                    "severity": "LOW",
+                    "bc_category": null,
+                    "benchmarks": null,
+                    "description": null,
+                    "short_description": null,
+                    "vulnerability_details": null,
+                    "connected_node": null,
+                    "guideline": "https://docs.bridgecrew.io/docs/git_secrets_2",
+                    "details": [],
+                    "check_len": null,
+                    "definition_context_file_path": null,
+                    "validation_status": "Unavailable"
+                }
+            ]
+        },
+        "summary": {
+            "passed": 0,
+            "failed": 2,
+            "skipped": 0,
+            "parsing_errors": 0,
+            "resource_count": 2,
+            "checkov_version": "2.3.4"
+        }
+    },
+    {
+        "check_type": "sca_package",
+        "results": {
+            "failed_checks": [
+                {
+                    "check_id": "BC_LIC_2",
+                    "bc_check_id": "BC_LIC_2",
+                    "check_name": "SCA license",
+                    "check_result": {
+                        "result": "FAILED"
+                    },
+                    "code_block": [
+                        [
+                            0,
+                            "express: 3.0.0"
+                        ]
+                    ],
+                    "file_path": "/package-lock.json",
+                    "file_abs_path": "/package-lock.json",
+                    "repo_file_path": "/package-lock.json",
+                    "file_line_range": [
+                        0,
+                        0
+                    ],
+                    "resource": "package-lock.json.express",
+                    "evaluations": null,
+                    "check_class": "checkov.sca_package_2.scanner.Scanner",
+                    "fixed_definition": null,
+                    "entity_tags": null,
+                    "caller_file_path": null,
+                    "caller_file_line_range": null,
+                    "resource_address": null,
+                    "severity": null,
+                    "bc_category": null,
+                    "benchmarks": null,
+                    "description": null,
+                    "short_description": "License NOT_FOUND - express: 3.0.0",
+                    "vulnerability_details": {
+                        "package_name": "express",
+                        "package_version": "3.0.0",
+                        "license": "NOT_FOUND",
+                        "status": "FAILED",
+                        "policy": "BC_LIC_2",
+                        "package_type": ""
+                    },
+                    "connected_node": null,
+                    "guideline": null,
+                    "details": [],
+                    "check_len": null,
+                    "definition_context_file_path": null
+                },
+                {
+                    "check_id": "BC_LIC_2",
+                    "bc_check_id": "BC_LIC_2",
+                    "check_name": "SCA license",
+                    "check_result": {
+                        "result": "FAILED"
+                    },
+                    "code_block": [
+                        [
+                            0,
+                            "commander: 0.6.1"
+                        ]
+                    ],
+                    "file_path": "/package-lock.json",
+                    "file_abs_path": "/package-lock.json",
+                    "repo_file_path": "/package-lock.json",
+                    "file_line_range": [
+                        0,
+                        0
+                    ],
+                    "resource": "package-lock.json.commander",
+                    "evaluations": null,
+                    "check_class": "checkov.sca_package_2.scanner.Scanner",
+                    "fixed_definition": null,
+                    "entity_tags": null,
+                    "caller_file_path": null,
+                    "caller_file_line_range": null,
+                    "resource_address": null,
+                    "severity": null,
+                    "bc_category": null,
+                    "benchmarks": null,
+                    "description": null,
+                    "short_description": "License NOT_FOUND - commander: 0.6.1",
+                    "vulnerability_details": {
+                        "package_name": "commander",
+                        "package_version": "0.6.1",
+                        "license": "NOT_FOUND",
+                        "status": "FAILED",
+                        "policy": "BC_LIC_2",
+                        "package_type": ""
+                    },
+                    "connected_node": null,
+                    "guideline": null,
+                    "details": [],
+                    "check_len": null,
+                    "definition_context_file_path": null
+                },
+                {
+                    "check_id": "BC_LIC_2",
+                    "bc_check_id": "BC_LIC_2",
+                    "check_name": "SCA license",
+                    "check_result": {
+                        "result": "FAILED"
+                    },
+                    "code_block": [
+                        [
+                            0,
+                            "connect: 2.6.0"
+                        ]
+                    ],
+                    "file_path": "/package-lock.json",
+                    "file_abs_path": "/package-lock.json",
+                    "repo_file_path": "/package-lock.json",
+                    "file_line_range": [
+                        0,
+                        0
+                    ],
+                    "resource": "package-lock.json.connect",
+                    "evaluations": null,
+                    "check_class": "checkov.sca_package_2.scanner.Scanner",
+                    "fixed_definition": null,
+                    "entity_tags": null,
+                    "caller_file_path": null,
+                    "caller_file_line_range": null,
+                    "resource_address": null,
+                    "severity": null,
+                    "bc_category": null,
+                    "benchmarks": null,
+                    "description": null,
+                    "short_description": "License NOT_FOUND - connect: 2.6.0",
+                    "vulnerability_details": {
+                        "package_name": "connect",
+                        "package_version": "2.6.0",
+                        "license": "NOT_FOUND",
+                        "status": "FAILED",
+                        "policy": "BC_LIC_2",
+                        "package_type": ""
+                    },
+                    "connected_node": null,
+                    "guideline": null,
+                    "details": [],
+                    "check_len": null,
+                    "definition_context_file_path": null
+                },
+                {
+                    "check_id": "BC_LIC_2",
+                    "bc_check_id": "BC_LIC_2",
+                    "check_name": "SCA license",
+                    "check_result": {
+                        "result": "FAILED"
+                    },
+                    "code_block": [
+                        [
+                            0,
+                            "cookie: 0.0.4"
+                        ]
+                    ],
+                    "file_path": "/package-lock.json",
+                    "file_abs_path": "/package-lock.json",
+                    "repo_file_path": "/package-lock.json",
+                    "file_line_range": [
+                        0,
+                        0
+                    ],
+                    "resource": "package-lock.json.cookie",
+                    "evaluations": null,
+                    "check_class": "checkov.sca_package_2.scanner.Scanner",
+                    "fixed_definition": null,
+                    "entity_tags": null,
+                    "caller_file_path": null,
+                    "caller_file_line_range": null,
+                    "resource_address": null,
+                    "severity": null,
+                    "bc_category": null,
+                    "benchmarks": null,
+                    "description": null,
+                    "short_description": "License NOT_FOUND - cookie: 0.0.4",
+                    "vulnerability_details": {
+                        "package_name": "cookie",
+                        "package_version": "0.0.4",
+                        "license": "NOT_FOUND",
+                        "status": "FAILED",
+                        "policy": "BC_LIC_2",
+                        "package_type": ""
+                    },
+                    "connected_node": null,
+                    "guideline": null,
+                    "details": [],
+                    "check_len": null,
+                    "definition_context_file_path": null
+                },
+                {
+                    "check_id": "BC_LIC_2",
+                    "bc_check_id": "BC_LIC_2",
+                    "check_name": "SCA license",
+                    "check_result": {
+                        "result": "FAILED"
+                    },
+                    "code_block": [
+                        [
+                            0,
+                            "crc: 0.2.0"
+                        ]
+                    ],
+                    "file_path": "/package-lock.json",
+                    "file_abs_path": "/package-lock.json",
+                    "repo_file_path": "/package-lock.json",
+                    "file_line_range": [
+                        0,
+                        0
+                    ],
+                    "resource": "package-lock.json.crc",
+                    "evaluations": null,
+                    "check_class": "checkov.sca_package_2.scanner.Scanner",
+                    "fixed_definition": null,
+                    "entity_tags": null,
+                    "caller_file_path": null,
+                    "caller_file_line_range": null,
+                    "resource_address": null,
+                    "severity": null,
+                    "bc_category": null,
+                    "benchmarks": null,
+                    "description": null,
+                    "short_description": "License NOT_FOUND - crc: 0.2.0",
+                    "vulnerability_details": {
+                        "package_name": "crc",
+                        "package_version": "0.2.0",
+                        "license": "NOT_FOUND",
+                        "status": "FAILED",
+                        "policy": "BC_LIC_2",
+                        "package_type": ""
+                    },
+                    "connected_node": null,
+                    "guideline": null,
+                    "details": [],
+                    "check_len": null,
+                    "definition_context_file_path": null
+                },
+                {
+                    "check_id": "BC_LIC_2",
+                    "bc_check_id": "BC_LIC_2",
+                    "check_name": "SCA license",
+                    "check_result": {
+                        "result": "FAILED"
+                    },
+                    "code_block": [
+                        [
+                            0,
+                            "fresh: 0.1.0"
+                        ]
+                    ],
+                    "file_path": "/package-lock.json",
+                    "file_abs_path": "/package-lock.json",
+                    "repo_file_path": "/package-lock.json",
+                    "file_line_range": [
+                        0,
+                        0
+                    ],
+                    "resource": "package-lock.json.fresh",
+                    "evaluations": null,
+                    "check_class": "checkov.sca_package_2.scanner.Scanner",
+                    "fixed_definition": null,
+                    "entity_tags": null,
+                    "caller_file_path": null,
+                    "caller_file_line_range": null,
+                    "resource_address": null,
+                    "severity": null,
+                    "bc_category": null,
+                    "benchmarks": null,
+                    "description": null,
+                    "short_description": "License NOT_FOUND - fresh: 0.1.0",
+                    "vulnerability_details": {
+                        "package_name": "fresh",
+                        "package_version": "0.1.0",
+                        "license": "NOT_FOUND",
+                        "status": "FAILED",
+                        "policy": "BC_LIC_2",
+                        "package_type": ""
+                    },
+                    "connected_node": null,
+                    "guideline": null,
+                    "details": [],
+                    "check_len": null,
+                    "definition_context_file_path": null
+                },
+                {
+                    "check_id": "BC_LIC_2",
+                    "bc_check_id": "BC_LIC_2",
+                    "check_name": "SCA license",
+                    "check_result": {
+                        "result": "FAILED"
+                    },
+                    "code_block": [
+                        [
+                            0,
+                            "mkdirp: 0.3.3"
+                        ]
+                    ],
+                    "file_path": "/package-lock.json",
+                    "file_abs_path": "/package-lock.json",
+                    "repo_file_path": "/package-lock.json",
+                    "file_line_range": [
+                        0,
+                        0
+                    ],
+                    "resource": "package-lock.json.mkdirp",
+                    "evaluations": null,
+                    "check_class": "checkov.sca_package_2.scanner.Scanner",
+                    "fixed_definition": null,
+                    "entity_tags": null,
+                    "caller_file_path": null,
+                    "caller_file_line_range": null,
+                    "resource_address": null,
+                    "severity": null,
+                    "bc_category": null,
+                    "benchmarks": null,
+                    "description": null,
+                    "short_description": "License NOT_FOUND - mkdirp: 0.3.3",
+                    "vulnerability_details": {
+                        "package_name": "mkdirp",
+                        "package_version": "0.3.3",
+                        "license": "NOT_FOUND",
+                        "status": "FAILED",
+                        "policy": "BC_LIC_2",
+                        "package_type": ""
+                    },
+                    "connected_node": null,
+                    "guideline": null,
+                    "details": [],
+                    "check_len": null,
+                    "definition_context_file_path": null
+                },
+                {
+                    "check_id": "BC_LIC_2",
+                    "bc_check_id": "BC_LIC_2",
+                    "check_name": "SCA license",
+                    "check_result": {
+                        "result": "FAILED"
+                    },
+                    "code_block": [
+                        [
+                            0,
+                            "range-parser: 0.0.4"
+                        ]
+                    ],
+                    "file_path": "/package-lock.json",
+                    "file_abs_path": "/package-lock.json",
+                    "repo_file_path": "/package-lock.json",
+                    "file_line_range": [
+                        0,
+                        0
+                    ],
+                    "resource": "package-lock.json.range-parser",
+                    "evaluations": null,
+                    "check_class": "checkov.sca_package_2.scanner.Scanner",
+                    "fixed_definition": null,
+                    "entity_tags": null,
+                    "caller_file_path": null,
+                    "caller_file_line_range": null,
+                    "resource_address": null,
+                    "severity": null,
+                    "bc_category": null,
+                    "benchmarks": null,
+                    "description": null,
+                    "short_description": "License NOT_FOUND - range-parser: 0.0.4",
+                    "vulnerability_details": {
+                        "package_name": "range-parser",
+                        "package_version": "0.0.4",
+                        "license": "NOT_FOUND",
+                        "status": "FAILED",
+                        "policy": "BC_LIC_2",
+                        "package_type": ""
+                    },
+                    "connected_node": null,
+                    "guideline": null,
+                    "details": [],
+                    "check_len": null,
+                    "definition_context_file_path": null
+                },
+                {
+                    "check_id": "BC_LIC_2",
+                    "bc_check_id": "BC_LIC_2",
+                    "check_name": "SCA license",
+                    "check_result": {
+                        "result": "FAILED"
+                    },
+                    "code_block": [
+                        [
+                            0,
+                            "send: 0.1.0"
+                        ]
+                    ],
+                    "file_path": "/package-lock.json",
+                    "file_abs_path": "/package-lock.json",
+                    "repo_file_path": "/package-lock.json",
+                    "file_line_range": [
+                        0,
+                        0
+                    ],
+                    "resource": "package-lock.json.send",
+                    "evaluations": null,
+                    "check_class": "checkov.sca_package_2.scanner.Scanner",
+                    "fixed_definition": null,
+                    "entity_tags": null,
+                    "caller_file_path": null,
+                    "caller_file_line_range": null,
+                    "resource_address": null,
+                    "severity": null,
+                    "bc_category": null,
+                    "benchmarks": null,
+                    "description": null,
+                    "short_description": "License NOT_FOUND - send: 0.1.0",
+                    "vulnerability_details": {
+                        "package_name": "send",
+                        "package_version": "0.1.0",
+                        "license": "NOT_FOUND",
+                        "status": "FAILED",
+                        "policy": "BC_LIC_2",
+                        "package_type": ""
+                    },
+                    "connected_node": null,
+                    "guideline": null,
+                    "details": [],
+                    "check_len": null,
+                    "definition_context_file_path": null
+                },
+                {
+                    "check_id": "BC_LIC_2",
+                    "bc_check_id": "BC_LIC_2",
+                    "check_name": "SCA license",
+                    "check_result": {
+                        "result": "FAILED"
+                    },
+                    "code_block": [
+                        [
+                            0,
+                            "bytes: 0.1.0"
+                        ]
+                    ],
+                    "file_path": "/package-lock.json",
+                    "file_abs_path": "/package-lock.json",
+                    "repo_file_path": "/package-lock.json",
+                    "file_line_range": [
+                        0,
+                        0
+                    ],
+                    "resource": "package-lock.json.bytes",
+                    "evaluations": null,
+                    "check_class": "checkov.sca_package_2.scanner.Scanner",
+                    "fixed_definition": null,
+                    "entity_tags": null,
+                    "caller_file_path": null,
+                    "caller_file_line_range": null,
+                    "resource_address": null,
+                    "severity": null,
+                    "bc_category": null,
+                    "benchmarks": null,
+                    "description": null,
+                    "short_description": "License NOT_FOUND - bytes: 0.1.0",
+                    "vulnerability_details": {
+                        "package_name": "bytes",
+                        "package_version": "0.1.0",
+                        "license": "NOT_FOUND",
+                        "status": "FAILED",
+                        "policy": "BC_LIC_2",
+                        "package_type": ""
+                    },
+                    "connected_node": null,
+                    "guideline": null,
+                    "details": [],
+                    "check_len": null,
+                    "definition_context_file_path": null
+                },
+                {
+                    "check_id": "BC_LIC_2",
+                    "bc_check_id": "BC_LIC_2",
+                    "check_name": "SCA license",
+                    "check_result": {
+                        "result": "FAILED"
+                    },
+                    "code_block": [
+                        [
+                            0,
+                            "send: 0.0.4"
+                        ]
+                    ],
+                    "file_path": "/package-lock.json",
+                    "file_abs_path": "/package-lock.json",
+                    "repo_file_path": "/package-lock.json",
+                    "file_line_range": [
+                        0,
+                        0
+                    ],
+                    "resource": "package-lock.json.send",
+                    "evaluations": null,
+                    "check_class": "checkov.sca_package_2.scanner.Scanner",
+                    "fixed_definition": null,
+                    "entity_tags": null,
+                    "caller_file_path": null,
+                    "caller_file_line_range": null,
+                    "resource_address": null,
+                    "severity": null,
+                    "bc_category": null,
+                    "benchmarks": null,
+                    "description": null,
+                    "short_description": "License NOT_FOUND - send: 0.0.4",
+                    "vulnerability_details": {
+                        "package_name": "send",
+                        "package_version": "0.0.4",
+                        "license": "NOT_FOUND",
+                        "status": "FAILED",
+                        "policy": "BC_LIC_2",
+                        "package_type": ""
+                    },
+                    "connected_node": null,
+                    "guideline": null,
+                    "details": [],
+                    "check_len": null,
+                    "definition_context_file_path": null
+                },
+                {
+                    "check_id": "BC_LIC_2",
+                    "bc_check_id": "BC_LIC_2",
+                    "check_name": "SCA license",
+                    "check_result": {
+                        "result": "FAILED"
+                    },
+                    "code_block": [
+                        [
+                            0,
+                            "formidable: 1.0.11"
+                        ]
+                    ],
+                    "file_path": "/package-lock.json",
+                    "file_abs_path": "/package-lock.json",
+                    "repo_file_path": "/package-lock.json",
+                    "file_line_range": [
+                        0,
+                        0
+                    ],
+                    "resource": "package-lock.json.formidable",
+                    "evaluations": null,
+                    "check_class": "checkov.sca_package_2.scanner.Scanner",
+                    "fixed_definition": null,
+                    "entity_tags": null,
+                    "caller_file_path": null,
+                    "caller_file_line_range": null,
+                    "resource_address": null,
+                    "severity": null,
+                    "bc_category": null,
+                    "benchmarks": null,
+                    "description": null,
+                    "short_description": "License NOT_FOUND - formidable: 1.0.11",
+                    "vulnerability_details": {
+                        "package_name": "formidable",
+                        "package_version": "1.0.11",
+                        "license": "NOT_FOUND",
+                        "status": "FAILED",
+                        "policy": "BC_LIC_2",
+                        "package_type": ""
+                    },
+                    "connected_node": null,
+                    "guideline": null,
+                    "details": [],
+                    "check_len": null,
+                    "definition_context_file_path": null
+                },
+                {
+                    "check_id": "BC_LIC_2",
+                    "bc_check_id": "BC_LIC_2",
+                    "check_name": "SCA license",
+                    "check_result": {
+                        "result": "FAILED"
+                    },
+                    "code_block": [
+                        [
+                            0,
+                            "qs: 0.5.1"
+                        ]
+                    ],
+                    "file_path": "/package-lock.json",
+                    "file_abs_path": "/package-lock.json",
+                    "repo_file_path": "/package-lock.json",
+                    "file_line_range": [
+                        0,
+                        0
+                    ],
+                    "resource": "package-lock.json.qs",
+                    "evaluations": null,
+                    "check_class": "checkov.sca_package_2.scanner.Scanner",
+                    "fixed_definition": null,
+                    "entity_tags": null,
+                    "caller_file_path": null,
+                    "caller_file_line_range": null,
+                    "resource_address": null,
+                    "severity": null,
+                    "bc_category": null,
+                    "benchmarks": null,
+                    "description": null,
+                    "short_description": "License NOT_FOUND - qs: 0.5.1",
+                    "vulnerability_details": {
+                        "package_name": "qs",
+                        "package_version": "0.5.1",
+                        "license": "NOT_FOUND",
+                        "status": "FAILED",
+                        "policy": "BC_LIC_2",
+                        "package_type": ""
+                    },
+                    "connected_node": null,
+                    "guideline": null,
+                    "details": [],
+                    "check_len": null,
+                    "definition_context_file_path": null
+                },
+                {
+                    "check_id": "BC_LIC_2",
+                    "bc_check_id": "BC_LIC_2",
+                    "check_name": "SCA license",
+                    "check_result": {
+                        "result": "FAILED"
+                    },
+                    "code_block": [
+                        [
+                            0,
+                            "mime: 1.2.6"
+                        ]
+                    ],
+                    "file_path": "/package-lock.json",
+                    "file_abs_path": "/package-lock.json",
+                    "repo_file_path": "/package-lock.json",
+                    "file_line_range": [
+                        0,
+                        0
+                    ],
+                    "resource": "package-lock.json.mime",
+                    "evaluations": null,
+                    "check_class": "checkov.sca_package_2.scanner.Scanner",
+                    "fixed_definition": null,
+                    "entity_tags": null,
+                    "caller_file_path": null,
+                    "caller_file_line_range": null,
+                    "resource_address": null,
+                    "severity": null,
+                    "bc_category": null,
+                    "benchmarks": null,
+                    "description": null,
+                    "short_description": "License NOT_FOUND - mime: 1.2.6",
+                    "vulnerability_details": {
+                        "package_name": "mime",
+                        "package_version": "1.2.6",
+                        "license": "NOT_FOUND",
+                        "status": "FAILED",
+                        "policy": "BC_LIC_2",
+                        "package_type": ""
+                    },
+                    "connected_node": null,
+                    "guideline": null,
+                    "details": [],
+                    "check_len": null,
+                    "definition_context_file_path": null
+                },
+                {
+                    "check_id": "BC_LIC_2",
+                    "bc_check_id": "BC_LIC_2",
+                    "check_name": "SCA license",
+                    "check_result": {
+                        "result": "FAILED"
+                    },
+                    "code_block": [
+                        [
+                            0,
+                            "pause: 0.0.1"
+                        ]
+                    ],
+                    "file_path": "/package-lock.json",
+                    "file_abs_path": "/package-lock.json",
+                    "repo_file_path": "/package-lock.json",
+                    "file_line_range": [
+                        0,
+                        0
+                    ],
+                    "resource": "package-lock.json.pause",
+                    "evaluations": null,
+                    "check_class": "checkov.sca_package_2.scanner.Scanner",
+                    "fixed_definition": null,
+                    "entity_tags": null,
+                    "caller_file_path": null,
+                    "caller_file_line_range": null,
+                    "resource_address": null,
+                    "severity": null,
+                    "bc_category": null,
+                    "benchmarks": null,
+                    "description": null,
+                    "short_description": "License NOT_FOUND - pause: 0.0.1",
+                    "vulnerability_details": {
+                        "package_name": "pause",
+                        "package_version": "0.0.1",
+                        "license": "NOT_FOUND",
+                        "status": "FAILED",
+                        "policy": "BC_LIC_2",
+                        "package_type": ""
+                    },
+                    "connected_node": null,
+                    "guideline": null,
+                    "details": [],
+                    "check_len": null,
+                    "definition_context_file_path": null
+                },
+                {
+                    "check_id": "BC_VUL_2",
+                    "bc_check_id": "BC_CVE_2014_6393",
+                    "check_name": "SCA package scan",
+                    "check_result": {
+                        "result": "FAILED"
+                    },
+                    "code_block": [
+                        [
+                            0,
+                            "express: 3.0.0"
+                        ]
+                    ],
+                    "file_path": "/package-lock.json",
+                    "file_abs_path": "/package-lock.json",
+                    "repo_file_path": "/package-lock.json",
+                    "file_line_range": [
+                        0,
+                        0
+                    ],
+                    "resource": "package-lock.json.express",
+                    "evaluations": null,
+                    "check_class": "checkov.sca_package_2.scanner.Scanner",
+                    "fixed_definition": null,
+                    "entity_tags": null,
+                    "caller_file_path": null,
+                    "caller_file_line_range": null,
+                    "resource_address": null,
+                    "severity": "MEDIUM",
+                    "bc_category": null,
+                    "benchmarks": null,
+                    "description": "The Express web framework before 3.11 and 4.x before 4.5 for Node.js does not provide a charset field in HTTP Content-Type headers in 400 level responses, which might allow remote attackers to conduct cross-site scripting (XSS) attacks via characters in a non-standard encoding.",
+                    "short_description": "CVE-2014-6393 - express: 3.0.0",
+                    "vulnerability_details": {
+                        "id": "CVE-2014-6393",
+                        "severity": "medium",
+                        "package_name": "express",
+                        "package_version": "3.0.0",
+                        "package_type": "",
+                        "link": "https://nvd.nist.gov/vuln/detail/CVE-2014-6393",
+                        "cvss": 4,
+                        "vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
+                        "description": "The Express web framework before 3.11 and 4.x before 4.5 for Node.js does not provide a charset field in HTTP Content-Type headers in 400 level responses, which might allow remote attackers to conduct cross-site scripting (XSS) attacks via characters in a non-standard encoding.",
+                        "risk_factors": {
+                            "Medium severity": {},
+                            "Attack vector: network": {},
+                            "Has fix": {},
+                            "Attack complexity: low": {}
+                        },
+                        "published_date": "2017-08-09T18:29:00Z",
+                        "licenses": "NOT_FOUND",
+                        "root_package_name": "express",
+                        "root_package_version": "3.0.0",
+                        "status": "fixed in 4.5.0, 3.11.0",
+                        "lowest_fixed_version": "3.11.0",
+                        "fixed_versions": [
+                            "4.5.0",
+                            "3.11.0"
+                        ],
+                        "image_details": null
+                    },
+                    "connected_node": null,
+                    "guideline": null,
+                    "details": [],
+                    "check_len": null,
+                    "definition_context_file_path": null
+                },
+                {
+                    "check_id": "BC_VUL_2",
+                    "bc_check_id": "BC_CVE_2018_3717",
+                    "check_name": "SCA package scan",
+                    "check_result": {
+                        "result": "FAILED"
+                    },
+                    "code_block": [
+                        [
+                            0,
+                            "connect: 2.6.0"
+                        ]
+                    ],
+                    "file_path": "/package-lock.json",
+                    "file_abs_path": "/package-lock.json",
+                    "repo_file_path": "/package-lock.json",
+                    "file_line_range": [
+                        0,
+                        0
+                    ],
+                    "resource": "package-lock.json.connect",
+                    "evaluations": null,
+                    "check_class": "checkov.sca_package_2.scanner.Scanner",
+                    "fixed_definition": null,
+                    "entity_tags": null,
+                    "caller_file_path": null,
+                    "caller_file_line_range": null,
+                    "resource_address": null,
+                    "severity": "MEDIUM",
+                    "bc_category": null,
+                    "benchmarks": null,
+                    "description": "connect node module before 2.14.0 suffers from a Cross-Site Scripting (XSS) vulnerability due to a lack of validation of file in directory.js middleware.",
+                    "short_description": "CVE-2018-3717 - connect: 2.6.0",
+                    "vulnerability_details": {
+                        "id": "CVE-2018-3717",
+                        "severity": "medium",
+                        "package_name": "connect",
+                        "package_version": "2.6.0",
+                        "package_type": "",
+                        "link": "https://nvd.nist.gov/vuln/detail/CVE-2018-3717",
+                        "cvss": 5.4,
+                        "vector": "CVSS:3.0/AV:N/AC:L/PR:L/UI:R/S:C/C:L/I:L/A:N",
+                        "description": "connect node module before 2.14.0 suffers from a Cross-Site Scripting (XSS) vulnerability due to a lack of validation of file in directory.js middleware.",
+                        "risk_factors": {
+                            "Medium severity": {},
+                            "Attack vector: network": {},
+                            "Has fix": {},
+                            "Attack complexity: low": {}
+                        },
+                        "published_date": "2018-06-07T02:29:00Z",
+                        "licenses": "NOT_FOUND",
+                        "root_package_name": "express",
+                        "root_package_version": "3.0.0",
+                        "root_package_fix_version": "3.5.3",
+                        "status": "fixed in 2.14.0",
+                        "lowest_fixed_version": "2.14.0",
+                        "fixed_versions": [
+                            "2.14.0"
+                        ],
+                        "image_details": null
+                    },
+                    "connected_node": null,
+                    "guideline": null,
+                    "details": [],
+                    "check_len": null,
+                    "definition_context_file_path": null
+                },
+                {
+                    "check_id": "BC_VUL_2",
+                    "bc_check_id": "BC_CVE_2013_7370",
+                    "check_name": "SCA package scan",
+                    "check_result": {
+                        "result": "FAILED"
+                    },
+                    "code_block": [
+                        [
+                            0,
+                            "connect: 2.6.0"
+                        ]
+                    ],
+                    "file_path": "/package-lock.json",
+                    "file_abs_path": "/package-lock.json",
+                    "repo_file_path": "/package-lock.json",
+                    "file_line_range": [
+                        0,
+                        0
+                    ],
+                    "resource": "package-lock.json.connect",
+                    "evaluations": null,
+                    "check_class": "checkov.sca_package_2.scanner.Scanner",
+                    "fixed_definition": null,
+                    "entity_tags": null,
+                    "caller_file_path": null,
+                    "caller_file_line_range": null,
+                    "resource_address": null,
+                    "severity": "LOW",
+                    "bc_category": null,
+                    "benchmarks": null,
+                    "description": "node-connect before 2.8.1 has XSS in the Sencha Labs Connect middleware",
+                    "short_description": "CVE-2013-7370 - connect: 2.6.0",
+                    "vulnerability_details": {
+                        "id": "CVE-2013-7370",
+                        "severity": "low",
+                        "package_name": "connect",
+                        "package_version": "2.6.0",
+                        "package_type": "",
+                        "link": "https://nvd.nist.gov/vuln/detail/CVE-2013-7370",
+                        "cvss": 1,
+                        "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
+                        "description": "node-connect before 2.8.1 has XSS in the Sencha Labs Connect middleware",
+                        "risk_factors": {
+                            "Attack vector: network": {},
+                            "Has fix": {},
+                            "Attack complexity: low": {}
+                        },
+                        "published_date": "2019-12-11T14:15:00Z",
+                        "licenses": "NOT_FOUND",
+                        "root_package_name": "express",
+                        "root_package_version": "3.0.0",
+                        "root_package_fix_version": "3.3.8",
+                        "status": "fixed in 2.8.1",
+                        "lowest_fixed_version": "2.8.1",
+                        "fixed_versions": [
+                            "2.8.1"
+                        ],
+                        "image_details": null
+                    },
+                    "connected_node": null,
+                    "guideline": null,
+                    "details": [],
+                    "check_len": null,
+                    "definition_context_file_path": null
+                },
+                {
+                    "check_id": "BC_VUL_2",
+                    "bc_check_id": "BC_CVE_2015_8859",
+                    "check_name": "SCA package scan",
+                    "check_result": {
+                        "result": "FAILED"
+                    },
+                    "code_block": [
+                        [
+                            0,
+                            "send: 0.0.4"
+                        ]
+                    ],
+                    "file_path": "/package-lock.json",
+                    "file_abs_path": "/package-lock.json",
+                    "repo_file_path": "/package-lock.json",
+                    "file_line_range": [
+                        0,
+                        0
+                    ],
+                    "resource": "package-lock.json.send",
+                    "evaluations": null,
+                    "check_class": "checkov.sca_package_2.scanner.Scanner",
+                    "fixed_definition": null,
+                    "entity_tags": null,
+                    "caller_file_path": null,
+                    "caller_file_line_range": null,
+                    "resource_address": null,
+                    "severity": "MEDIUM",
+                    "bc_category": null,
+                    "benchmarks": null,
+                    "description": "The send package before 0.11.1 for Node.js allows attackers to obtain the root path via unspecified vectors.",
+                    "short_description": "CVE-2015-8859 - send: 0.0.4",
+                    "vulnerability_details": {
+                        "id": "CVE-2015-8859",
+                        "severity": "medium",
+                        "package_name": "send",
+                        "package_version": "0.0.4",
+                        "package_type": "",
+                        "link": "https://nvd.nist.gov/vuln/detail/CVE-2015-8859",
+                        "cvss": 4,
+                        "vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+                        "description": "The send package before 0.11.1 for Node.js allows attackers to obtain the root path via unspecified vectors.",
+                        "risk_factors": {
+                            "Medium severity": {},
+                            "Attack vector: network": {},
+                            "Has fix": {},
+                            "Attack complexity: low": {}
+                        },
+                        "published_date": "2017-01-23T21:59:00Z",
+                        "licenses": "NOT_FOUND",
+                        "root_package_name": "express",
+                        "root_package_version": "3.0.0",
+                        "root_package_fix_version": "3.19.2",
+                        "status": "fixed in 0.11.1",
+                        "lowest_fixed_version": "0.11.1",
+                        "fixed_versions": [
+                            "0.11.1"
+                        ],
+                        "image_details": null
+                    },
+                    "connected_node": null,
+                    "guideline": null,
+                    "details": [],
+                    "check_len": null,
+                    "definition_context_file_path": null
+                },
+                {
+                    "check_id": "BC_VUL_2",
+                    "bc_check_id": "BC_CVE_2014_6394",
+                    "check_name": "SCA package scan",
+                    "check_result": {
+                        "result": "FAILED"
+                    },
+                    "code_block": [
+                        [
+                            0,
+                            "send: 0.0.4"
+                        ]
+                    ],
+                    "file_path": "/package-lock.json",
+                    "file_abs_path": "/package-lock.json",
+                    "repo_file_path": "/package-lock.json",
+                    "file_line_range": [
+                        0,
+                        0
+                    ],
+                    "resource": "package-lock.json.send",
+                    "evaluations": null,
+                    "check_class": "checkov.sca_package_2.scanner.Scanner",
+                    "fixed_definition": null,
+                    "entity_tags": null,
+                    "caller_file_path": null,
+                    "caller_file_line_range": null,
+                    "resource_address": null,
+                    "severity": "LOW",
+                    "bc_category": null,
+                    "benchmarks": null,
+                    "description": "visionmedia send before 0.8.4 for Node.js uses a partial comparison for verifying whether a directory is within the document root, which allows remote attackers to access restricted directories, as demonstrated using \\\"public-restricted\\\" under a \\\"public\\\" directory.",
+                    "short_description": "CVE-2014-6394 - send: 0.0.4",
+                    "vulnerability_details": {
+                        "id": "CVE-2014-6394",
+                        "severity": "low",
+                        "package_name": "send",
+                        "package_version": "0.0.4",
+                        "package_type": "",
+                        "link": "https://nvd.nist.gov/vuln/detail/CVE-2014-6394",
+                        "cvss": 1,
+                        "vector": "AV:N/AC:L/Au:N/C:P/I:P/A:P",
+                        "description": "visionmedia send before 0.8.4 for Node.js uses a partial comparison for verifying whether a directory is within the document root, which allows remote attackers to access restricted directories, as demonstrated using \\\"public-restricted\\\" under a \\\"public\\\" directory.",
+                        "risk_factors": {
+                            "Attack vector: network": {},
+                            "Has fix": {},
+                            "Attack complexity: low": {}
+                        },
+                        "published_date": "2014-10-08T17:55:00Z",
+                        "licenses": "NOT_FOUND",
+                        "root_package_name": "express",
+                        "root_package_version": "3.0.0",
+                        "root_package_fix_version": "3.16.10",
+                        "status": "fixed in 0.8.4",
+                        "lowest_fixed_version": "0.8.4",
+                        "fixed_versions": [
+                            "0.8.4"
+                        ],
+                        "image_details": null
+                    },
+                    "connected_node": null,
+                    "guideline": null,
+                    "details": [],
+                    "check_len": null,
+                    "definition_context_file_path": null
+                },
+                {
+                    "check_id": "BC_VUL_2",
+                    "bc_check_id": "BC_CVE_2017_16119",
+                    "check_name": "SCA package scan",
+                    "check_result": {
+                        "result": "FAILED"
+                    },
+                    "code_block": [
+                        [
+                            0,
+                            "fresh: 0.1.0"
+                        ]
+                    ],
+                    "file_path": "/package-lock.json",
+                    "file_abs_path": "/package-lock.json",
+                    "repo_file_path": "/package-lock.json",
+                    "file_line_range": [
+                        0,
+                        0
+                    ],
+                    "resource": "package-lock.json.fresh",
+                    "evaluations": null,
+                    "check_class": "checkov.sca_package_2.scanner.Scanner",
+                    "fixed_definition": null,
+                    "entity_tags": null,
+                    "caller_file_path": null,
+                    "caller_file_line_range": null,
+                    "resource_address": null,
+                    "severity": "HIGH",
+                    "bc_category": null,
+                    "benchmarks": null,
+                    "description": "Fresh is a module used by the Express.js framework for HTTP response freshness testing. It is vulnerable to a regular expression denial of service when it is passed specially crafted input to parse. This causes the event loop to be blocked causing a denial of service condition.",
+                    "short_description": "CVE-2017-16119 - fresh: 0.1.0",
+                    "vulnerability_details": {
+                        "id": "CVE-2017-16119",
+                        "severity": "high",
+                        "package_name": "fresh",
+                        "package_version": "0.1.0",
+                        "package_type": "",
+                        "link": "https://nvd.nist.gov/vuln/detail/CVE-2017-16119",
+                        "cvss": 7.5,
+                        "vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+                        "description": "Fresh is a module used by the Express.js framework for HTTP response freshness testing. It is vulnerable to a regular expression denial of service when it is passed specially crafted input to parse. This causes the event loop to be blocked causing a denial of service condition.",
+                        "risk_factors": {
+                            "High severity": {},
+                            "DoS": {},
+                            "Attack vector: network": {},
+                            "Has fix": {},
+                            "Attack complexity: low": {}
+                        },
+                        "published_date": "2018-06-07T02:29:00Z",
+                        "licenses": "NOT_FOUND",
+                        "root_package_name": "express",
+                        "root_package_version": "3.0.0",
+                        "root_package_fix_version": "4.15.5",
+                        "status": "fixed in 0.5.2",
+                        "lowest_fixed_version": "0.5.2",
+                        "fixed_versions": [
+                            "0.5.2"
+                        ],
+                        "image_details": null
+                    },
+                    "connected_node": null,
+                    "guideline": null,
+                    "details": [],
+                    "check_len": null,
+                    "definition_context_file_path": null
+                },
+                {
+                    "check_id": "BC_VUL_2",
+                    "bc_check_id": "BC_CVE_2017_16138",
+                    "check_name": "SCA package scan",
+                    "check_result": {
+                        "result": "FAILED"
+                    },
+                    "code_block": [
+                        [
+                            0,
+                            "mime: 1.2.6"
+                        ]
+                    ],
+                    "file_path": "/package-lock.json",
+                    "file_abs_path": "/package-lock.json",
+                    "repo_file_path": "/package-lock.json",
+                    "file_line_range": [
+                        0,
+                        0
+                    ],
+                    "resource": "package-lock.json.mime",
+                    "evaluations": null,
+                    "check_class": "checkov.sca_package_2.scanner.Scanner",
+                    "fixed_definition": null,
+                    "entity_tags": null,
+                    "caller_file_path": null,
+                    "caller_file_line_range": null,
+                    "resource_address": null,
+                    "severity": "HIGH",
+                    "bc_category": null,
+                    "benchmarks": null,
+                    "description": "The mime module < 1.4.1, 2.0.1, 2.0.2 is vulnerable to regular expression denial of service when a mime lookup is performed on untrusted user input.",
+                    "short_description": "CVE-2017-16138 - mime: 1.2.6",
+                    "vulnerability_details": {
+                        "id": "CVE-2017-16138",
+                        "severity": "high",
+                        "package_name": "mime",
+                        "package_version": "1.2.6",
+                        "package_type": "",
+                        "link": "https://nvd.nist.gov/vuln/detail/CVE-2017-16138",
+                        "cvss": 7.5,
+                        "vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+                        "description": "The mime module < 1.4.1, 2.0.1, 2.0.2 is vulnerable to regular expression denial of service when a mime lookup is performed on untrusted user input.",
+                        "risk_factors": {
+                            "High severity": {},
+                            "DoS": {},
+                            "Attack vector: network": {},
+                            "Has fix": {},
+                            "Attack complexity: low": {}
+                        },
+                        "published_date": "2018-06-07T02:29:00Z",
+                        "licenses": "NOT_FOUND",
+                        "root_package_name": "express",
+                        "root_package_version": "3.0.0",
+                        "root_package_fix_version": "4.16.4",
+                        "status": "fixed in 2.0.3, 1.4.1",
+                        "lowest_fixed_version": "1.4.1",
+                        "fixed_versions": [
+                            "2.0.3",
+                            "1.4.1"
+                        ],
+                        "image_details": null
+                    },
+                    "connected_node": null,
+                    "guideline": null,
+                    "details": [],
+                    "check_len": null,
+                    "definition_context_file_path": null
+                },
+                {
+                    "check_id": "BC_VUL_2",
+                    "bc_check_id": "BC_CVE_2022_24999",
+                    "check_name": "SCA package scan",
+                    "check_result": {
+                        "result": "FAILED"
+                    },
+                    "code_block": [
+                        [
+                            0,
+                            "qs: 0.5.1"
+                        ]
+                    ],
+                    "file_path": "/package-lock.json",
+                    "file_abs_path": "/package-lock.json",
+                    "repo_file_path": "/package-lock.json",
+                    "file_line_range": [
+                        0,
+                        0
+                    ],
+                    "resource": "package-lock.json.qs",
+                    "evaluations": null,
+                    "check_class": "checkov.sca_package_2.scanner.Scanner",
+                    "fixed_definition": null,
+                    "entity_tags": null,
+                    "caller_file_path": null,
+                    "caller_file_line_range": null,
+                    "resource_address": null,
+                    "severity": "HIGH",
+                    "bc_category": null,
+                    "benchmarks": null,
+                    "description": "qs before 6.10.3, as used in Express before 4.17.3 and other products, allows attackers to cause a Node process hang for an Express application because an __ proto__ key can be used. In many typical Express use cases, an unauthenticated remote attacker can place the attack payload in the query string of the URL that is used to visit the application, such as a[__proto__]=b&a[__proto__]&a[length]=100000000. The fix was backported to qs 6.9.7, 6.8.3, 6.7.3, 6.6.1, 6.5.3, 6.4.1, 6.3.3, and 6.2.4 (and therefore Express 4.17.3, which has \\\"deps: qs@6.9.7\\\" in its release description, is not vulnerable).",
+                    "short_description": "CVE-2022-24999 - qs: 0.5.1",
+                    "vulnerability_details": {
+                        "id": "CVE-2022-24999",
+                        "severity": "high",
+                        "package_name": "qs",
+                        "package_version": "0.5.1",
+                        "package_type": "",
+                        "link": "https://nvd.nist.gov/vuln/detail/CVE-2022-24999",
+                        "cvss": 7.5,
+                        "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+                        "description": "qs before 6.10.3, as used in Express before 4.17.3 and other products, allows attackers to cause a Node process hang for an Express application because an __ proto__ key can be used. In many typical Express use cases, an unauthenticated remote attacker can place the attack payload in the query string of the URL that is used to visit the application, such as a[__proto__]=b&a[__proto__]&a[length]=100000000. The fix was backported to qs 6.9.7, 6.8.3, 6.7.3, 6.6.1, 6.5.3, 6.4.1, 6.3.3, and 6.2.4 (and therefore Express 4.17.3, which has \\\"deps: qs@6.9.7\\\" in its release description, is not vulnerable).",
+                        "risk_factors": {
+                            "High severity": {},
+                            "Attack vector: network": {},
+                            "Has fix": {},
+                            "Attack complexity: low": {},
+                            "Recent vulnerability": {}
+                        },
+                        "published_date": "2022-11-26T22:15:00Z",
+                        "licenses": "NOT_FOUND",
+                        "root_package_name": "express",
+                        "root_package_version": "3.0.0",
+                        "root_package_fix_version": "3.17.8",
+                        "status": "fixed in 6.10.3",
+                        "lowest_fixed_version": "6.10.3",
+                        "fixed_versions": [
+                            "6.10.3"
+                        ],
+                        "image_details": null
+                    },
+                    "connected_node": null,
+                    "guideline": null,
+                    "details": [],
+                    "check_len": null,
+                    "definition_context_file_path": null
+                },
+                {
+                    "check_id": "BC_VUL_2",
+                    "bc_check_id": "BC_CVE_2014_7191",
+                    "check_name": "SCA package scan",
+                    "check_result": {
+                        "result": "FAILED"
+                    },
+                    "code_block": [
+                        [
+                            0,
+                            "qs: 0.5.1"
+                        ]
+                    ],
+                    "file_path": "/package-lock.json",
+                    "file_abs_path": "/package-lock.json",
+                    "repo_file_path": "/package-lock.json",
+                    "file_line_range": [
+                        0,
+                        0
+                    ],
+                    "resource": "package-lock.json.qs",
+                    "evaluations": null,
+                    "check_class": "checkov.sca_package_2.scanner.Scanner",
+                    "fixed_definition": null,
+                    "entity_tags": null,
+                    "caller_file_path": null,
+                    "caller_file_line_range": null,
+                    "resource_address": null,
+                    "severity": "HIGH",
+                    "bc_category": null,
+                    "benchmarks": null,
+                    "description": "The qs module before 1.0.0 in Node.js does not call the compact function for array data, which allows remote attackers to cause a denial of service (memory consumption) by using a large index value to create a sparse array.",
+                    "short_description": "CVE-2014-7191 - qs: 0.5.1",
+                    "vulnerability_details": {
+                        "id": "CVE-2014-7191",
+                        "severity": "high",
+                        "package_name": "qs",
+                        "package_version": "0.5.1",
+                        "package_type": "",
+                        "link": "https://nvd.nist.gov/vuln/detail/CVE-2014-7191",
+                        "cvss": 7,
+                        "vector": "AV:N/AC:L/Au:N/C:N/I:N/A:P",
+                        "description": "The qs module before 1.0.0 in Node.js does not call the compact function for array data, which allows remote attackers to cause a denial of service (memory consumption) by using a large index value to create a sparse array.",
+                        "risk_factors": {
+                            "High severity": {},
+                            "DoS": {},
+                            "Attack vector: network": {},
+                            "Has fix": {},
+                            "Attack complexity: low": {}
+                        },
+                        "published_date": "2014-10-19T01:55:00Z",
+                        "licenses": "NOT_FOUND",
+                        "root_package_name": "express",
+                        "root_package_version": "3.0.0",
+                        "root_package_fix_version": "3.16.10",
+                        "status": "fixed in 1.0.0",
+                        "lowest_fixed_version": "1.0.0",
+                        "fixed_versions": [
+                            "1.0.0"
+                        ],
+                        "image_details": null
+                    },
+                    "connected_node": null,
+                    "guideline": null,
+                    "details": [],
+                    "check_len": null,
+                    "definition_context_file_path": null
+                },
+                {
+                    "check_id": "BC_VUL_2",
+                    "bc_check_id": "BC_CVE_2014_10064",
+                    "check_name": "SCA package scan",
+                    "check_result": {
+                        "result": "FAILED"
+                    },
+                    "code_block": [
+                        [
+                            0,
+                            "qs: 0.5.1"
+                        ]
+                    ],
+                    "file_path": "/package-lock.json",
+                    "file_abs_path": "/package-lock.json",
+                    "repo_file_path": "/package-lock.json",
+                    "file_line_range": [
+                        0,
+                        0
+                    ],
+                    "resource": "package-lock.json.qs",
+                    "evaluations": null,
+                    "check_class": "checkov.sca_package_2.scanner.Scanner",
+                    "fixed_definition": null,
+                    "entity_tags": null,
+                    "caller_file_path": null,
+                    "caller_file_line_range": null,
+                    "resource_address": null,
+                    "severity": "HIGH",
+                    "bc_category": null,
+                    "benchmarks": null,
+                    "description": "The qs module before 1.0.0 does not have an option or default for specifying object depth and when parsing a string representing a deeply nested object will block the event loop for long periods of time. An attacker could leverage this to cause a temporary denial-of-service condition, for example, in a web application, other requests would not be processed while this blocking is occurring.",
+                    "short_description": "CVE-2014-10064 - qs: 0.5.1",
+                    "vulnerability_details": {
+                        "id": "CVE-2014-10064",
+                        "severity": "high",
+                        "package_name": "qs",
+                        "package_version": "0.5.1",
+                        "package_type": "",
+                        "link": "https://nvd.nist.gov/vuln/detail/CVE-2014-10064",
+                        "cvss": 7,
+                        "vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+                        "description": "The qs module before 1.0.0 does not have an option or default for specifying object depth and when parsing a string representing a deeply nested object will block the event loop for long periods of time. An attacker could leverage this to cause a temporary denial-of-service condition, for example, in a web application, other requests would not be processed while this blocking is occurring.",
+                        "risk_factors": {
+                            "High severity": {},
+                            "DoS": {},
+                            "Attack vector: network": {},
+                            "Has fix": {},
+                            "Attack complexity: low": {}
+                        },
+                        "published_date": "2018-05-31T20:29:00Z",
+                        "licenses": "NOT_FOUND",
+                        "root_package_name": "express",
+                        "root_package_version": "3.0.0",
+                        "root_package_fix_version": "3.16.10",
+                        "status": "fixed in 1.0.0",
+                        "lowest_fixed_version": "1.0.0",
+                        "fixed_versions": [
+                            "1.0.0"
+                        ],
+                        "image_details": null
+                    },
+                    "connected_node": null,
+                    "guideline": null,
+                    "details": [],
+                    "check_len": null,
+                    "definition_context_file_path": null
+                },
+                {
+                    "check_id": "BC_VUL_2",
+                    "bc_check_id": "BC_CVE_2017_1000048",
+                    "check_name": "SCA package scan",
+                    "check_result": {
+                        "result": "FAILED"
+                    },
+                    "code_block": [
+                        [
+                            0,
+                            "qs: 0.5.1"
+                        ]
+                    ],
+                    "file_path": "/package-lock.json",
+                    "file_abs_path": "/package-lock.json",
+                    "repo_file_path": "/package-lock.json",
+                    "file_line_range": [
+                        0,
+                        0
+                    ],
+                    "resource": "package-lock.json.qs",
+                    "evaluations": null,
+                    "check_class": "checkov.sca_package_2.scanner.Scanner",
+                    "fixed_definition": null,
+                    "entity_tags": null,
+                    "caller_file_path": null,
+                    "caller_file_line_range": null,
+                    "resource_address": null,
+                    "severity": "HIGH",
+                    "bc_category": null,
+                    "benchmarks": null,
+                    "description": "the web framework using ljharb\\'s qs module older than v6.3.2, v6.2.3, v6.1.2, and v6.0.4 is vulnerable to a DoS. A malicious user can send a evil request to cause the web framework crash.",
+                    "short_description": "CVE-2017-1000048 - qs: 0.5.1",
+                    "vulnerability_details": {
+                        "id": "CVE-2017-1000048",
+                        "severity": "high",
+                        "package_name": "qs",
+                        "package_version": "0.5.1",
+                        "package_type": "",
+                        "link": "https://nvd.nist.gov/vuln/detail/CVE-2017-1000048",
+                        "cvss": 7,
+                        "vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+                        "description": "the web framework using ljharb\\'s qs module older than v6.3.2, v6.2.3, v6.1.2, and v6.0.4 is vulnerable to a DoS. A malicious user can send a evil request to cause the web framework crash.",
+                        "risk_factors": {
+                            "High severity": {},
+                            "DoS": {},
+                            "Attack vector: network": {},
+                            "Has fix": {},
+                            "Attack complexity: low": {}
+                        },
+                        "published_date": "2017-03-01T00:00:00Z",
+                        "licenses": "NOT_FOUND",
+                        "root_package_name": "express",
+                        "root_package_version": "3.0.0",
+                        "root_package_fix_version": "4.15.5",
+                        "status": "fixed in 6.3.2, 6.2.3, 6.1.2, 6.0.4",
+                        "lowest_fixed_version": "6.0.4",
+                        "fixed_versions": [
+                            "6.3.2",
+                            "6.2.3",
+                            "6.1.2",
+                            "6.0.4"
+                        ],
+                        "image_details": null
+                    },
+                    "connected_node": null,
+                    "guideline": null,
+                    "details": [],
+                    "check_len": null,
+                    "definition_context_file_path": null
+                },
+                {
+                    "check_id": "BC_VUL_2",
+                    "bc_check_id": "BC_CVE_2015_8859",
+                    "check_name": "SCA package scan",
+                    "check_result": {
+                        "result": "FAILED"
+                    },
+                    "code_block": [
+                        [
+                            0,
+                            "send: 0.1.0"
+                        ]
+                    ],
+                    "file_path": "/package-lock.json",
+                    "file_abs_path": "/package-lock.json",
+                    "repo_file_path": "/package-lock.json",
+                    "file_line_range": [
+                        0,
+                        0
+                    ],
+                    "resource": "package-lock.json.send",
+                    "evaluations": null,
+                    "check_class": "checkov.sca_package_2.scanner.Scanner",
+                    "fixed_definition": null,
+                    "entity_tags": null,
+                    "caller_file_path": null,
+                    "caller_file_line_range": null,
+                    "resource_address": null,
+                    "severity": "MEDIUM",
+                    "bc_category": null,
+                    "benchmarks": null,
+                    "description": "The send package before 0.11.1 for Node.js allows attackers to obtain the root path via unspecified vectors.",
+                    "short_description": "CVE-2015-8859 - send: 0.1.0",
+                    "vulnerability_details": {
+                        "id": "CVE-2015-8859",
+                        "severity": "medium",
+                        "package_name": "send",
+                        "package_version": "0.1.0",
+                        "package_type": "",
+                        "link": "https://nvd.nist.gov/vuln/detail/CVE-2015-8859",
+                        "cvss": 4,
+                        "vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+                        "description": "The send package before 0.11.1 for Node.js allows attackers to obtain the root path via unspecified vectors.",
+                        "risk_factors": {
+                            "Medium severity": {},
+                            "Attack vector: network": {},
+                            "Has fix": {},
+                            "Attack complexity: low": {}
+                        },
+                        "published_date": "2017-01-23T21:59:00Z",
+                        "licenses": "NOT_FOUND",
+                        "root_package_name": "express",
+                        "root_package_version": "3.0.0",
+                        "root_package_fix_version": "3.19.2",
+                        "status": "fixed in 0.11.1",
+                        "lowest_fixed_version": "0.11.1",
+                        "fixed_versions": [
+                            "0.11.1"
+                        ],
+                        "image_details": null
+                    },
+                    "connected_node": null,
+                    "guideline": null,
+                    "details": [],
+                    "check_len": null,
+                    "definition_context_file_path": null
+                },
+                {
+                    "check_id": "BC_VUL_2",
+                    "bc_check_id": "BC_CVE_2014_6394",
+                    "check_name": "SCA package scan",
+                    "check_result": {
+                        "result": "FAILED"
+                    },
+                    "code_block": [
+                        [
+                            0,
+                            "send: 0.1.0"
+                        ]
+                    ],
+                    "file_path": "/package-lock.json",
+                    "file_abs_path": "/package-lock.json",
+                    "repo_file_path": "/package-lock.json",
+                    "file_line_range": [
+                        0,
+                        0
+                    ],
+                    "resource": "package-lock.json.send",
+                    "evaluations": null,
+                    "check_class": "checkov.sca_package_2.scanner.Scanner",
+                    "fixed_definition": null,
+                    "entity_tags": null,
+                    "caller_file_path": null,
+                    "caller_file_line_range": null,
+                    "resource_address": null,
+                    "severity": "LOW",
+                    "bc_category": null,
+                    "benchmarks": null,
+                    "description": "visionmedia send before 0.8.4 for Node.js uses a partial comparison for verifying whether a directory is within the document root, which allows remote attackers to access restricted directories, as demonstrated using \\\"public-restricted\\\" under a \\\"public\\\" directory.",
+                    "short_description": "CVE-2014-6394 - send: 0.1.0",
+                    "vulnerability_details": {
+                        "id": "CVE-2014-6394",
+                        "severity": "low",
+                        "package_name": "send",
+                        "package_version": "0.1.0",
+                        "package_type": "",
+                        "link": "https://nvd.nist.gov/vuln/detail/CVE-2014-6394",
+                        "cvss": 1,
+                        "vector": "AV:N/AC:L/Au:N/C:P/I:P/A:P",
+                        "description": "visionmedia send before 0.8.4 for Node.js uses a partial comparison for verifying whether a directory is within the document root, which allows remote attackers to access restricted directories, as demonstrated using \\\"public-restricted\\\" under a \\\"public\\\" directory.",
+                        "risk_factors": {
+                            "Attack vector: network": {},
+                            "Has fix": {},
+                            "Attack complexity: low": {}
+                        },
+                        "published_date": "2014-10-08T17:55:00Z",
+                        "licenses": "NOT_FOUND",
+                        "root_package_name": "express",
+                        "root_package_version": "3.0.0",
+                        "root_package_fix_version": "3.16.10",
+                        "status": "fixed in 0.8.4",
+                        "lowest_fixed_version": "0.8.4",
+                        "fixed_versions": [
+                            "0.8.4"
+                        ],
+                        "image_details": null
+                    },
+                    "connected_node": null,
+                    "guideline": null,
+                    "details": [],
+                    "check_len": null,
+                    "definition_context_file_path": null
+                }
+            ]
+        },
+        "summary": {
+            "passed": 4,
+            "failed": 28,
+            "skipped": 0,
+            "parsing_errors": 0,
+            "resource_count": 18,
+            "checkov_version": "2.3.4"
+        }
+    }
+]
