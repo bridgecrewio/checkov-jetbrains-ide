@@ -1,5 +1,6 @@
 package com.bridgecrew.activities
 import CheckovInstallerService
+import com.bridgecrew.services.ResultsCacheService
 import com.bridgecrew.services.checkovService.PipCheckovService
 import com.bridgecrew.ui.CheckovToolWindowManagerPanel
 import com.bridgecrew.utils.getGitRepoName
@@ -19,6 +20,7 @@ class PostStartupActivity : StartupActivity {
         getGitRepoName(project)
         project.service<CheckovInstallerService>().install(project)
         project.service<CheckovToolWindowManagerPanel>().subscribeToInternalEvents(project)
+//        project.service<ResultsCacheService>().setMockCheckovResultsFromExampleFile() // MOCK
         LOG.info("Startup activity finished")
     }
 }

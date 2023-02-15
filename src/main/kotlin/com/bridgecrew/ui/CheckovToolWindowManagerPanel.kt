@@ -91,9 +91,9 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
             FileEditorManagerListener {
             override fun fileOpened(source: FileEditorManager, file: VirtualFile) {
                 super.fileOpened(source, file);
-                if (extensionList.contains(file.extension)) {
+//                if (extensionList.contains(file.extension)) {
                     project.service<CheckovScanService>().scanFile(file.path, project);
-                }
+//                }
             }
         })
 
