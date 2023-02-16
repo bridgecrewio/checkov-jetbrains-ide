@@ -20,14 +20,15 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.openapi.vfs.newvfs.BulkFileListener
 import com.intellij.openapi.vfs.newvfs.events.VFileEvent
-import com.intellij.ui.JBSplitter
+import com.intellij.ui.OnePixelSplitter
+import java.awt.BorderLayout
 import javax.swing.SwingUtilities
 
 @Service
-class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPanel(false, true), Disposable {
+class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPanel(true, true), Disposable {
 
-    val checkovDescription = CheckovToolWindowDescriptionPanel(project)
-    val split = JBSplitter()
+    private val checkovDescription = CheckovToolWindowDescriptionPanel(project)
+    private val mainPanelSplitter = OnePixelSplitter(PANEL_SPLITTER_KEY, 0.5f)
     /**
      * Create Splitter element which contains the tree element and description element
      * @return JBSplitter
@@ -36,8 +37,13 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
         loadMainPanel(PANELTYPE.CHECKOV_INSTALATION_STARTED)
     }
 
+    companion object {
+        const val PANEL_SPLITTER_KEY = "CHECKOV_PANEL_SPLITTER_KEY"
+    }
+
     fun loadMainPanel(panelType: Int = PANELTYPE.AUTO_CHOOSE_PANEL, fileName: String = "") {
         removeAll()
+        add(CheckovActionToolbar(null), BorderLayout.NORTH)
         when (panelType) {
             PANELTYPE.CHECKOV_SCAN_ERROR -> {
                 add(checkovDescription.errorScanDescription())
@@ -58,12 +64,14 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                 add(checkovDescription.installationDescription())
             }
             PANELTYPE.CHECKOV_SCAN_FINISHED -> {
-                val checkovTree = CheckovToolWindowTree(project, split, checkovDescription)
-                val right = checkovDescription.emptyDescription()
-                val left = checkovTree.createScroll()
-                split.setFirstComponent(left)
-                split.setSecondComponent(right)
-                add(split)
+                removeAll()
+                val checkovTree = CheckovToolWindowTree(project, mainPanelSplitter, checkovDescription)
+                val descriptionPanel = checkovDescription.emptyDescription()
+                val filesTreePanel = checkovTree.createScroll()
+                add(CheckovActionToolbar(ScanResultMetadata(4, 35, 5222)), BorderLayout.NORTH)
+                mainPanelSplitter.firstComponent = filesTreePanel
+                mainPanelSplitter.secondComponent = descriptionPanel
+                add(mainPanelSplitter)
             }
             PANELTYPE.AUTO_CHOOSE_PANEL ->{
                 val setting = CheckovSettingsState().getInstance()

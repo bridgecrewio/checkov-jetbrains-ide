@@ -29,7 +29,7 @@ class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindow
 
     fun emptyDescription(): JPanel {
         descriptionPanel = JPanel()
-        descriptionPanel.add(JLabel(""), BorderLayout.CENTER)
+        descriptionPanel.add(JLabel("Select a file from the errors tree to show more details about it here"), BorderLayout.CENTER)
         return descriptionPanel
     }
 
