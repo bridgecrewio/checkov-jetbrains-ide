@@ -28,7 +28,7 @@ import javax.swing.SwingUtilities
 class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPanel(true, true), Disposable {
 
     private val checkovDescription = CheckovToolWindowDescriptionPanel(project)
-    private val split = OnePixelSplitter(PANEL_SPLITTER_KEY, 0.5f)
+    private val mainPanelSplitter = OnePixelSplitter(PANEL_SPLITTER_KEY, 0.5f)
     /**
      * Create Splitter element which contains the tree element and description element
      * @return JBSplitter
@@ -65,13 +65,13 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
             }
             PANELTYPE.CHECKOV_SCAN_FINISHED -> {
                 removeAll()
-                val checkovTree = CheckovToolWindowTree(project, split, checkovDescription)
-                val right = checkovDescription.emptyDescription()
-                val left = checkovTree.createScroll()
+                val checkovTree = CheckovToolWindowTree(project, mainPanelSplitter, checkovDescription)
+                val descriptionPanel = checkovDescription.emptyDescription()
+                val filesTreePanel = checkovTree.createScroll()
                 add(CheckovActionToolbar(ScanResultMetadata(4, 35, 5222)), BorderLayout.NORTH)
-                split.firstComponent = left
-                split.secondComponent = right
-                add(split)
+                mainPanelSplitter.firstComponent = filesTreePanel
+                mainPanelSplitter.secondComponent = descriptionPanel
+                add(mainPanelSplitter)
             }
             PANELTYPE.AUTO_CHOOSE_PANEL ->{
                 val setting = CheckovSettingsState().getInstance()
