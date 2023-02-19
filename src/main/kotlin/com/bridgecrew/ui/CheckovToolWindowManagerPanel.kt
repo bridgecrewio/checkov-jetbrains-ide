@@ -150,14 +150,14 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
             })
 
         // Subscribe to Installer Topic
-        project.messageBus.connect(this)
-            .subscribe(CheckovInstallerListener.INSTALLER_TOPIC, object: CheckovInstallerListener {
-                override fun installerFinished(serviceClass: CheckovService) {
-                    project.messageBus.syncPublisher(InitializationListener.INITIALIZATION_TOPIC).initializationCompleted()
-                    project.service<CheckovScanService>().selectedCheckovScanner = serviceClass
-//                    project.service<CheckovToolWindowManagerPanel>().subscribeToProjectEventChange()
-                }
-            })
+//        project.messageBus.connect(this)
+//            .subscribe(CheckovInstallerListener.INSTALLER_TOPIC, object: CheckovInstallerListener {
+//                override fun installerFinished(serviceClass: CheckovService) {
+//                    project.service<CheckovScanService>().selectedCheckovScanner = serviceClass
+////                    project.service<CheckovToolWindowManagerPanel>().subscribeToProjectEventChange()
+//                    project.messageBus.syncPublisher(InitializationListener.INITIALIZATION_TOPIC).initializationCompleted()
+//                }
+//            })
 
         // Subscribe to Settings Topic
         project.messageBus.connect(this)

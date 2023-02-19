@@ -20,7 +20,7 @@ private val LOG = logger<CliService>()
 class CliService {
     var checkovPath: String = ""
     var checkovVersion: String = ""
-    var isCheckovInstalledGlobally: Boolean = false
+//    var isCheckovInstalledGlobally: Boolean = false
 
     fun run(
         commands: ArrayList<String>,

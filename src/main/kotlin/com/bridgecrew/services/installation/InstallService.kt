@@ -71,9 +71,9 @@ class CheckovInstallerService {
                     LOG.info("Failed to install using: ${serviceObject.javaClass.kotlin}")
                     continue
                 }
-                if (serviceObject is PipenvCheckovService){
-                    PipenvCheckovService.getCheckovPath(project)
-                }
+//                if (serviceObject is PipenvCheckovService){
+//                    PipenvCheckovService.getCheckovPath(project)
+//                }
                 LOG.info("Checkov installed successfully using ${serviceObject.javaClass.kotlin}")
                 project.messageBus.syncPublisher(CheckovInstallerListener.INSTALLER_TOPIC).installerFinished(serviceObject)
                 project.service<CliService>().run(serviceObject.getVersion(project), project, ::printCheckovVersion)
