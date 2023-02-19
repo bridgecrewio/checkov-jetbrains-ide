@@ -1,5 +1,4 @@
 package com.bridgecrew.listeners
-import com.bridgecrew.CheckovResult
 import com.intellij.util.messages.Topic
 
 interface CheckovScanListener {

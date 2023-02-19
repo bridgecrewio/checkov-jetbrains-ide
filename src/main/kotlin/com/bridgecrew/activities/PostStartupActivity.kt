@@ -1,5 +1,6 @@
 package com.bridgecrew.activities
 import CheckovInstallerService
+import com.bridgecrew.services.ResultsCacheService
 import com.bridgecrew.listeners.InitializationListener
 import com.bridgecrew.listeners.InitializationListener.Companion.INITIALIZATION_TOPIC
 import com.bridgecrew.services.checkovService.PipCheckovService
@@ -29,6 +30,7 @@ class PostStartupActivity : StartupActivity {
 
         })
         initializeProject(project)
+//      project.service<ResultsCacheService>().setMockCheckovResultsFromExampleFile() // MOCK
         LOG.info("Startup activity finished")
     }
 
