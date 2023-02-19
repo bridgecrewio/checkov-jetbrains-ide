@@ -27,4 +27,8 @@ class DockerCheckovScanCommandsService(project: Project): CheckovScanCommandsSer
     override fun getDirectory(): String {
         return volumeDirectory
     }
+
+    override fun getFilePath(originalFilePath: String): String {
+        return originalFilePath.replace(project.basePath!!, volumeDirectory)
+    }
 }

@@ -22,7 +22,7 @@ abstract class CheckovScanCommandsService(val project: Project) {
         cmds.addAll(getCheckovCliArgsForExecCommand())
 
         cmds.add("-f")
-        cmds.add(FilenameUtils.separatorsToSystem(filePath))
+        cmds.add(getFilePath(filePath))
         return cmds
     }
 
@@ -68,4 +68,5 @@ abstract class CheckovScanCommandsService(val project: Project) {
 
     abstract fun getCheckovRunningCommandByServiceType(): ArrayList<String>
     abstract fun getDirectory(): String
+    abstract fun getFilePath(originalFilePath: String): String
 }

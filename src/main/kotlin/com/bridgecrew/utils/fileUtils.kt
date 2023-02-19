@@ -1,5 +1,4 @@
 package com.bridgecrew.utils
-import com.bridgecrew.services.checkovService.DOCKER_MOUNT_DIR
 import com.intellij.ide.util.PsiNavigationSupport
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.fileEditor.FileDocumentManager

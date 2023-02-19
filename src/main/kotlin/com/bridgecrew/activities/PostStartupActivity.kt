@@ -1,9 +1,10 @@
 package com.bridgecrew.activities
 import CheckovInstallerService
+import com.bridgecrew.initialization.InitializationService
 import com.bridgecrew.services.ResultsCacheService
 import com.bridgecrew.listeners.InitializationListener
 import com.bridgecrew.listeners.InitializationListener.Companion.INITIALIZATION_TOPIC
-import com.bridgecrew.services.checkovService.PipCheckovService
+//import com.bridgecrew.services.checkovService.PipCheckovService
 import com.bridgecrew.ui.CheckovToolWindowManagerPanel
 import com.bridgecrew.utils.initializeRepoName
 import com.intellij.openapi.application.ApplicationManager
@@ -35,7 +36,9 @@ class PostStartupActivity : StartupActivity {
     }
 
     private fun initializeProject(project: Project) {
-        PipCheckovService.setCheckovPath(project)
-        initializeRepoName(project)
+//        PipCheckovService.setCheckovPath(project)
+        val initializationService = InitializationService(project)
+        initializationService.initializeProject()
+//        initializeRepoName(project)
     }
 }

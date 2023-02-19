@@ -1,10 +1,14 @@
 
 
 import com.bridgecrew.listeners.CheckovInstallerListener
-import com.bridgecrew.services.checkovService.CheckovService
-import com.bridgecrew.services.checkovService.DockerCheckovService
-import com.bridgecrew.services.checkovService.PipCheckovService
-import com.bridgecrew.services.checkovService.PipenvCheckovService
+//import com.bridgecrew.services.checkovService.CheckovService
+//import com.bridgecrew.services.checkovService.DockerCheckovService
+//import com.bridgecrew.services.checkovService.PipCheckovService
+//import com.bridgecrew.services.checkovService.PipenvCheckovService
+import com.bridgecrew.services.installation.DockerInstallerService
+import com.bridgecrew.services.installation.InstallerService
+import com.bridgecrew.services.installation.PipInstallerService
+import com.bridgecrew.services.installation.PipenvInstallerService
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.OSProcessHandler
 import com.intellij.execution.process.ProcessHandler
@@ -29,8 +33,8 @@ class CheckovInstallerService {
     fun install(
         project: Project,
     ) {
-        val commands = ArrayList<Pair<CheckovService , ProcessHandler>>()
-        val checkovServices = arrayOf(DockerCheckovService(project), PipCheckovService(project), PipenvCheckovService(project))
+        val commands = ArrayList<Pair<InstallerService , ProcessHandler>>()
+        val checkovServices = arrayOf(DockerInstallerService(), PipInstallerService(), PipenvInstallerService())
         for (service in checkovServices){
             try {
                 val command = service.getInstallCommand()
@@ -57,7 +61,7 @@ class CheckovInstallerService {
         }
     }
 
-    private class InstallerTask(project: Project, title: String, val services: ArrayList<Pair<CheckovService , ProcessHandler>>):
+    private class InstallerTask(project: Project, title: String, val services: ArrayList<Pair<InstallerService, ProcessHandler>>):
         Task.Backgroundable(project, title,true) {
         override fun run(indicator: ProgressIndicator) {
             indicator.isIndeterminate = false

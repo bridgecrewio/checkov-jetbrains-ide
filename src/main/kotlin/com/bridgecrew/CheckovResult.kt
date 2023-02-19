@@ -22,7 +22,7 @@ data class VulnerabilityDetails(
         val lowest_fixed_version: String?,
         val published_date: String?,
         val vector: String?,
-        val risk_factors: Map<String, Object>?
+        val risk_factors: List<String>?
 )
 data class CheckovResult(
         val check_id: String,

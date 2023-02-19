@@ -5,8 +5,9 @@ import com.bridgecrew.getFailedChecksFromResultString
 import com.bridgecrew.groupResultsByResource
 import com.bridgecrew.listeners.CheckovScanListener
 import com.bridgecrew.listeners.CheckovSettingsListener
+import com.bridgecrew.services.checkovScanCommandsService.CheckovScanCommandsService
 
-import com.bridgecrew.services.checkovService.CheckovService
+//import com.bridgecrew.services.checkovService.CheckovService
 import com.bridgecrew.settings.CheckovSettingsState
 import com.bridgecrew.ui.CheckovNotificationBalloon
 import com.bridgecrew.utils.DEFAULT_TIMEOUT
@@ -39,7 +40,7 @@ private val LOG = logger<CheckovScanService>()
 
 @Service
 class CheckovScanService {
-    var selectedCheckovScanner: CheckovService? = null
+    var selectedCheckovScanner: CheckovScanCommandsService? = null
     private var isFirstRun: Boolean = true
     private val settings = CheckovSettingsState().getInstance()
     private var currentFile = ""

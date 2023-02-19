@@ -13,4 +13,8 @@ class PythonCheckovScanCommandsService(project: Project): CheckovScanCommandsSer
     override fun getDirectory(): String {
         return FilenameUtils.separatorsToSystem(project.basePath!!)
     }
+
+    override fun getFilePath(originalFilePath: String): String {
+        return FilenameUtils.separatorsToSystem(originalFilePath)
+    }
 }

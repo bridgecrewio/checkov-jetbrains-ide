@@ -5,7 +5,7 @@ import com.bridgecrew.listeners.CheckovInstallerListener
 import com.bridgecrew.listeners.CheckovScanListener
 import com.bridgecrew.listeners.CheckovSettingsListener
 import com.bridgecrew.listeners.InitializationListener
-import com.bridgecrew.services.checkovService.CheckovService
+//import com.bridgecrew.services.checkovService.CheckovService
 import com.bridgecrew.settings.CheckovSettingsState
 import com.bridgecrew.utils.PANELTYPE
 import com.intellij.openapi.Disposable

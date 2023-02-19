@@ -11,6 +11,16 @@ class DockerInstallerService: InstallerService {
         return arrayListOf("docker", "run", "--rm", "--tty", "bridgecrew/checkov", "-v")
     }
 
+    companion object {
+        fun getCheckovImageIsRunningCommand(): ArrayList<String> {
+            return arrayListOf("docker", "run", "--rm", "--tty", "bridgecrew/checkov", "-v")
+        }
+
+        fun getPullCheckovImageCommand(): ArrayList<String> {
+            return arrayListOf("docker", "pull", "bridgecrew/checkov")
+        }
+    }
+
     // check if docker is installed in computer
     // if yes - pull image and define service
     // if not - move to python

@@ -12,4 +12,14 @@ class PipenvInstallerService: InstallerService {
     override fun getVersion(project: Project): ArrayList<String> {
         return arrayListOf(project.service<CliService>().checkovPath,"-v")
     }
+
+    companion object {
+        fun getWinCommandsForFindingCheckovPath(): ArrayList<String> {
+            return arrayListOf("pipenv", "run", "where", "python")
+        }
+
+        fun getUnixCommandsForFindingCheckovPath(): ArrayList<String> {
+            return arrayListOf("pipenv", "run", "which", "python")
+        }
+    }
 }
