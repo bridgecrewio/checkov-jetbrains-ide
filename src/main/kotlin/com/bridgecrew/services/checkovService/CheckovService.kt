@@ -1,9 +1,9 @@
 //package com.bridgecrew.services.checkovService
 //
 //import com.bridgecrew.listeners.CheckovSettingsListener
-//import com.bridgecrew.services.CheckovScanService
-//import com.bridgecrew.services.checkovService.CheckovCliFlagsConfig.Companion.frameworks
-//import com.bridgecrew.services.checkovService.CheckovCliFlagsConfig.Companion.excludedPaths
+//import com.bridgecrew.services.scan.CheckovScanService
+//import com.bridgecrew.services.checkovScanCommandsService.CheckovCliFlagsConfig.Companion.frameworks
+//import com.bridgecrew.services.checkovScanCommandsService.CheckovCliFlagsConfig.Companion.excludedPaths
 //import com.bridgecrew.settings.CheckovSettingsState
 ////import com.bridgecrew.utils.defaultRepoName
 //import com.bridgecrew.utils.getRepoName

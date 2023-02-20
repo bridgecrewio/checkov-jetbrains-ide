@@ -1,6 +1,6 @@
 package com.bridgecrew
-import com.bridgecrew.services.CheckovResultException
-import com.bridgecrew.services.CheckovResultParsingException
+import com.bridgecrew.services.scan.CheckovResultException
+import com.bridgecrew.services.scan.CheckovResultParsingException
 import com.bridgecrew.utils.normalizeFilePathToAbsolute
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken

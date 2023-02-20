@@ -1,10 +1,10 @@
-package com.bridgecrew.services
+package com.bridgecrew.services.scan
 
 import com.bridgecrew.ResourceToCheckovResultsList
 import com.bridgecrew.getFailedChecksFromResultString
 import com.bridgecrew.groupResultsByResource
 import com.bridgecrew.listeners.CheckovScanListener
-import com.bridgecrew.listeners.CheckovSettingsListener
+import com.bridgecrew.services.ResultsCacheService
 import com.bridgecrew.services.checkovScanCommandsService.CheckovScanCommandsService
 
 //import com.bridgecrew.services.checkovService.CheckovService
@@ -98,18 +98,10 @@ class CheckovScanService {
     }
 
     private fun analyzeScan(result: String, errorCode: Int, project: Project, filePath: String){
-        if (result.contains("Please check your API token")) {
-            LOG.warn("Please check you API token\n\n" +
-                    " $result")
-            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningError()
+        if (!isValidScanResults(result, errorCode, project)) {
             return
         }
-        if (errorCode != 0 || result.contains("[ERROR]")) {
-            LOG.warn("Error scanning file\n" +
-                    "To report: open an issue at https://github.com/bridgecrewio/checkov-jetbrains-ide/issues\n\n $result")
-            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningError()
-            return
-        }
+
         try {
             if (filePath == currentFile) {  // To show only the last run of checkov ( on the opened file)
                 val filePathRelativeToProject = filePath.replace(project.basePath!!, "")
@@ -139,6 +131,95 @@ class CheckovScanService {
         }
     }
 
+    private fun analyzeRepositoryScan(result: String, errorCode: Int, project: Project) {
+
+        if (!isValidScanResults(result, errorCode, project)) {
+            return
+        }
+
+        try {
+            val failedResults = getFailedChecksFromResultString(result)
+            project.service<ResultsCacheService>().setCheckovResultsFromResultsList(failedResults)
+            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished()
+
+            CheckovNotificationBalloon.showError(project, project.service<ResultsCacheService>().getAllCheckovResults().size)
+        } catch (e: JSONException) {
+            LOG.warn("Error parsing checkov results \n" +
+                    "Raw response: $result\n" +
+                    "To report: open a issue at https://github.com/bridgecrewio/checkov-jetbrains-ide/issues\n\n")
+            e.printStackTrace()
+            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningError()
+        } catch (e: CheckovResultParsingException){
+            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningParsingError()
+        } catch (e: CheckovResultException) {
+            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished()
+        }
+    }
+
+    fun scanProject(project: Project) {
+        try {
+            if (selectedCheckovScanner == null) {
+                LOG.warn("Checkov is not installed")
+            }
+
+            LOG.info("Trying to scan the project $selectedCheckovScanner")
+//            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningStarted() // TODO ?
+
+            project.service<ResultsCacheService>().deleteAllCheckovResults() // TODO - save the previous state for canceling case
+
+            val execCommands: List<List<String>> = prepareRepositoryScanningExecCommand()
+
+            execCommands.forEach { execCommand ->
+                run {
+                    val processHandler: ProcessHandler = OSProcessHandler(generateCheckovCommand(execCommand))
+
+                    val scanTask = RepositoryScanTask(project, "Checkov scanning repository", processHandler)
+                    if (SwingUtilities.isEventDispatchThread()) {
+                        ProgressManager.getInstance().run(scanTask)
+                    } else {
+                        ApplicationManager.getApplication().invokeLater {
+                            ProgressManager.getInstance().run(scanTask)
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            LOG.error(e)
+            return
+        }
+    }
+
+    private fun generateCheckovCommand(execCommand: List<String>): GeneralCommandLine {
+        val pluginVersion = PluginManagerCore.getPlugin(PluginId.getId("com.github.bridgecrewio.checkov"))?.version ?: "UNKNOWN"
+        val prismaUrl = settings?.prismaURL
+
+        val generalCommandLine = GeneralCommandLine(execCommand)
+        generalCommandLine.charset = Charset.forName("UTF-8")
+        generalCommandLine.environment["BC_SOURCE_VERSION"] = pluginVersion
+        generalCommandLine.environment["BC_SOURCE"] = "jetbrains"
+        generalCommandLine.environment["LOG_LEVEL"] = "DEBUG"
+        if (!prismaUrl.isNullOrEmpty()) {
+            generalCommandLine.environment["PRISMA_API_URL"] = prismaUrl
+        }
+
+        return generalCommandLine
+    }
+
+    private fun isValidScanResults(result: String, errorCode: Int, project: Project): Boolean {
+        if (result.contains("Please check your API token")) {
+            LOG.warn("Please check you API token\n\n $result")
+            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningError()
+            return false
+        }
+        if (errorCode != 0 || result.contains("[ERROR]")) {
+            LOG.warn("Error scanning file\n" +
+                    "To report: open an issue at https://github.com/bridgecrewio/checkov-jetbrains-ide/issues\n\n $result")
+            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningError()
+            return false
+        }
+
+        return true
+    }
 
     private fun getGroupedResults(res: String, project: Project, relativeFilePath: String): Pair<ResourceToCheckovResultsList, Int> {
         val listOfCheckovResults = getFailedChecksFromResultString(res)
@@ -147,14 +228,34 @@ class CheckovScanService {
         return Pair(groupResultsByResource(listOfCheckovResults, project, relativeFilePath), listOfCheckovResults.size)
     }
 
-    private fun prepareExecCommand(filePath: String): ArrayList<String> {
+    private fun prepareExecCommand(filePath: String): List<String> {
 //        val execCommand = selectedCheckovScanner!!.getExecCommand(filePath, apiToken, gitRepo, pluginVersion, prismaUrl)
-        val execCommand = selectedCheckovScanner!!.getExecCommandForSingleFile(filePath)
-        return getCertParams(execCommand)
+        val execCommand = selectedCheckovScanner!!.getExecCommandForSingleFile(filePath) + getCertParams()
+
+        val maskedCommand = replaceApiToken(execCommand.joinToString(" "))
+        LOG.info("Running command: $maskedCommand")
+
+        return execCommand
+    }
+
+    private fun prepareRepositoryScanningExecCommand(): List<List<String>> {
+//        val execCommand = selectedCheckovScanner!!.getExecCommand(filePath, apiToken, gitRepo, pluginVersion, prismaUrl)
+        val execCommandsByFramework = selectedCheckovScanner!!.getExecCommandsForRepositoryByFramework()
+
+        execCommandsByFramework.forEach { command ->
+            run {
+                command.addAll(getCertParams())
+                val maskedCommand = replaceApiToken(command.joinToString(" "))
+                LOG.info("Running command: $maskedCommand")
+            }
+        }
+
+        return execCommandsByFramework
     }
 
 
-    private fun getCertParams(cmds: ArrayList<String>): ArrayList<String> {
+    private fun getCertParams(): ArrayList<String> {
+        val cmds = ArrayList<String>()
         val certPath = settings?.certificate
         if (!certPath.isNullOrEmpty()) {
             cmds.add("-ca")
@@ -164,19 +265,6 @@ class CheckovScanService {
         return cmds
     }
 
-    private class ScanTask(project: Project, title: String, val filePath: String, val processHandler: ProcessHandler):
-        Task.Backgroundable(project, title,true) {
-        override fun run(indicator: ProgressIndicator) {
-                indicator.isIndeterminate = false
-                val output = ScriptRunnerUtil.getProcessOutput(processHandler,
-                    ScriptRunnerUtil.STDOUT_OR_STDERR_OUTPUT_KEY_FILTER,
-                    DEFAULT_TIMEOUT)
-                LOG.info("Checkov task output:")
-                LOG.info(output)
-                project.service<CheckovScanService>().analyzeScan(output, processHandler.exitCode!!, project, filePath)
-            }
-        }
-
     private fun replaceApiToken(command: String): String {
         val apiToknIndex = command.indexOf("--bc-api-key")
         return if (apiToknIndex >= 0) {
@@ -185,6 +273,33 @@ class CheckovScanService {
             command.substring(0, firstPos).toString() + " **-**-**-** " + command.substring(lastPos)
         } else {
             command
+        }
+    }
+
+    private class ScanTask(project: Project, title: String, val filePath: String, val processHandler: ProcessHandler) :
+            Task.Backgroundable(project, title, true) {
+        override fun run(indicator: ProgressIndicator) {
+            indicator.isIndeterminate = false
+            val output = ScriptRunnerUtil.getProcessOutput(processHandler,
+                    ScriptRunnerUtil.STDOUT_OR_STDERR_OUTPUT_KEY_FILTER,
+                    DEFAULT_TIMEOUT)
+            LOG.info("Checkov task output:")
+            LOG.info(output)
+            project.service<CheckovScanService>().analyzeScan(output, processHandler.exitCode!!, project, filePath)
+        }
+    }
+
+    private class RepositoryScanTask(project: Project, title: String, val processHandler: ProcessHandler) :
+            Task.Backgroundable(project, title, true) {
+        override fun run(indicator: ProgressIndicator) {
+            indicator.isIndeterminate = false
+            val output = ScriptRunnerUtil.getProcessOutput(processHandler,
+                    ScriptRunnerUtil.STDOUT_OR_STDERR_OUTPUT_KEY_FILTER,
+                    DEFAULT_TIMEOUT)
+            LOG.info("Checkov full repository task output:")
+            LOG.info(output)
+
+            project.service<CheckovScanService>().analyzeRepositoryScan(output, processHandler.exitCode!!, project)
         }
     }
 }

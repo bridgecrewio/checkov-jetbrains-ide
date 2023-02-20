@@ -1,8 +1,6 @@
-package com.bridgecrew.services.checkovService
+package com.bridgecrew.services.checkovScanCommandsService
 
-import com.intellij.openapi.components.Service
-
-class CheckovCliFlagsConfig() {
+class CheckovCliFlagsConfig {
     companion object {
         val frameworks = arrayListOf("ansible", "arm", "bicep", "cloudformation", "dockerfile", "helm", "json",
                 "yaml", "kubernetes", "kustomize", "openapi", "sca_package", "sca_image", "secrets", "serverless", "terraform", "terraform_plan")

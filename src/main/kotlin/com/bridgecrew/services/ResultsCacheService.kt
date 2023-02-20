@@ -40,9 +40,9 @@ class ResultsCacheService {
     fun setMockCheckovResultsFromExampleFile() {
         val inputString: String = javaClass.classLoader.getResource("examples/example-output.json").readText()
         val checkovResults: List<CheckovResult> = getFailedChecksFromResultString(inputString)
-        setMockCheckovResultsFromResultsList(checkovResults)
+        setCheckovResultsFromResultsList(checkovResults)
     }
-    fun setMockCheckovResultsFromResultsList(results: List<CheckovResult>) {
+    fun setCheckovResultsFromResultsList(results: List<CheckovResult>) {
         for (result in results) {
             val category = mapCheckovCheckTypeToScanType(result.check_type, result.check_id)
             val resource = (if (category == Category.VULNERABILITIES) result.vulnerability_details?.package_name else result.resource)

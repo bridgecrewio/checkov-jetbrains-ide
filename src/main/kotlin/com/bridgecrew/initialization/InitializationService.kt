@@ -4,7 +4,7 @@ import CheckovInstallerService
 import CliService
 import com.bridgecrew.listeners.CheckovInstallerListener
 import com.bridgecrew.listeners.InitializationListener
-import com.bridgecrew.services.CheckovScanService
+import com.bridgecrew.services.scan.CheckovScanService
 import com.bridgecrew.services.checkovScanCommandsService.CheckovScanCommandsService
 import com.bridgecrew.services.checkovScanCommandsService.DockerCheckovScanCommandsService
 import com.bridgecrew.services.checkovScanCommandsService.PythonCheckovScanCommandsService
@@ -21,7 +21,6 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import java.nio.file.Paths
-import java.util.*
 
 private val LOG = logger<InitializationService>()
 
