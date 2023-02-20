@@ -2,7 +2,7 @@ package com.bridgecrew.services.installation
 
 import com.intellij.openapi.project.Project
 
-interface InstallerService {
+interface InstallerCommandService {
     fun getInstallCommand(): ArrayList<String>
     fun getVersion(project: Project): ArrayList<String>
 }

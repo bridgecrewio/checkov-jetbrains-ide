@@ -4,22 +4,23 @@ import CliService
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 
-class PipenvInstallerService: InstallerService {
+class PipInstallerCommandService : InstallerCommandService {
+
     override fun getInstallCommand(): ArrayList<String> {
-        return arrayListOf("pipenv","--python","3","install","checkov")
+        return arrayListOf("pip3", "install", "-U", "--user", "checkov", "-i", "https://pypi.org/simple/")
     }
 
     override fun getVersion(project: Project): ArrayList<String> {
-        return arrayListOf(project.service<CliService>().checkovPath,"-v")
+        return arrayListOf(project.service<CliService>().checkovPath, "-v")
     }
 
     companion object {
         fun getWinCommandsForFindingCheckovPath(): ArrayList<String> {
-            return arrayListOf("pipenv", "run", "where", "python")
+            return arrayListOf("pip3", "show", "checkov")
         }
 
         fun getUnixCommandsForFindingCheckovPath(): ArrayList<String> {
-            return arrayListOf("pipenv", "run", "which", "python")
+            return arrayListOf("python3", "-c", "import site; print(site.USER_BASE)")
         }
     }
 }

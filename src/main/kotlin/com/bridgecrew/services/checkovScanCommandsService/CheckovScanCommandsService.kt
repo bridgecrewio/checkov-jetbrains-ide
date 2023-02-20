@@ -5,7 +5,6 @@ import com.bridgecrew.settings.CheckovSettingsState
 import com.bridgecrew.utils.getGitIgnoreValues
 import com.bridgecrew.utils.getRepoName
 import com.intellij.openapi.project.Project
-import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang.StringUtils
 
 abstract class CheckovScanCommandsService(val project: Project) {
@@ -24,7 +23,6 @@ abstract class CheckovScanCommandsService(val project: Project) {
     }
 
     fun getExecCommandsForRepositoryByFramework(): ArrayList<ArrayList<String>> {
-        //docker run --rm --tty --env LOG_LEVEL=DEBUG --volume /Users/mshavit/source/platform:/platform bridgecrew/checkov -f platform/src/microStacks/alertsValidationStack/main.tf -s --bc-api-key '3789f913-f1bb-4da3-9990-70025039932d' -o json
         val directoryByFrameworkCommands = arrayListOf<ArrayList<String>>()
 
         val baseCmds = ArrayList<String>()
@@ -55,8 +53,6 @@ abstract class CheckovScanCommandsService(val project: Project) {
                     "Please insert an Api Token to continue")
         }
 
-//        val gitRepoName = defaultRepoName
-//        var gitRepo = getRepoName()
         return arrayListOf("-s", "--bc-api-key", apiToken, "--repo-id", gitRepo, "--quiet", "-o", "json")
     }
 
@@ -67,10 +63,6 @@ abstract class CheckovScanCommandsService(val project: Project) {
 
         for (excludePath in excludedPaths) {
             cmds.add("--skip-path")
-//            val excludePathNormalized = System.getProperty("os.name").lowercase().contains("win") ?
-//
-//            val os = System.getProperty("os.name").lowercase()
-//            if (os.contains("win")) {
             cmds.add(getNormalizedExcludePath(excludePath))
         }
 
@@ -84,7 +76,6 @@ abstract class CheckovScanCommandsService(val project: Project) {
 
         return StringUtils.removeEnd(excludePath, "/")
     }
-
 
     abstract fun getCheckovRunningCommandByServiceType(): ArrayList<String>
     abstract fun getDirectory(): String

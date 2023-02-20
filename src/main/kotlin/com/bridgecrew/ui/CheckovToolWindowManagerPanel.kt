@@ -3,7 +3,6 @@ package com.bridgecrew.ui
 import com.bridgecrew.services.scan.CheckovScanService
 import com.bridgecrew.listeners.CheckovScanListener
 import com.bridgecrew.listeners.CheckovSettingsListener
-//import com.bridgecrew.services.checkovService.CheckovService
 import com.bridgecrew.settings.CheckovSettingsState
 import com.bridgecrew.utils.PANELTYPE
 import com.intellij.openapi.Disposable
@@ -98,9 +97,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
             FileEditorManagerListener {
             override fun fileOpened(source: FileEditorManager, file: VirtualFile) {
                 super.fileOpened(source, file);
-//                if (extensionList.contains(file.extension)) {
-                    project.service<CheckovScanService>().scanFile(file.path, project);
-//                }
+                project.service<CheckovScanService>().scanFile(file.path, project);
             }
         })
 
@@ -146,16 +143,6 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                     }
                 }
             })
-
-        // Subscribe to Installer Topic
-//        project.messageBus.connect(this)
-//            .subscribe(CheckovInstallerListener.INSTALLER_TOPIC, object: CheckovInstallerListener {
-//                override fun installerFinished(serviceClass: CheckovService) {
-//                    project.service<CheckovScanService>().selectedCheckovScanner = serviceClass
-////                    project.service<CheckovToolWindowManagerPanel>().subscribeToProjectEventChange()
-//                    project.messageBus.syncPublisher(InitializationListener.INITIALIZATION_TOPIC).initializationCompleted()
-//                }
-//            })
 
         // Subscribe to Settings Topic
         project.messageBus.connect(this)

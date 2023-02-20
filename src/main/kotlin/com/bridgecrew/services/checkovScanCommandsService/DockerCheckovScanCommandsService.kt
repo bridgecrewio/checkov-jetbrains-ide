@@ -5,7 +5,7 @@ import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.Project
 import org.apache.commons.io.FilenameUtils
 
-class DockerCheckovScanCommandsService(project: Project): CheckovScanCommandsService(project) {
+class DockerCheckovScanCommandsService(project: Project) : CheckovScanCommandsService(project) {
 
     private val image = "bridgecrew/checkov"
     private val volumeDirectory = "checkovScan"

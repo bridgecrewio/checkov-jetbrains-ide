@@ -5,7 +5,7 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import org.apache.commons.io.FilenameUtils
 
-class PythonCheckovScanCommandsService(project: Project): CheckovScanCommandsService(project) {
+class PythonCheckovScanCommandsService(project: Project) : CheckovScanCommandsService(project) {
     override fun getCheckovRunningCommandByServiceType(): ArrayList<String> {
         return arrayListOf(project.service<CliService>().checkovPath)
     }

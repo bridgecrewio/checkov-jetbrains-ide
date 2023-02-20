@@ -7,5 +7,6 @@ interface InitializationListener {
         val INITIALIZATION_TOPIC =
                 Topic.create("Checkov initializator", InitializationListener::class.java)
     }
+
     fun initializationCompleted()
 }

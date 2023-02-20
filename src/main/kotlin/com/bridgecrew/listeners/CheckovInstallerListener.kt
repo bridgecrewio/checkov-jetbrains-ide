@@ -1,6 +1,5 @@
 package com.bridgecrew.listeners
-//import com.bridgecrew.services.checkovService.CheckovService
-import com.bridgecrew.services.installation.InstallerService
+import com.bridgecrew.services.installation.InstallerCommandService
 import com.intellij.util.messages.Topic
 
 interface CheckovInstallerListener {
@@ -10,5 +9,5 @@ interface CheckovInstallerListener {
             Topic.create("Checkov installer", CheckovInstallerListener::class.java)
     }
 
-    fun installerFinished(serviceClass: InstallerService)
+    fun installerFinished(serviceClass: InstallerCommandService)
 }
