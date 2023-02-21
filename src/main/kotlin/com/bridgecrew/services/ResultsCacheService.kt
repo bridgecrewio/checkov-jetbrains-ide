@@ -16,21 +16,17 @@ class ResultsCacheService {
         return this.checkovResults
     }
 
-    private fun getSortedCheckovResults(sortBy: String): List<BaseCheckovResult> {
-        return this.checkovResults.sortedBy { sortBy }
-    }
 
     fun getCheckovResultsFilteredBySeverityGroupedByPath(severitiesToFilterBy: List<Severity>?): Map<String, List<BaseCheckovResult>> {
-        val results = getSortedCheckovResults("severity")
-        if(severitiesToFilterBy != null){
-            results.filter {baseCheckovResult ->
+        if(severitiesToFilterBy != null) {
+            checkovResults.filter {baseCheckovResult ->
                 severitiesToFilterBy.all { includedSeverity ->
                     includedSeverity == baseCheckovResult.severity
                 }
             }
         }
 
-        return results.groupBy { it.filePath.toString() }
+        return this.checkovResults.groupBy { it.filePath.toString() }
     }
 
     fun getAllResults(): MutableMap<String, ResourceToCheckovResultsList> {

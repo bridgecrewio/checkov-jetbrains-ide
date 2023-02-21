@@ -107,9 +107,9 @@ class CheckovScanService {
         try {
             if (filePath == currentFile) {  // To show only the last run of checkov ( on the opened file)
                 val filePathRelativeToProject = filePath.replace(project.basePath!!, "")
-                val (resultsGroupedByResource, resultsLength) = getGroupedResults(result,
-                    project,
-                    filePathRelativeToProject)
+//                val (resultsGroupedByResource, resultsLength) = getGroupedResults(result,
+//                    project,
+//                    filePathRelativeToProject)
                 project.service<ResultsCacheService>()
                     .deleteAll() // TODO remove after MVP, where we want to display only one file results
 //                project.service<ResultsCacheService>()
@@ -117,7 +117,7 @@ class CheckovScanService {
                 project.service<ResultsCacheService>().setMockCheckovResultsFromExampleFile()
                 project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished()
                 if (isFirstRun) {
-                    CheckovNotificationBalloon.showError(project, resultsLength)
+                    CheckovNotificationBalloon.showError(project, 1)
                     isFirstRun = false
                 }
             }
