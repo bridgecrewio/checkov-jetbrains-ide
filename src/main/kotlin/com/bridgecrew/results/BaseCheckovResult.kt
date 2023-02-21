@@ -1,5 +1,8 @@
 package com.bridgecrew.results
 
+import com.google.gson.annotations.SerializedName
+import java.nio.file.Path
+
 
 enum class Category(category: String) {
     IAC("IAC"),
@@ -36,17 +39,30 @@ enum class Severity {
 }
 
 open class BaseCheckovResult(
+        @SerializedName("Category")
         val category: Category,
+        @SerializedName("check_type")
         val checkType: CheckType,
-        val filePath: String,
+        @SerializedName("file_path")
+        val filePath: Path,
+        @SerializedName("resource")
         val resource: String,
+        @SerializedName("name")
         val name: String,
+        @SerializedName("id")
         val id: String,
+        @SerializedName("severity")
         val severity: Severity,
+        @SerializedName("description")
         val description: String?,
+        @SerializedName("guideline")
         val guideline: String?,
+        @SerializedName("file_abs_path")
         val absoluteFilePath: String,
+        @SerializedName("file_line_range")
         val fileLineRange: List<Int>,
+        @SerializedName("fixed_definition")
         val fixDefinition: String?,
+        @SerializedName("code_block")
         val codeBlock: List<List<Object>>
 )

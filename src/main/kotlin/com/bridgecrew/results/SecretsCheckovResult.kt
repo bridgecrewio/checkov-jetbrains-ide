@@ -2,7 +2,7 @@ package com.bridgecrew.results
 
 import java.nio.file.Path
 
-class LicenseCheckovResult(
+class SecretsCheckovResult(
         checkType: CheckType,
         filePath: Path,
         resource: String,
@@ -14,11 +14,9 @@ class LicenseCheckovResult(
         absoluteFilePath: String,
         fileLineRange: List<Int>,
         fixDefinition: String?,
-        codeBlock: List<List<Object>>,
-        val licenseType: String?,
-        val approvedSPDX: Boolean) :
+        codeBlock: List<List<Object>>) :
         BaseCheckovResult(
-                category = Category.LICENSES,
+                category = Category.SECRETS,
                 checkType,
                 filePath,
                 resource,
