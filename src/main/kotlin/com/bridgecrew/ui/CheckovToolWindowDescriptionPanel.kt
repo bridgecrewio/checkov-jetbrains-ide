@@ -1,6 +1,6 @@
 package com.bridgecrew.ui
 
-import com.bridgecrew.CheckovResult
+import com.bridgecrew.results.BaseCheckovResult
 import com.bridgecrew.utils.*
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.logger
@@ -104,28 +104,28 @@ class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindow
     /**
      * Create description for specific checkov result.
      */
-    fun descriptionOfCheckovScan(checkovResult: CheckovResult): JPanel {
+    fun descriptionOfCheckovScan(checkovResult: BaseCheckovResult): JPanel {
         descriptionPanel = JPanel()
 
         descriptionPanel.layout = GridLayoutManager(1, 1)
         val descriptions = JPanel()
         descriptions.layout = GridLayoutManager(4, 1)
         val policyDetailsTitle = createTitle(POLICYDETAILS,Font.BOLD, 15)
-        val policyDetailsData = JLabel(checkovResult.check_name + "(${checkovResult.check_id})")
-        val guidelines = urlLink(checkovResult.guideline, checkovResult.check_id)
+        val policyDetailsData = JLabel(checkovResult.name + "(${checkovResult.id})")
+        val guidelines = urlLink(checkovResult.guideline, checkovResult.id)
         descriptions.add(policyDetailsTitle, createGridRowCol(0, 0, GridConstraints.ANCHOR_NORTHWEST));
         descriptions.add(policyDetailsData, createGridRowCol(1, 0, GridConstraints.ANCHOR_NORTHWEST));
         descriptions.add(guidelines, createGridRowCol(3, 0, GridConstraints.ANCHOR_NORTHWEST));
 
 
         fixButton = JButton("Fix")
-        if (!checkovResult.fixed_definition.isNullOrEmpty()){
+        if (!checkovResult.fixDefinition.isNullOrEmpty()){
             fixButton.isEnabled = true
             fixButton.addActionListener {
                 LOG.info("fix button was presssed")
                 ApplicationManager.getApplication().invokeLater {
-                        val (start, end) = getOffsetReplaceByLines(checkovResult.file_line_range, project)
-                        updateFile(checkovResult.fixed_definition, project, start, end)
+                        val (start, end) = getOffsetReplaceByLines(checkovResult.fileLineRange, project)
+                        updateFile(checkovResult.fixDefinition, project, start, end)
 
                 }
             }
@@ -137,7 +137,7 @@ class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindow
     }
 
 
-    fun createScroll(checkovResult: CheckovResult): JScrollPane {
+    fun createScroll(checkovResult: BaseCheckovResult): JScrollPane {
         val descriptionPanelRes = descriptionOfCheckovScan(checkovResult)
         return ScrollPaneFactory.createScrollPane(
             descriptionPanelRes,
