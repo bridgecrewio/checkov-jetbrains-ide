@@ -114,6 +114,7 @@ class CheckovScanService {
                     .deleteAll() // TODO remove after MVP, where we want to display only one file results
                 project.service<ResultsCacheService>()
                     .setResult(filePathRelativeToProject, resultsGroupedByResource)
+                project.service<ResultsCacheService>().setMockCheckovResultsFromExampleFile()
                 project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished()
                 if (isFirstRun) {
                     CheckovNotificationBalloon.showError(project, resultsLength)
