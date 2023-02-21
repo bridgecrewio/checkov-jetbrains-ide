@@ -76,21 +76,6 @@ fun getFailedChecksFromResultString(raw: String): ArrayList<CheckovResult> {
     }
 }
 
-fun groupResultsByFolders(results: ArrayList<CheckovResult>, project: Project, relativeFilePath: String): ResourceToCheckovResultsList {
-    val foldersMap = mutableMapOf<String, ArrayList<CheckovResult>>()
-
-    results.forEach { result ->
-        // setting path to absolute for docker mounted paths
-        result.file_abs_path = normalizeFilePathToAbsolute(result.file_abs_path, project.basePath!!, relativeFilePath)
-
-        val resourceResults = resourceToResultsMap.getOrDefault(result.resource, arrayListOf())
-        resourceResults.add(result)
-        resourceToResultsMap[result.resource] = resourceResults
-    }
-
-    return resourceToResultsMap
-}
-
 fun groupResultsByResource(results: ArrayList<CheckovResult>, project: Project, relativeFilePath: String): ResourceToCheckovResultsList {
     val resourceToResultsMap = mutableMapOf<String, ArrayList<CheckovResult>>()
 
