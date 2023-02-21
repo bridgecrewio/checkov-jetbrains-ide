@@ -5,10 +5,11 @@ import com.bridgecrew.ResourceToCheckovResultsList
 import com.bridgecrew.getFailedChecksFromResultString
 import com.bridgecrew.results.*
 import com.intellij.openapi.components.Service
+import kotlin.io.path.Path
 
 @Service
 class ResultsCacheService {
-    private val checkovResults: MutableList<BaseCheckovResult> = mutableListOf()
+    private var checkovResults: MutableList<BaseCheckovResult> = mutableListOf()
     private val results: MutableMap<String, ResourceToCheckovResultsList> = mutableMapOf()
 
     fun getAllCheckovResults(): List<BaseCheckovResult> {
@@ -29,7 +30,7 @@ class ResultsCacheService {
             }
         }
 
-        return results.groupBy { it.filePath }
+        return results.groupBy { it.filePath.toString() }
     }
 
     fun getAllResults(): MutableMap<String, ResourceToCheckovResultsList> {
@@ -60,6 +61,7 @@ class ResultsCacheService {
         setMockCheckovResultsFromResultsList(checkovResults)
     }
     fun setMockCheckovResultsFromResultsList(results: List<CheckovResult>) {
+        val checkovResultsTemp: MutableList<BaseCheckovResult> = mutableListOf()
         for (result in results) {
             val category = mapCheckovCheckTypeToScanType(result.check_type, result.check_id)
             val resource = (if (category == Category.VULNERABILITIES) result.vulnerability_details?.package_name else result.resource)
@@ -74,7 +76,7 @@ class ResultsCacheService {
                     if (result.vulnerability_details == null) {
                         throw Exception("type is vulnerability but no vulnerability_details")
                     }
-                    val vulnerabilityCheckovResult = VulnerabilityCheckovResult(category, checkType, result.file_path,
+                    val vulnerabilityCheckovResult = VulnerabilityCheckovResult(category, checkType, Path(result.file_path),
                             resource, name, result.check_id, severity, result.description,
                             result.guideline, result.file_abs_path, result.file_line_range, result.fixed_definition,
                             result.code_block,
@@ -88,7 +90,7 @@ class ResultsCacheService {
                             result.file_path,
                             result.vulnerability_details.risk_factors
                     )
-                    checkovResults.add(vulnerabilityCheckovResult)
+                    checkovResultsTemp.add(vulnerabilityCheckovResult)
                     continue
                 }
 
@@ -97,24 +99,25 @@ class ResultsCacheService {
                         throw Exception("type is license but no vulnerability_details")
                     }
 
-                    val licenseCheckovResult = LicenseCheckovResult(category, checkType, result.file_path,
+                    val licenseCheckovResult = LicenseCheckovResult(category, checkType, Path(result.file_path),
                             resource, name, result.check_id, severity, result.description,
                             result.guideline, result.file_abs_path, result.file_line_range, result.fixed_definition,
                             result.code_block,
                             result.vulnerability_details.licenses,
                             result.check_id.uppercase() == "BC_LIC_1"
                     )
-                    checkovResults.add(licenseCheckovResult)
+                    checkovResultsTemp.add(licenseCheckovResult)
                     continue
                 }
             }
-            val baseCheckovResult = BaseCheckovResult(category, checkType, result.file_path,
+            val baseCheckovResult = BaseCheckovResult(category, checkType, Path(result.file_path),
                     resource, name, result.check_id, severity, result.description,
                     result.guideline, result.file_abs_path, result.file_line_range, result.fixed_definition,
                     result.code_block)
-            checkovResults.add(baseCheckovResult)
+            checkovResultsTemp.add(baseCheckovResult)
 
         }
+        checkovResults = checkovResultsTemp.sortedWith(compareBy( { it.filePath}, {it.resource}, {it.severity})).toMutableList()
     }
 
     fun mapCheckovCheckTypeToScanType(checkType: String, checkId: String): Category {
