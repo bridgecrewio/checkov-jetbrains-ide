@@ -19,7 +19,7 @@ class PostStartupActivity : StartupActivity {
             override fun initializationCompleted() {
                 project.service<CheckovToolWindowManagerPanel>().subscribeToInternalEvents(project)
                 project.service<CheckovToolWindowManagerPanel>().subscribeToProjectEventChange()
-
+                // project.service<ResultsCacheService>().setMockCheckovResultsFromExampleFile() // MOCK
             }
 
         })

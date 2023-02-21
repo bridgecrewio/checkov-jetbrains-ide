@@ -27,12 +27,27 @@ class InitializationService(private val project: Project) {
     private var isCheckovInstalledGlobally: Boolean = false
 
     fun initializeProject() {
-        initializeCheckvoScanService()
+        initializeCheckovScanService()
         initializeRepoName(project)
     }
 
-    private fun installChekcovIfNeededAndSetCheckovPath() {
-        project.messageBus.connect() // TODO - check if disposable
+    private fun initializeCheckovScanService() {
+        val command: ArrayList<String> = DockerInstallerCommandService.getCheckovImageIsRunningCommand()
+        project.service<CliService>().run(command, project, this::checkIfDockerIsRunningCheckovImage, this::checkIfDockerIsRunningCheckovImage)
+    }
+
+    private fun checkIfDockerIsRunningCheckovImage(output: String, exitCode: Int, project: Project) {
+        if (exitCode != 0 || output.lowercase().trim().contains("cannot connect to the Docker")) {
+            LOG.info("Docker can't be used as scan service, trying to check if installed globally")
+            installCheckovIfNeededAndSetCheckovPath()
+            return
+        }
+
+        setSelectedCheckovService(DockerCheckovScanCommandsService(project))
+    }
+
+    private fun installCheckovIfNeededAndSetCheckovPath() {
+        project.messageBus.connect()
                 .subscribe(CheckovInstallerListener.INSTALLER_TOPIC, object : CheckovInstallerListener {
                     override fun installerFinished(serviceClass: InstallerCommandService) {
                         if (serviceClass is PipenvInstallerCommandService) {
@@ -44,15 +59,15 @@ class InitializationService(private val project: Project) {
                 })
 
         LOG.info("Checking global checkov installation with `checkov`")
-        val cmds = arrayListOf("checkov", "-v")
-        project.service<CliService>().run(cmds, project, this::checkGlobalCheckovCmd, this::checkGlobalCheckovCmd)
+        val isGloballyInstalledCommand = arrayListOf("checkov", "-v")
+        project.service<CliService>().run(isGloballyInstalledCommand, project, this::checkIfCheckovIsGloballyInstalled, this::checkIfCheckovIsGloballyInstalled)
     }
 
-    private fun checkGlobalCheckovCmd(output: String, exitCode: Int, project: Project) {
+    private fun checkIfCheckovIsGloballyInstalled(output: String, exitCode: Int, project: Project) {
         if (exitCode != 0 || output.contains("[ERROR]")) {
             LOG.info("Checking global checkov installation with `checkov.cmd`")
             val cmds = arrayListOf("checkov.cmd", "-v")
-            project.service<CliService>().run(cmds, project, this::updateCheckovInstalledGlobally, this::updateCheckovInstalledGlobally)
+            project.service<CliService>().run(cmds, project, this::checkIfCheckovCmdIsGloballyInstalled, this::checkIfCheckovCmdIsGloballyInstalled)
             return
         }
 
@@ -62,7 +77,7 @@ class InitializationService(private val project: Project) {
 
     }
 
-    private fun updateCheckovInstalledGlobally(output: String, exitCode: Int, project: Project) {
+    private fun checkIfCheckovCmdIsGloballyInstalled(output: String, exitCode: Int, project: Project) {
         isCheckovInstalledGlobally = if (exitCode != 0 || output.contains("[ERROR]")) {
             LOG.info("Checkov is not installed globally, running local command")
             false
@@ -178,21 +193,6 @@ class InitializationService(private val project: Project) {
         project.service<CliService>().checkovPath = checkovPathArray[0]
         LOG.info("Setting checkovPath: ${project.service<CliService>().checkovPath}")
         setSelectedCheckovService(PythonCheckovScanCommandsService(project))
-    }
-
-    private fun checkIfDockerIsRunningCheckovImage(output: String, exitCode: Int, project: Project) {
-        if (exitCode != 0 || output.lowercase().trim().contains("cannot connect to the Docker")) {
-            LOG.info("Docker can't be used as scan service, trying to check if installed globally") // TODO - if docker is up in installation and then down...?
-            installChekcovIfNeededAndSetCheckovPath()
-            return
-        }
-
-        setSelectedCheckovService(DockerCheckovScanCommandsService(project))
-    }
-
-    private fun initializeCheckvoScanService() {
-        val command = DockerInstallerCommandService.getCheckovImageIsRunningCommand()
-        project.service<CliService>().run(command, project, this::checkIfDockerIsRunningCheckovImage, this::checkIfDockerIsRunningCheckovImage)
     }
 
 }
