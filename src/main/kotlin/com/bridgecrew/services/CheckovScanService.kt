@@ -114,6 +114,7 @@ class CheckovScanService {
                     .deleteAll() // TODO remove after MVP, where we want to display only one file results
                 project.service<ResultsCacheService>()
                     .setResult(filePathRelativeToProject, resultsGroupedByResource)
+                project.service<ResultsCacheService>().setMockCheckovResultsFromExampleFile()
                 project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished()
                 if (isFirstRun) {
                     CheckovNotificationBalloon.showError(project, resultsLength)
@@ -136,7 +137,7 @@ class CheckovScanService {
 
     private fun getGroupedResults(res: String, project: Project, relativeFilePath: String): Pair<ResourceToCheckovResultsList, Int> {
         val listOfCheckovResults = getFailedChecksFromResultString(res)
-//        project.service<ResultsCacheService>().setMockCheckovResultsFromResultsList(listOfCheckovResults) // MOCK
+        project.service<ResultsCacheService>().setMockCheckovResultsFromResultsList(listOfCheckovResults) // MOCK
 
         return Pair(groupResultsByResource(listOfCheckovResults, project, relativeFilePath), listOfCheckovResults.size)
     }
