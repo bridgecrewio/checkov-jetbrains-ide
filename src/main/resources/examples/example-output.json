@@ -6,7 +6,7 @@
                 {
                     "check_id": "CKV_AWS_28",
                     "bc_check_id": "BC_AWS_GENERAL_6",
-                    "check_name": "Ensure Dynamodb point in time recovery (backup) is enabled",
+                    "check_name": "Ensure Dynamodb point in time recovery (backup) is enabled - X",
                     "check_result": {
                         "result": "FAILED",
                         "evaluated_keys": [
@@ -144,7 +144,175 @@
                     "caller_file_path": null,
                     "caller_file_line_range": null,
                     "resource_address": null,
-                    "severity": "HIGH",
+                    "severity": "MEDIUM",
+                    "bc_category": "General",
+                    "benchmarks": {
+                        "FEDRAMP (MODERATE)": [
+                            {
+                                "name": "CP-9(b)",
+                                "description": "The organization: b. Conducts backups of system-level information contained in the information system (daily incremental; weekly full)."
+                            },
+                            {
+                                "name": "CP-10",
+                                "description": "The organization provides for the recovery and reconstitution of the information system to a known state after a disruption, compromise, or failure."
+                            },
+                            {
+                                "name": "SI-12",
+                                "description": "The organization handles and retains information within the information system and information output from the system in accordance with applicable federal laws, Executive Orders, directives, policies, regulations, standards, and operational requirements."
+                            }
+                        ]
+                    },
+                    "description": null,
+                    "short_description": null,
+                    "vulnerability_details": null,
+                    "connected_node": null,
+                    "guideline": "https://docs.bridgecrew.io/docs/general_6",
+                    "details": [],
+                    "check_len": null,
+                    "definition_context_file_path": "/Users/mshavit/IdeaProjects/untitled1/src/main.tf"
+                },
+                {
+                    "check_id": "CKV_AWS_28",
+                    "bc_check_id": "BC_AWS_GENERAL_6",
+                    "check_name": "Ensure Dynamodb point in time recovery (backup) is enabled - X",
+                    "check_result": {
+                        "result": "FAILED",
+                        "evaluated_keys": [
+                            "point_in_time_recovery/[0]/enabled"
+                        ]
+                    },
+                    "code_block": [
+                        [
+                            149,
+                            "resource \"aws_dynamodb_table\" \"token_cache\" {\n"
+                        ],
+                        [
+                            150,
+                            "  name         = \"authorization_token_cache_v2_${var.unique_tag}\"\n"
+                        ],
+                        [
+                            151,
+                            "  hash_key     = \"id\"\n"
+                        ],
+                        [
+                            152,
+                            "  billing_mode = \"PAY_PER_REQUEST\"\n"
+                        ],
+                        [
+                            153,
+                            "\n"
+                        ],
+                        [
+                            154,
+                            "  attribute {\n"
+                        ],
+                        [
+                            155,
+                            "    name = \"id\"\n"
+                        ],
+                        [
+                            156,
+                            "    type = \"S\"\n"
+                        ],
+                        [
+                            157,
+                            "  }\n"
+                        ],
+                        [
+                            158,
+                            "\n"
+                        ],
+                        [
+                            159,
+                            "  ttl {\n"
+                        ],
+                        [
+                            160,
+                            "    attribute_name = \"cache_ttl\"\n"
+                        ],
+                        [
+                            161,
+                            "    enabled        = true\n"
+                        ],
+                        [
+                            162,
+                            "  }\n"
+                        ],
+                        [
+                            163,
+                            "  tags = {\n"
+                        ],
+                        [
+                            164,
+                            "    git_commit           = \"60b7f0f1a1e8870220a610beabb3ac2f35457f2f\"\n"
+                        ],
+                        [
+                            165,
+                            "    git_file             = \"src/microStacks/authorizationStack/main.tf\"\n"
+                        ],
+                        [
+                            166,
+                            "    git_last_modified_at = \"2022-11-15 15:11:38\"\n"
+                        ],
+                        [
+                            167,
+                            "    git_last_modified_by = \"yyacoby@paloaltonetworks.com\"\n"
+                        ],
+                        [
+                            168,
+                            "    git_modifiers        = \"yyacoby\"\n"
+                        ],
+                        [
+                            169,
+                            "    git_org              = \"bridgecrew\"\n"
+                        ],
+                        [
+                            170,
+                            "    git_repo             = \"platform\"\n"
+                        ],
+                        [
+                            171,
+                            "    team                 = \"unknown\"\n"
+                        ],
+                        [
+                            172,
+                            "    yor_trace            = \"d83756b2-4d01-4514-9c0e-18352121c7f1\"\n"
+                        ],
+                        [
+                            173,
+                            "  }\n"
+                        ],
+                        [
+                            174,
+                            "}"
+                        ]
+                    ],
+                    "file_path": "projects/terraform/main.tf",
+                    "file_abs_path": "/Users/mshavit/IdeaProjects/untitled1/src/main.tf",
+                    "repo_file_path": "/main.tf",
+                    "file_line_range": [
+                        149,
+                        174
+                    ],
+                    "resource": "aws_dynamodb_table.token_cache",
+                    "evaluations": null,
+                    "check_class": "checkov.terraform.checks.resource.aws.DynamodbRecovery",
+                    "fixed_definition": null,
+                    "entity_tags": {
+                        "git_commit": "60b7f0f1a1e8870220a610beabb3ac2f35457f2f",
+                        "git_file": "src/microStacks/authorizationStack/main.tf",
+                        "git_last_modified_at": "2022-11-15 15:11:38",
+                        "git_last_modified_by": "yyacoby@paloaltonetworks.com",
+                        "git_modifiers": "yyacoby",
+                        "git_org": "bridgecrew",
+                        "git_repo": "platform",
+                        "team": "unknown",
+                        "yor_trace": "d83756b2-4d01-4514-9c0e-18352121c7f1"
+                    },
+                    "caller_file_path": null,
+                    "caller_file_line_range": null,
+                    "resource_address": null,
+                    "severity": "High",
                     "bc_category": "General",
                     "benchmarks": {
                         "FEDRAMP (MODERATE)": [
@@ -221,7 +389,7 @@
                 {
                     "check_id": "CKV_AWS_28",
                     "bc_check_id": "BC_AWS_GENERAL_6",
-                    "check_name": "Ensure Dynamodb point in time recovery (backup) is enabled",
+                    "check_name": "Ensure Dynamodb point in time recovery (backup) is enabled - High",
                     "check_result": {
                         "result": "FAILED",
                         "evaluated_keys": [
@@ -436,7 +604,7 @@
                 {
                     "check_id": "CKV_AWS_28",
                     "bc_check_id": "BC_AWS_GENERAL_6",
-                    "check_name": "Ensure Dynamodb point in time recovery (backup) is enabled",
+                    "check_name": "Ensure Dynamodb point in time recovery (backup) is enabled - LOW",
                     "check_result": {
                         "result": "FAILED",
                         "evaluated_keys": [
@@ -574,7 +742,7 @@
                     "caller_file_path": null,
                     "caller_file_line_range": null,
                     "resource_address": null,
-                    "severity": "HIGH",
+                    "severity": "LOW",
                     "bc_category": "General",
                     "benchmarks": {
                         "FEDRAMP (MODERATE)": [
