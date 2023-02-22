@@ -16,21 +16,17 @@ class ResultsCacheService {
         return this.checkovResults
     }
 
-    private fun getSortedCheckovResults(sortBy: String): List<BaseCheckovResult> {
-        return this.checkovResults.sortedBy { sortBy }
-    }
 
     fun getCheckovResultsFilteredBySeverityGroupedByPath(severitiesToFilterBy: List<Severity>?): Map<String, List<BaseCheckovResult>> {
-        val results = getSortedCheckovResults("severity")
-        if(severitiesToFilterBy != null){
-            results.filter {baseCheckovResult ->
+        if(severitiesToFilterBy != null) {
+            checkovResults.filter {baseCheckovResult ->
                 severitiesToFilterBy.all { includedSeverity ->
                     includedSeverity == baseCheckovResult.severity
                 }
             }
         }
 
-        return results.groupBy { it.filePath.toString() }
+        return this.checkovResults.groupBy { it.filePath.toString() }
     }
 
     fun getAllResults(): MutableMap<String, ResourceToCheckovResultsList> {
@@ -76,7 +72,7 @@ class ResultsCacheService {
                     if (result.vulnerability_details == null) {
                         throw Exception("type is vulnerability but no vulnerability_details")
                     }
-                    val vulnerabilityCheckovResult = VulnerabilityCheckovResult(category, checkType, Path(result.file_path),
+                    val vulnerabilityCheckovResult = VulnerabilityCheckovResult(checkType, Path(result.file_path),
                             resource, name, result.check_id, severity, result.description,
                             result.guideline, result.file_abs_path, result.file_line_range, result.fixed_definition,
                             result.code_block,
@@ -90,36 +86,54 @@ class ResultsCacheService {
                             result.file_path,
                             result.vulnerability_details.risk_factors
                     )
-                    checkovResultsTemp.add(vulnerabilityCheckovResult)
+                    addToSorted(checkovResults, vulnerabilityCheckovResult)
                     continue
                 }
-
+                Category.SECRETS -> {
+                    val secretCheckovResult = SecretsCheckovResult(checkType, Path(result.file_path),
+                            resource, name, result.check_id, severity, result.description,
+                            result.guideline, result.file_abs_path, result.file_line_range, result.fixed_definition,
+                            result.code_block)
+                    addToSorted(checkovResults, secretCheckovResult)
+                    continue
+                }
+                Category.IAC -> {
+                    val iacCheckovResult = IacCheckovResult(checkType, Path(result.file_path),
+                            resource, name, result.check_id, severity, result.description,
+                            result.guideline, result.file_abs_path, result.file_line_range, result.fixed_definition,
+                            result.code_block)
+                    addToSorted(checkovResults, iacCheckovResult)
+                    continue
+                }
                 Category.LICENSES -> {
                     if (result.vulnerability_details == null) {
                         throw Exception("type is license but no vulnerability_details")
                     }
 
-                    val licenseCheckovResult = LicenseCheckovResult(category, checkType, Path(result.file_path),
+                    val licenseCheckovResult = LicenseCheckovResult(checkType, Path(result.file_path),
                             resource, name, result.check_id, severity, result.description,
                             result.guideline, result.file_abs_path, result.file_line_range, result.fixed_definition,
                             result.code_block,
                             result.vulnerability_details.licenses,
                             result.check_id.uppercase() == "BC_LIC_1"
                     )
-                    checkovResultsTemp.add(licenseCheckovResult)
+                    addToSorted(checkovResults, licenseCheckovResult)
                     continue
                 }
             }
-            val baseCheckovResult = BaseCheckovResult(category, checkType, Path(result.file_path),
-                    resource, name, result.check_id, severity, result.description,
-                    result.guideline, result.file_abs_path, result.file_line_range, result.fixed_definition,
-                    result.code_block)
-            checkovResultsTemp.add(baseCheckovResult)
-
         }
-        checkovResults = checkovResultsTemp.sortedWith(compareBy( { it.filePath}, {it.resource}, {it.severity})).toMutableList()
     }
-
+    private val checkovResultsComparator: Comparator<BaseCheckovResult> = compareBy({ it.filePath }, { it.resource }, {it.severity})
+    private fun addToSorted(checkovResults: MutableList<BaseCheckovResult>, checkovResult: BaseCheckovResult) {
+        var index = checkovResults.binarySearch(checkovResult, checkovResultsComparator)
+        val insertionPoint =
+                if (index < 0) {
+                    -(index + 1)
+                } else {
+                    index
+                }
+        checkovResults.add(insertionPoint, checkovResult)
+    }
     fun mapCheckovCheckTypeToScanType(checkType: String, checkId: String): Category {
         when (checkType) {
             "ansible", "arm", "bicep", "cloudformation", "dockerfile", "helm", "json",
