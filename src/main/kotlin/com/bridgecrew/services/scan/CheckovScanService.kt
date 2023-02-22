@@ -105,6 +105,7 @@ class CheckovScanService {
     }
 
     private fun analyzeRepositoryScan(result: String, errorCode: Int, project: Project) {
+        project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).frameworkScanningFinished()
 
         if (!isValidScanResults(result, errorCode, project)) {
             return
@@ -114,18 +115,15 @@ class CheckovScanService {
             val failedResults = getFailedChecksFromResultString(result)
             project.service<ResultsCacheService>().setCheckovResultsFromResultsList(failedResults)
             project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished()
-
-            CheckovNotificationBalloon.showError(project, project.service<ResultsCacheService>().getAllCheckovResults().size)
         } catch (e: JSONException) {
             LOG.warn("Error parsing checkov results \n" +
                     "Raw response: $result\n" +
                     "To report: open a issue at https://github.com/bridgecrewio/checkov-jetbrains-ide/issues\n\n")
             e.printStackTrace()
-            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningError()
         } catch (e: CheckovResultParsingException) {
-            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningParsingError()
+            e.printStackTrace()
         } catch (e: CheckovResultException) {
-            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished()
+            e.printStackTrace()
         }
     }
 
@@ -136,9 +134,9 @@ class CheckovScanService {
             }
 
             LOG.info("Trying to scan the project $selectedCheckovScanner")
-//            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningStarted() // TODO ?
+            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).projectScanningStarted()
 
-            project.service<ResultsCacheService>().deleteAllCheckovResults() // TODO - save the previous state for canceling case
+            project.service<ResultsCacheService>().deleteAllCheckovResults() // TODO - save the previous state for the case where the client cancels the
 
             val execCommands: List<List<String>> = prepareRepositoryScanningExecCommand()
 
@@ -146,7 +144,9 @@ class CheckovScanService {
                 run {
                     val processHandler: ProcessHandler = OSProcessHandler(generateCheckovCommand(execCommand))
 
-                    val scanTask = RepositoryScanTask(project, "Checkov scanning repository", processHandler)
+                    val frameworkIndex = execCommand.indexOf("--framework") + 1
+                    val framework = execCommand.get(frameworkIndex)
+                    val scanTask = RepositoryScanTask(project, "Checkov scanning repository by framework $framework", processHandler)
                     if (SwingUtilities.isEventDispatchThread()) {
                         ProgressManager.getInstance().run(scanTask)
                     } else {

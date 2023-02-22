@@ -4,6 +4,7 @@ import com.bridgecrew.services.scan.CheckovResultParsingException
 import com.bridgecrew.utils.normalizeFilePathToAbsolute
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import org.json.JSONArray
 import org.json.JSONException
@@ -11,6 +12,7 @@ import org.json.JSONObject
 
 val gson = Gson()
 
+private val LOG = logger<VulnerabilityDetails>()
 data class VulnerabilityDetails(
         val id: String?,
         val package_name: String?,
@@ -60,6 +62,8 @@ fun getFailedChecksFromResultString(raw: String): ArrayList<CheckovResult> {
         checkovResult = outputListOfLines.subList(i,outputListOfLines.size-1).joinToString("\n")
         break
     }
+
+    LOG.info("found checkov result - $checkovResult")
     checkovResult = checkovResult.replace("\u001B[0m","")
 
     return when (checkovResult[0]) {

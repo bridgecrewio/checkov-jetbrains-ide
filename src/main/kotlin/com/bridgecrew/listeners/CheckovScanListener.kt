@@ -9,8 +9,11 @@ interface CheckovScanListener {
     }
 
     fun scanningStarted()
+    fun projectScanningStarted()
 
     fun scanningFinished()
+
+    fun frameworkScanningFinished()
 
     fun scanningFinished(fileName: String)
 

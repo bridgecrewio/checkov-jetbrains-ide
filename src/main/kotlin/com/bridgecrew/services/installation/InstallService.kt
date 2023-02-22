@@ -42,7 +42,7 @@ class CheckovInstallerService {
             }
         }
         if (commands.isEmpty()) {
-            LOG.error("Checkov could not be installed, your machine is missing all 3 installtion options.\n Please install docker | pip | pipenv")
+            LOG.error("Checkov could not be installed, your machine is missing all 3 installation options.\n Please install docker | pip | pipenv")
         }
         val installerTask =
                 InstallerTask(project, "Installing checkov", commands)

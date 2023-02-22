@@ -2,6 +2,8 @@ package com.bridgecrew.services.checkovScanCommandsService
 
 import com.bridgecrew.listeners.CheckovSettingsListener
 import com.bridgecrew.settings.CheckovSettingsState
+import com.bridgecrew.utils.FULL_SCAN_EXCLUDED_PATHS
+import com.bridgecrew.utils.FULL_SCAN_FRAMEWORKS
 import com.bridgecrew.utils.getGitIgnoreValues
 import com.bridgecrew.utils.getRepoName
 import com.intellij.openapi.project.Project
@@ -34,7 +36,7 @@ abstract class CheckovScanCommandsService(val project: Project) {
 
         baseCmds.addAll(getExcludePathCommand())
 
-        for (framework in CheckovCliFlagsConfig.frameworks) {
+        for (framework in FULL_SCAN_FRAMEWORKS) {
             val cmdByFramework = arrayListOf<String>()
             cmdByFramework.addAll(baseCmds)
             cmdByFramework.add("--framework")
@@ -59,7 +61,7 @@ abstract class CheckovScanCommandsService(val project: Project) {
     private fun getExcludePathCommand(): ArrayList<String> {
         val cmds = ArrayList<String>()
 
-        val excludedPaths = (getGitIgnoreValues(project) + CheckovCliFlagsConfig.excludedPaths).distinct()
+        val excludedPaths = (getGitIgnoreValues(project) + FULL_SCAN_EXCLUDED_PATHS).distinct()
 
         for (excludePath in excludedPaths) {
             cmds.add("--skip-path")
