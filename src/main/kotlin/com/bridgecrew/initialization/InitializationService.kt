@@ -7,7 +7,7 @@ import com.bridgecrew.listeners.InitializationListener
 import com.bridgecrew.services.scan.CheckovScanService
 import com.bridgecrew.services.checkovScanCommandsService.CheckovScanCommandsService
 import com.bridgecrew.services.checkovScanCommandsService.DockerCheckovScanCommandsService
-import com.bridgecrew.services.checkovScanCommandsService.PythonCheckovScanCommandsService
+import com.bridgecrew.services.checkovScanCommandsService.InstalledCheckovScanCommandsService
 import com.bridgecrew.services.installation.DockerInstallerCommandService
 import com.bridgecrew.services.installation.InstallerCommandService
 import com.bridgecrew.services.installation.PipInstallerCommandService
@@ -112,7 +112,7 @@ class InitializationService(private val project: Project) {
             project.service<CliService>().checkovPath = Paths.get(output.trim(), "bin", "checkov").toString()
         }
 
-        setSelectedCheckovService(PythonCheckovScanCommandsService(project))
+        setSelectedCheckovService(InstalledCheckovScanCommandsService(project))
     }
 
     private fun updatePathWin(output: String, exitCode: Int, project: Project) {
@@ -124,7 +124,7 @@ class InitializationService(private val project: Project) {
 
         if (isCheckovInstalledGlobally) {
             project.service<CliService>().checkovPath = "checkov.cmd"
-            setSelectedCheckovService(PythonCheckovScanCommandsService(project))
+            setSelectedCheckovService(InstalledCheckovScanCommandsService(project))
             return
         }
 
@@ -137,7 +137,7 @@ class InitializationService(private val project: Project) {
             }
         }
 
-        setSelectedCheckovService(PythonCheckovScanCommandsService(project))
+        setSelectedCheckovService(InstalledCheckovScanCommandsService(project))
     }
 
     private fun setSelectedCheckovServiceFromInstaller(installerServivce: InstallerCommandService) {
@@ -147,7 +147,7 @@ class InitializationService(private val project: Project) {
             }
 
             is PipInstallerCommandService, is PipenvInstallerCommandService -> {
-                setSelectedCheckovService(PythonCheckovScanCommandsService(project))
+                setSelectedCheckovService(InstalledCheckovScanCommandsService(project))
             }
         }
     }
@@ -179,7 +179,7 @@ class InitializationService(private val project: Project) {
         checkovPathArray.add("checkov")
         project.service<CliService>().checkovPath = checkovPathArray.joinToString(separator = "/")
         LOG.info("Setting checkovPath: ${project.service<CliService>().checkovPath}")
-        setSelectedCheckovService(PythonCheckovScanCommandsService(project))
+        setSelectedCheckovService(InstalledCheckovScanCommandsService(project))
     }
 
     private fun updateCheckovPathWinAfterInstallation(output: String, exitCode: Int, project: Project) {
@@ -192,7 +192,7 @@ class InitializationService(private val project: Project) {
         LOG.info("Checkov path in Win is $result")
         project.service<CliService>().checkovPath = checkovPathArray[0]
         LOG.info("Setting checkovPath: ${project.service<CliService>().checkovPath}")
-        setSelectedCheckovService(PythonCheckovScanCommandsService(project))
+        setSelectedCheckovService(InstalledCheckovScanCommandsService(project))
     }
 
 }
