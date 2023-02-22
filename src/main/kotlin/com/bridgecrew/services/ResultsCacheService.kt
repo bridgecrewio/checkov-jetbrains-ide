@@ -61,7 +61,7 @@ class ResultsCacheService {
         setCheckovResultsFromResultsList(checkovResults)
     }
     fun setCheckovResultsFromResultsList(results: List<CheckovResult>) {
-        val checkovResultsTemp: MutableList<BaseCheckovResult> = mutableListOf()
+        val checkovResultsTemp: MutableList<BaseCheckovResult> = checkovResults
         for (result in results) {
             val category = mapCheckovCheckTypeToScanType(result.check_type, result.check_id)
             val resource = (if (category == Category.VULNERABILITIES) result.vulnerability_details?.package_name else result.resource)
