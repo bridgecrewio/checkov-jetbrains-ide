@@ -1,5 +1,7 @@
 package com.bridgecrew.results
 
+import java.nio.file.Path
+
 
 enum class Category(category: String) {
     IAC("IAC"),
@@ -38,7 +40,7 @@ enum class Severity {
 open class BaseCheckovResult(
         val category: Category,
         val checkType: CheckType,
-        val filePath: String,
+        val filePath: Path,
         val resource: String,
         val name: String,
         val id: String,

@@ -1,9 +1,11 @@
 package com.bridgecrew.results
 
+import java.nio.file.Path
+
 class LicenseCheckovResult(
         category: Category,
         checkType: CheckType,
-        filePath: String,
+        filePath: Path,
         resource: String,
         name: String,
         id: String,

@@ -4,6 +4,7 @@ import com.bridgecrew.services.scan.CheckovScanService
 import com.bridgecrew.listeners.CheckovScanListener
 import com.bridgecrew.listeners.CheckovSettingsListener
 import com.bridgecrew.settings.CheckovSettingsState
+import com.bridgecrew.ui.vulnerabilitiesTree.CheckovToolWindowTree
 import com.bridgecrew.utils.PANELTYPE
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
