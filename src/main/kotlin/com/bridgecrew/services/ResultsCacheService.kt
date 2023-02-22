@@ -122,9 +122,9 @@ class ResultsCacheService {
             }
         }
     }
-    private val comparatorx: Comparator<BaseCheckovResult> = compareBy({ it.filePath }, { it.resource }, {it.severity})
+    private val checkovResultsComparator: Comparator<BaseCheckovResult> = compareBy({ it.filePath }, { it.resource }, {it.severity})
     private fun addToSorted(checkovResults: MutableList<BaseCheckovResult>, checkovResult: BaseCheckovResult) {
-        var index = checkovResults.binarySearch(checkovResult, comparatorx)
+        var index = checkovResults.binarySearch(checkovResult, checkovResultsComparator)
         val insertionPoint =
                 if (index < 0) {
                     -(index + 1)
