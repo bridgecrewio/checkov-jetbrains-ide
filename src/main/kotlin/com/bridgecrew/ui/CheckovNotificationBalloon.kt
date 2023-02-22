@@ -19,7 +19,7 @@ class CheckovNotificationBalloon {
             fullScanFinishedFrameworksNumber++
             if (fullScanFinishedFrameworksNumber == DESIRED_NUMBER_OF_FRAMEWORK_FOR_FULL_SCAN) {
                 fullScanFinishedFrameworksNumber = 0
-                showError(project, project.service<ResultsCacheService>().getAllCheckovResults().size) // TODO - show error when all frameworks has finished scanning
+                showError(project, project.service<ResultsCacheService>().getAllCheckovResults().size)
             }
         }
 

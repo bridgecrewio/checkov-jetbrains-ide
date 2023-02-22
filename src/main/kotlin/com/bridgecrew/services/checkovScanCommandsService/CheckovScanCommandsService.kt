@@ -11,10 +11,9 @@ import org.apache.commons.lang.StringUtils
 
 abstract class CheckovScanCommandsService(val project: Project) {
     protected val settings = CheckovSettingsState().getInstance()
-    var gitRepo = getRepoName() //TODO - get from GitUtils
+    var gitRepo = getRepoName()
 
     fun getExecCommandForSingleFile(filePath: String): ArrayList<String> {
-        //docker run --rm --tty --env LOG_LEVEL=DEBUG --volume /Users/mshavit/source/platform:/platform bridgecrew/checkov -f platform/src/microStacks/alertsValidationStack/main.tf -s --bc-api-key '3789f913-f1bb-4da3-9990-70025039932d' -o json
         val cmds = ArrayList<String>()
         cmds.addAll(getCheckovRunningCommandByServiceType())
         cmds.addAll(getCheckovCliArgsForExecCommand())
