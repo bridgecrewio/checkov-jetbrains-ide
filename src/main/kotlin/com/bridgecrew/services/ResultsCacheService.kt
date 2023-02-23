@@ -11,6 +11,7 @@ import kotlin.io.path.Path
 class ResultsCacheService {
     private var checkovResults: MutableList<BaseCheckovResult> = mutableListOf()
     private val results: MutableMap<String, ResourceToCheckovResultsList> = mutableMapOf()
+    private val checkovResultsComparator: Comparator<BaseCheckovResult> = compareBy({ it.filePath }, { it.resource }, {it.severity})
 
     fun getAllCheckovResults(): List<BaseCheckovResult> {
         return this.checkovResults
@@ -57,7 +58,6 @@ class ResultsCacheService {
         setCheckovResultsFromResultsList(checkovResults)
     }
     fun setCheckovResultsFromResultsList(results: List<CheckovResult>) {
-        val checkovResultsTemp: MutableList<BaseCheckovResult> = checkovResults
         for (result in results) {
             val category = mapCheckovCheckTypeToScanType(result.check_type, result.check_id)
             val resource = (if (category == Category.VULNERABILITIES) result.vulnerability_details?.package_name else result.resource)
@@ -86,7 +86,7 @@ class ResultsCacheService {
                             result.file_path,
                             result.vulnerability_details.risk_factors
                     )
-                    addToSorted(checkovResults, vulnerabilityCheckovResult)
+                    addToSorted(vulnerabilityCheckovResult)
                     continue
                 }
                 Category.SECRETS -> {
@@ -94,7 +94,7 @@ class ResultsCacheService {
                             resource, name, result.check_id, severity, result.description,
                             result.guideline, result.file_abs_path, result.file_line_range, result.fixed_definition,
                             result.code_block)
-                    addToSorted(checkovResults, secretCheckovResult)
+                    addToSorted(secretCheckovResult)
                     continue
                 }
                 Category.IAC -> {
@@ -102,7 +102,7 @@ class ResultsCacheService {
                             resource, name, result.check_id, severity, result.description,
                             result.guideline, result.file_abs_path, result.file_line_range, result.fixed_definition,
                             result.code_block)
-                    addToSorted(checkovResults, iacCheckovResult)
+                    addToSorted(iacCheckovResult)
                     continue
                 }
                 Category.LICENSES -> {
@@ -117,15 +117,14 @@ class ResultsCacheService {
                             result.vulnerability_details.licenses,
                             result.check_id.uppercase() == "BC_LIC_1"
                     )
-                    addToSorted(checkovResults, licenseCheckovResult)
+                    addToSorted(licenseCheckovResult)
                     continue
                 }
             }
         }
     }
-    private val checkovResultsComparator: Comparator<BaseCheckovResult> = compareBy({ it.filePath }, { it.resource }, {it.severity})
-    private fun addToSorted(checkovResults: MutableList<BaseCheckovResult>, checkovResult: BaseCheckovResult) {
-        var index = checkovResults.binarySearch(checkovResult, checkovResultsComparator)
+    private fun addToSorted(checkovResult: BaseCheckovResult) {
+        val index = checkovResults.binarySearch(checkovResult, checkovResultsComparator)
         val insertionPoint =
                 if (index < 0) {
                     -(index + 1)

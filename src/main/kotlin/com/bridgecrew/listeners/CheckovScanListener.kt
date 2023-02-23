@@ -9,6 +9,7 @@ interface CheckovScanListener {
     }
 
     fun scanningStarted()
+
     fun projectScanningStarted()
 
     fun scanningFinished()

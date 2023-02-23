@@ -104,7 +104,8 @@ class CheckovScanService {
         }
     }
 
-    private fun analyzeRepositoryScan(result: String, errorCode: Int, project: Project) {
+    private fun analyzeRepositoryScan(result: String, errorCode: Int, project: Project, framework: String) {
+        LOG.info("finished scanning framework $framework")
         project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).frameworkScanningFinished()
 
         if (!isValidScanResults(result, errorCode, project)) {
@@ -129,6 +130,7 @@ class CheckovScanService {
 
     fun scanProject(project: Project) {
         try {
+            CheckovNotificationBalloon.initialize()
             if (selectedCheckovScanner == null) {
                 LOG.warn("Checkov is not installed")
             }
@@ -145,8 +147,8 @@ class CheckovScanService {
                     val processHandler: ProcessHandler = OSProcessHandler(generateCheckovCommand(execCommand))
 
                     val frameworkIndex = execCommand.indexOf("--framework") + 1
-                    val framework = execCommand.get(frameworkIndex)
-                    val scanTask = RepositoryScanTask(project, "Checkov scanning repository by framework $framework", processHandler)
+                    val framework = execCommand[frameworkIndex]
+                    val scanTask = RepositoryScanTask(project, "Checkov scanning repository by framework $framework", framework, processHandler)
                     if (SwingUtilities.isEventDispatchThread()) {
                         ProgressManager.getInstance().run(scanTask)
                     } else {
@@ -261,7 +263,7 @@ class CheckovScanService {
         }
     }
 
-    private class RepositoryScanTask(project: Project, title: String, val processHandler: ProcessHandler) :
+    private class RepositoryScanTask(project: Project, title: String, val framework: String, val processHandler: ProcessHandler) :
             Task.Backgroundable(project, title, true) {
         override fun run(indicator: ProgressIndicator) {
             indicator.isIndeterminate = false
@@ -271,7 +273,7 @@ class CheckovScanService {
             LOG.info("Checkov full repository task output:")
             LOG.info(output)
 
-            project.service<CheckovScanService>().analyzeRepositoryScan(output, processHandler.exitCode!!, project)
+            project.service<CheckovScanService>().analyzeRepositoryScan(output, processHandler.exitCode!!, project, framework)
         }
     }
 }

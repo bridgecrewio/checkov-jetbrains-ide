@@ -15,6 +15,9 @@ class CheckovNotificationBalloon {
         private val GROUP = NotificationGroup(groupNeedAction, NotificationDisplayType.STICKY_BALLOON)
         private var fullScanFinishedFrameworksNumber = 0
 
+        fun initialize() {
+            fullScanFinishedFrameworksNumber = 0
+        }
         fun showFullScanError(project: Project) {
             fullScanFinishedFrameworksNumber++
             if (fullScanFinishedFrameworksNumber == DESIRED_NUMBER_OF_FRAMEWORK_FOR_FULL_SCAN) {
