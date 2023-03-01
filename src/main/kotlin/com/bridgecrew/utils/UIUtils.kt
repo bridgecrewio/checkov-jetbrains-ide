@@ -1,14 +1,15 @@
 package com.bridgecrew.utils
 
+import com.bridgecrew.results.Severity
 import com.intellij.ui.components.labels.LinkLabel
 import com.intellij.uiDesigner.core.GridConstraints
+import icons.CheckovIcons
 import java.awt.Desktop
-import java.awt.Font
 import java.net.URI
 import java.net.URISyntaxException
+import javax.swing.Icon
 import javax.swing.JLabel
 import javax.swing.JPanel
-import javax.swing.JTextPane
 
 fun urlLink(guideline: String?, checkID: String): JPanel{
     val guidelineLabel = JPanel()
@@ -44,18 +45,21 @@ fun urlLink(guideline: String?, checkID: String): JPanel{
     return guidelineLabel
 }
 
-fun createTitle(title: String, font: Int, size: Int): JTextPane {
-    val fontTitle = Font("Verdana", font, size)
-    val Jtitle = JTextPane()
-    Jtitle.font = fontTitle
-    Jtitle.text = title
-    return Jtitle
-}
-
-
 fun createGridRowCol(row: Int, col: Int = 0, align: Int = 0, fill: Int = 0): GridConstraints {
     return GridConstraints(
         row, col, 1, 1, align, fill, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null,
         null, 1, false
     )
+}
+
+private val severityIconMap: Map<Severity, Icon> = mapOf(
+        Severity.CRITICAL to CheckovIcons.SeverityCritical,
+        Severity.HIGH to CheckovIcons.SeverityHigh,
+        Severity.MEDIUM to CheckovIcons.SeverityMedium,
+        Severity.LOW to CheckovIcons.SeverityLow,
+        Severity.UNKNOWN to CheckovIcons.SeverityUnknown
+)
+
+fun getSeverityIconBySeverity(severity: Severity): Icon {
+    return severityIconMap[severity] ?: CheckovIcons.ErrorIcon
 }

@@ -37,6 +37,7 @@ class CheckovActionToolbar(val metadata: ScanResultMetadata?) : SimpleToolWindow
     private fun createActionGroupPanel(actionToolbarPanel: JPanel){
         val actionGroupToolbar = actionManager.getAction("com.bridgecrew.checkovScanActions") as ActionGroup
         val actionToolbar = actionManager.createActionToolbar("Checkov Action Toolbar", actionGroupToolbar, true)
+        actionToolbar.setTargetComponent(this)
         actionToolbarPanel.add(actionToolbar.component)
     }
 
