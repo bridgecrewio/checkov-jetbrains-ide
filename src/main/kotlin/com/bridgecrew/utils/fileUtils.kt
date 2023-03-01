@@ -1,5 +1,4 @@
 package com.bridgecrew.utils
-import com.bridgecrew.services.checkovService.DOCKER_MOUNT_DIR
 import com.intellij.ide.util.PsiNavigationSupport
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.fileEditor.FileDocumentManager
@@ -8,6 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
+import org.jetbrains.rpc.LOG
 import java.net.URL
 
 fun navigateToFile(fileToNavigate: PsiFile) {
@@ -91,4 +91,22 @@ fun isUrl(url: String?): Boolean {
     } catch (e: Throwable) {
         return false
     }
+}
+
+fun getGitIgnoreValues(project: Project): List<String> {
+    try {
+        val path = project.basePath + "/.gitignore"
+        val gitignoreVirtualFile = LocalFileSystem.getInstance().findFileByPath(path)
+        if (gitignoreVirtualFile == null) {
+            LOG.info("no .gitignore file in this project")
+            return arrayListOf()
+        }
+
+        return String(gitignoreVirtualFile.contentsToByteArray())
+                .split(System.lineSeparator()).filter { raw -> !(raw.trim().startsWith("#") || raw.trim().isEmpty() )}
+
+    } catch (e: Exception) {
+        LOG.error(Exception("error while reading .gitignore file", e))
+    }
+    return arrayListOf()
 }

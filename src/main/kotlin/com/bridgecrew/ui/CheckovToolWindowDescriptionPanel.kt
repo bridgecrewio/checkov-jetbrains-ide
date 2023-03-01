@@ -71,13 +71,13 @@ class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindow
         return descriptionPanel
     }
 
-    fun duringScanDescription(): JPanel {
+    fun duringScanDescription(description: String): JPanel {
         descriptionPanel = JPanel()
         descriptionPanel.layout = GridLayoutManager(2, 1, Insets(0, 0, 0, 0), -1, -1)
         val imagePanel = JPanel()
         imagePanel.add(JLabel(IconLoader.getIcon("/icons/checkov_m.svg")), createGridRowCol(0,0,GridConstraints.ANCHOR_NORTHEAST))
         val scanningPanel = JPanel()
-        scanningPanel.add(JLabel("Scanning your file..."), GridConstraints.ANCHOR_CENTER)
+        scanningPanel.add(JLabel(description), GridConstraints.ANCHOR_CENTER)
         descriptionPanel.add(imagePanel, createGridRowCol(0,0,GridConstraints.ANCHOR_NORTHEAST))
         descriptionPanel.add(scanningPanel, createGridRowCol(1,0,GridConstraints.ANCHOR_NORTH))
         return descriptionPanel

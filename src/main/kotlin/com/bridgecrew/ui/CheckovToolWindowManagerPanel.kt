@@ -1,10 +1,8 @@
 package com.bridgecrew.ui
 
-import com.bridgecrew.services.CheckovScanService
-import com.bridgecrew.listeners.CheckovInstallerListener
+import com.bridgecrew.services.scan.CheckovScanService
 import com.bridgecrew.listeners.CheckovScanListener
 import com.bridgecrew.listeners.CheckovSettingsListener
-import com.bridgecrew.services.checkovService.CheckovService
 import com.bridgecrew.settings.CheckovSettingsState
 import com.bridgecrew.ui.vulnerabilitiesTree.CheckovToolWindowTree
 import com.bridgecrew.utils.PANELTYPE
@@ -50,7 +48,10 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                 add(checkovDescription.errorScanDescription())
             }
             PANELTYPE.CHECKOV_SCAN_STARTED -> {
-                add(checkovDescription.duringScanDescription())
+                add(checkovDescription.duringScanDescription("Scanning your file..."))
+            }
+            PANELTYPE.CHECKOV_REPOSITORY_SCAN_STARTED -> {
+                add(checkovDescription.duringScanDescription("Scanning your repository..."))
             }
             PANELTYPE.CHECKOV_PRE_SCAN -> {
                 add(checkovDescription.preScanDescription())
@@ -86,8 +87,6 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
     }
 
     fun subscribeToProjectEventChange() {
-        val extensionList = listOf("tf","yaml", "yml", "json")
-
         if (SwingUtilities.isEventDispatchThread()) {
             project.service<CheckovToolWindowManagerPanel>().loadMainPanel()
         } else {
@@ -95,24 +94,22 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                 project.service<CheckovToolWindowManagerPanel>().loadMainPanel()
             }
         }
+
         // subscribe to open file events
         project.messageBus.connect(project).subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, object :
             FileEditorManagerListener {
             override fun fileOpened(source: FileEditorManager, file: VirtualFile) {
                 super.fileOpened(source, file);
-//                if (extensionList.contains(file.extension)) {
-                    project.service<CheckovScanService>().scanFile(file.path, project);
-//                }
+                project.service<CheckovScanService>().scanFile(file.path, project);
             }
         })
 
         // subscribe to update file events
         project.messageBus.connect(project).subscribe(VirtualFileManager.VFS_CHANGES, object : BulkFileListener {
             override fun after(events: MutableList<out VFileEvent>) {
-                if (events.size>0 && events.get(0).file != null){
-                    val relevantFile = extensionList.contains(events.get(0).file?.extension)
+                if (events.size > 0 && events[0].file != null){
                     val relevantProject = ProjectRootManager.getInstance(project).fileIndex.isInContent(events.get(0).file!!)
-                    if (events.size > 0 && relevantFile && relevantProject ){
+                    if (relevantProject ){
                         project.service<CheckovScanService>().scanFile(events.get(0).file!!.path, project);
                     }
                 }
@@ -127,6 +124,11 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                 override fun scanningStarted() {
                     project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_SCAN_STARTED)
                 }
+
+                override fun projectScanningStarted() {
+                    project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_REPOSITORY_SCAN_STARTED)
+                }
+
                 override fun scanningFinished() {
                     ApplicationManager.getApplication().invokeLater {
                         project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_SCAN_FINISHED)
@@ -137,6 +139,11 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                         project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_SCAN_FINISHED_EMPTY, fileName)
                     }
                 }
+
+                override fun frameworkScanningFinished() {
+                    CheckovNotificationBalloon.showFullScanError(project)
+                }
+
                 override fun scanningError() {
                     ApplicationManager.getApplication().invokeLater {
                         project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_SCAN_ERROR)
@@ -146,15 +153,6 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                     ApplicationManager.getApplication().invokeLater {
                         project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_SCAN_PARSING_ERROR)
                     }
-                }
-            })
-
-        // Subscribe to Installer Topic
-        project.messageBus.connect(this)
-            .subscribe(CheckovInstallerListener.INSTALLER_TOPIC, object: CheckovInstallerListener {
-                override fun installerFinished(serviceClass: CheckovService) {
-                    project.service<CheckovScanService>().selectedCheckovScanner = serviceClass
-                    project.service<CheckovToolWindowManagerPanel>().subscribeToProjectEventChange()
                 }
             })
 

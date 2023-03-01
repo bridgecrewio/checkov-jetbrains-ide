@@ -19,6 +19,7 @@ enum class CheckType(checkType: String) {
     HELM("helm"),
     JSON("json"),
     YAML("yaml"),
+    KUBERNETES("kubernetes"),
     KUSTOMIZE("kustomize"),
     OPENAPI("openapi"),
     SCA_PACKAGE("sca_package"),

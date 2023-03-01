@@ -1,14 +1,13 @@
 package com.bridgecrew.activities
-import CheckovInstallerService
-import com.bridgecrew.services.ResultsCacheService
-import com.bridgecrew.services.checkovService.PipCheckovService
-import com.bridgecrew.ui.CheckovToolWindowManagerPanel
-import com.bridgecrew.utils.getGitRepoName
-import com.intellij.openapi.startup.StartupActivity
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.diagnostic.logger
 
+import com.bridgecrew.initialization.InitializationService
+import com.bridgecrew.listeners.InitializationListener
+import com.bridgecrew.listeners.InitializationListener.Companion.INITIALIZATION_TOPIC
+import com.bridgecrew.ui.CheckovToolWindowManagerPanel
 import com.intellij.openapi.components.service
+import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.startup.StartupActivity
 
 private val LOG = logger<PostStartupActivity>()
 
@@ -16,11 +15,20 @@ class PostStartupActivity : StartupActivity {
 
     override fun runActivity(project: Project) {
         LOG.info("Startup activity starting")
-        PipCheckovService.setCheckovPath(project)
-        getGitRepoName(project)
-        project.service<CheckovInstallerService>().install(project)
-        project.service<CheckovToolWindowManagerPanel>().subscribeToInternalEvents(project)
-//        project.service<ResultsCacheService>().setMockCheckovResultsFromExampleFile() // MOCK
+        project.messageBus.connect(project).subscribe(INITIALIZATION_TOPIC, object : InitializationListener {
+            override fun initializationCompleted() {
+                project.service<CheckovToolWindowManagerPanel>().subscribeToInternalEvents(project)
+                project.service<CheckovToolWindowManagerPanel>().subscribeToProjectEventChange()
+                // project.service<ResultsCacheService>().setMockCheckovResultsFromExampleFile() // MOCK
+            }
+
+        })
+        initializeProject(project)
         LOG.info("Startup activity finished")
+    }
+
+    private fun initializeProject(project: Project) {
+        val initializationService = InitializationService(project)
+        initializationService.initializeProject()
     }
 }
