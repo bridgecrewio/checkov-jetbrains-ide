@@ -1,8 +1,8 @@
 package com.bridgecrew.ui
 
 import com.bridgecrew.results.BaseCheckovResult
-import com.bridgecrew.utils.*
-import com.intellij.openapi.application.ApplicationManager
+import com.bridgecrew.ui.rightPanel.CheckovErrorRightPanel
+import com.bridgecrew.utils.createGridRowCol
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
@@ -10,14 +10,14 @@ import com.intellij.openapi.util.IconLoader
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.uiDesigner.core.GridConstraints
 import com.intellij.uiDesigner.core.GridLayoutManager
-import java.awt.*
+import java.awt.BorderLayout
+import java.awt.Insets
 import javax.swing.*
 
 private val LOG = logger<CheckovToolWindowDescriptionPanel>()
 
 class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindowPanel(true, true) {
     var descriptionPanel: JPanel = JPanel()
-    var fixButton: JButton = JButton()
 
     init {
         installationDescription()
@@ -104,38 +104,9 @@ class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindow
     /**
      * Create description for specific checkov result.
      */
-    fun descriptionOfCheckovScan(checkovResult: BaseCheckovResult): JPanel {
-        descriptionPanel = JPanel()
-
-        descriptionPanel.layout = GridLayoutManager(1, 1)
-        val descriptions = JPanel()
-        descriptions.layout = GridLayoutManager(4, 1)
-        val policyDetailsTitle = createTitle(POLICYDETAILS,Font.BOLD, 15)
-        val policyDetailsData = JLabel(checkovResult.name + "(${checkovResult.id})")
-        val guidelines = urlLink(checkovResult.guideline, checkovResult.id)
-        descriptions.add(policyDetailsTitle, createGridRowCol(0, 0, GridConstraints.ANCHOR_NORTHWEST));
-        descriptions.add(policyDetailsData, createGridRowCol(1, 0, GridConstraints.ANCHOR_NORTHWEST));
-        descriptions.add(guidelines, createGridRowCol(3, 0, GridConstraints.ANCHOR_NORTHWEST));
-
-
-        fixButton = JButton("Fix")
-        if (!checkovResult.fixDefinition.isNullOrEmpty()){
-            fixButton.isEnabled = true
-            fixButton.addActionListener {
-                LOG.info("fix button was presssed")
-                ApplicationManager.getApplication().invokeLater {
-                        val (start, end) = getOffsetReplaceByLines(checkovResult.fileLineRange, project)
-                        updateFile(checkovResult.fixDefinition, project, start, end)
-
-                }
-            }
-            descriptions.add(fixButton, createGridRowCol(2, 0, GridConstraints.ANCHOR_NORTHWEST));
-        }
-        descriptionPanel.add(descriptions, createGridRowCol(0,0, GridConstraints.ANCHOR_NORTHWEST))
-        return descriptionPanel
-
+    private fun descriptionOfCheckovScan(checkovResult: BaseCheckovResult): JPanel {
+        return CheckovErrorRightPanel(checkovResult)
     }
-
 
     fun createScroll(checkovResult: BaseCheckovResult): JScrollPane {
         val descriptionPanelRes = descriptionOfCheckovScan(checkovResult)

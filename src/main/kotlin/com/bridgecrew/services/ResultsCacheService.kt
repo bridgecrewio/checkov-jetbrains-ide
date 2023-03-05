@@ -82,7 +82,7 @@ class ResultsCacheService {
                             result.vulnerability_details.link,
                             result.vulnerability_details.published_date,
                             result.vulnerability_details.vector,
-                            result.check_id,
+                            result.vulnerability_details.id,
                             result.file_path,
                             result.vulnerability_details.risk_factors
                     )
