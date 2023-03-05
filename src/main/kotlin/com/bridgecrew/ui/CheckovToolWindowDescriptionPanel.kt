@@ -1,7 +1,7 @@
 package com.bridgecrew.ui
 
 import com.bridgecrew.results.BaseCheckovResult
-import com.bridgecrew.ui.rightPanel.CheckovRightPanel
+import com.bridgecrew.ui.rightPanel.CheckovErrorRightPanel
 import com.bridgecrew.utils.createGridRowCol
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
@@ -105,7 +105,7 @@ class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindow
      * Create description for specific checkov result.
      */
     private fun descriptionOfCheckovScan(checkovResult: BaseCheckovResult): JPanel {
-        return CheckovRightPanel(checkovResult)
+        return CheckovErrorRightPanel(checkovResult)
     }
 
     fun createScroll(checkovResult: BaseCheckovResult): JScrollPane {

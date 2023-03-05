@@ -4,7 +4,7 @@ import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
 import javax.swing.JOptionPane
 
-const val suppressionButtonText = "Suppression"
+const val suppressionButtonText = "Suppress"
 
 class SuppressionButton(private var checkId: String): CheckovLinkButton(suppressionButtonText), ActionListener {
 

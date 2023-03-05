@@ -8,7 +8,7 @@ import com.bridgecrew.ui.rightPanel.extraInfoPanel.*
 import com.bridgecrew.ui.rightPanel.topPanel.*
 import javax.swing.*
 
-class CheckovRightPanel(var result: BaseCheckovResult): JPanel() {
+class CheckovErrorRightPanel(var result: BaseCheckovResult): JPanel() {
 
     init {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
