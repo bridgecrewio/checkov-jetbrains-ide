@@ -20,7 +20,7 @@ class IacPanelTop(val result: BaseCheckovResult): CheckovDescriptionPanelTop() {
         if(! isCustomPolicy(result)){
             panel.add(DocumentationButton(result.guideline, result.id))
         }
-        panel.add(SuppressionButton(result.id))
+        panel.add(SuppressionButton(result))
         if(result.fixDefinition != null){
             panel.add(FixButton(result))
         }

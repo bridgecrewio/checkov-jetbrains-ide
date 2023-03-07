@@ -14,7 +14,7 @@ class LicensePanelTop(val result: BaseCheckovResult): CheckovDescriptionPanelTop
 
     private fun createDescriptionPanelTitleActions(): JPanel {
         val panel = createActionsPanel()
-        panel.add(SuppressionButton(result.id))
+        panel.add(SuppressionButton(result))
         return panel
     }
 }
