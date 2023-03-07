@@ -85,7 +85,7 @@ class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindow
 
     fun errorScanDescription(): JPanel {
         descriptionPanel = JPanel()
-        descriptionPanel.add(JLabel("Checkov has failed to run on the file"), BorderLayout.CENTER)
+        descriptionPanel.add(JLabel("Checkov has failed to run on the file"), BorderLayout.CENTER) //
         return descriptionPanel
     }
 
