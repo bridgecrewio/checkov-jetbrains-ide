@@ -93,6 +93,24 @@ fun isUrl(url: String?): Boolean {
     }
 }
 
+fun getFileType(filePath: String): FileType {
+    val fileParts = filePath.split(".")
+    return if(fileParts.size > 1){
+        when(fileParts[1]) {
+            "json" -> FileType.JSON
+            "tf" -> FileType.TERRAFORM
+            "yml", "yaml" -> FileType.YAML
+            "Dockerfile" -> FileType.DOCKERFILE
+            else -> FileType.UNKNOWN
+        }
+    } else {
+        when(filePath) { //no "dot" in file name
+            "Dockerfile" -> FileType.DOCKERFILE
+            else -> FileType.UNKNOWN
+        }
+    }
+}
+
 fun getGitIgnoreValues(project: Project): List<String> {
     try {
         val path = project.basePath + "/.gitignore"

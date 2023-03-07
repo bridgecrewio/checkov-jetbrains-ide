@@ -21,7 +21,7 @@ class VulnerabilitiesPanelTop(val result: VulnerabilityCheckovResult): CheckovDe
         if(! isCustomPolicy(result)){
             panel.add(DocumentationButton(result.guideline, result.id))
         }
-        panel.add(SuppressionButton(result.id))
+        panel.add(SuppressionButton(result))
         if(result.fixDefinition != null){
             panel.add(FixCVEButton(result.id))
             panel.add(FixButton(result))

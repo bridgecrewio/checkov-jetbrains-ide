@@ -28,3 +28,11 @@ val FULL_SCAN_FRAMEWORKS = arrayListOf("ansible", "arm", "bicep", "cloudformatio
 val FULL_SCAN_EXCLUDED_PATHS = arrayListOf("node_modules")
 
 val DESIRED_NUMBER_OF_FRAMEWORK_FOR_FULL_SCAN = FULL_SCAN_FRAMEWORKS.size
+
+enum class FileType {
+    JSON,
+    TERRAFORM,
+    YAML,
+    DOCKERFILE,
+    UNKNOWN
+}

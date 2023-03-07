@@ -1,5 +1,7 @@
 package com.bridgecrew.ui.vulnerabilitiesTree
 
+import com.bridgecrew.utils.FileType
+import com.bridgecrew.utils.getFileType
 import com.intellij.icons.AllIcons
 import icons.CheckovIcons
 import javax.swing.Icon
@@ -16,22 +18,20 @@ class CheckovFileTreeNode(val fileName: String): CheckovTreeNode {
         return other is CheckovFileTreeNode && other.fileName == fileName
     }
 
-    private val iconMap: Map<String, Icon> = mapOf(
-            "tf" to CheckovIcons.TerraformIcon,
-            "json" to AllIcons.FileTypes.Json,
-            defaultFile to AllIcons.FileTypes.Any_type
+    private val iconMap: Map<FileType, Icon> = mapOf(
+            FileType.TERRAFORM to CheckovIcons.TerraformIcon,
+            FileType.JSON to AllIcons.FileTypes.Json,
+            FileType.UNKNOWN to AllIcons.FileTypes.Any_type
     )
 
     override fun getNodeIcon(): Icon {
-        return getFileType().let { iconMap[it] } ?: CheckovIcons.ErrorIcon
+        return iconMap[getFileType(fileName)] ?: AllIcons.FileTypes.Any_type
     }
 
-    private fun getFileType(): String {
-        val fileParts = fileName.split(".")
-        return if(fileParts.size > 1){
-            fileParts[1]
-        } else {
-            defaultFile
-        }
+    override fun hashCode(): Int {
+        var result = fileName.hashCode()
+        result = 31 * result + defaultFile.hashCode()
+        result = 31 * result + iconMap.hashCode()
+        return result
     }
 }

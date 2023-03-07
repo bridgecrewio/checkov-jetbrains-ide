@@ -15,7 +15,7 @@ class SecretsPanelTop(val result: BaseCheckovResult): CheckovDescriptionPanelTop
 
     private fun createDescriptionPanelTitleActions(): JPanel {
         val panel = createActionsPanel()
-        panel.add(SuppressionButton(result.id))
+        panel.add(SuppressionButton(result))
         if(result.fixDefinition != null){
             panel.add(FixButton(result))
         }
