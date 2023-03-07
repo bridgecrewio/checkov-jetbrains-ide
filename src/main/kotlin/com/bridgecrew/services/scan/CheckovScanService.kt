@@ -7,7 +7,6 @@ import com.bridgecrew.listeners.CheckovScanListener
 import com.bridgecrew.services.ResultsCacheService
 import com.bridgecrew.services.checkovScanCommandsService.CheckovScanCommandsService
 import com.bridgecrew.settings.CheckovSettingsState
-import com.bridgecrew.ui.CheckovErrorNotificationBalloon
 import com.bridgecrew.ui.CheckovNotificationBalloon
 import com.bridgecrew.utils.DEFAULT_TIMEOUT
 import com.intellij.execution.configurations.GeneralCommandLine
@@ -15,7 +14,6 @@ import com.intellij.execution.process.OSProcessHandler
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.process.ScriptRunnerUtil
 import com.intellij.ide.plugins.PluginManagerCore
-import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
@@ -49,7 +47,7 @@ class CheckovScanService {
             }
 
             LOG.info("Trying to scan a file using $selectedCheckovScanner")
-//            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningStarted()
+            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningStarted()
 
             currentFile = filePath
             val execCommand = prepareExecCommand(filePath)
@@ -73,9 +71,7 @@ class CheckovScanService {
     }
 
     private fun analyzeScan(result: String, errorCode: Int, project: Project, filePath: String) {
-        if (!isValidScanResults(result, errorCode)) {
-//            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningError()
-            CheckovErrorNotificationBalloon.showError(project, "Error while running Checkov scan on file $filePath, please check the logs for further action", NotificationType.ERROR)
+        if (!isValidScanResults(result, errorCode, project)) {
             return
         }
 
@@ -91,63 +87,50 @@ class CheckovScanService {
                         .setResult(filePathRelativeToProject, resultsGroupedByResource)
                 project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished()
                 if (isFirstRun) {
-                    val errorsStr = if (resultsLength == 1) "error" else "errors"
-                    CheckovErrorNotificationBalloon.showError(project, "Checkov has detected $resultsLength configuration $errorsStr in your file $filePath. Check out the tool window to analyze your code", NotificationType.INFORMATION)
-//                    CheckovNotificationBalloon.showError(project, resultsLength)
+                    CheckovNotificationBalloon.showError(project, resultsLength)
                     isFirstRun = false
                 }
             }
         } catch (e: JSONException) {
             LOG.warn("Error parsing checkov results \n" +
-//                    "Raw response: $result\n" +
+                    "Raw response: $result\n" +
                     "To report: open a issue at https://github.com/bridgecrewio/checkov-jetbrains-ide/issues\n\n")
             e.printStackTrace()
-//            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningError()
-            CheckovErrorNotificationBalloon.showError(project, "Error while running Checkov scan on file $filePath, please check the logs for further action", NotificationType.ERROR)
+            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningError()
         } catch (e: CheckovResultParsingException) {
-            // Checkov has failed to run on the file due to parsing errors, Please make sure that you file is valid
-            CheckovErrorNotificationBalloon.showError(project, "Parsing error while running Checkov scan on file $filePath, make sure the file is valid", NotificationType.ERROR)
-//            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningParsingError()
+            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningParsingError()
         } catch (e: CheckovResultException) {
-            CheckovErrorNotificationBalloon.showError(project, "Checkov scanning finished, No errors have been detected in the file: $filePath", NotificationType.INFORMATION)
-//            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished(filePath)
+            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished(filePath)
         }
     }
 
     private fun analyzeRepositoryScan(result: String, errorCode: Int, project: Project, framework: String) {
         LOG.info("finished scanning framework $framework")
-//        project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).frameworkScanningFinished()
-        project.service<FullScanStateService>().fullScanFrameworkFinished(project)
+        project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).frameworkScanningFinished()
 
-        if (!isValidScanResults(result, errorCode)) {
-            CheckovErrorNotificationBalloon.showError(project, "Error while running Checkov full repository scan on framework $framework, please check the logs for further action", NotificationType.ERROR)
-//            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningError()
+        if (!isValidScanResults(result, errorCode, project)) {
             return
         }
 
         try {
-            val failedResults = getFailedChecksFromResultString(result, framework)
+            val failedResults = getFailedChecksFromResultString(result)
             project.service<ResultsCacheService>().setCheckovResultsFromResultsList(failedResults)
             project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished()
         } catch (e: JSONException) {
             LOG.warn("Error parsing checkov results \n" +
-//                    "Raw response: $result\n" +
+                    "Raw response: $result\n" +
                     "To report: open a issue at https://github.com/bridgecrewio/checkov-jetbrains-ide/issues\n\n")
             e.printStackTrace()
-            CheckovErrorNotificationBalloon.showError(project, "Error while running Checkov full repository scan on framework $framework, please check the logs for further action", NotificationType.ERROR)
         } catch (e: CheckovResultParsingException) {
             e.printStackTrace()
-            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningParsingError() // for checking
         } catch (e: CheckovResultException) {
-            CheckovErrorNotificationBalloon.showError(project, "Checkov scanning finished, No errors have been detected for framework $framework", NotificationType.INFORMATION)
-//            e.printStackTrace()
+            e.printStackTrace()
         }
     }
 
     fun scanProject(project: Project) {
         try {
-//            CheckovNotificationBalloon.initialize()
-            project.service<FullScanStateService>().fullScanStarted()
+            CheckovNotificationBalloon.initialize()
             if (selectedCheckovScanner == null) {
                 LOG.warn("Checkov is not installed")
             }
@@ -190,7 +173,7 @@ class CheckovScanService {
         generalCommandLine.charset = Charset.forName("UTF-8")
         generalCommandLine.environment["BC_SOURCE_VERSION"] = pluginVersion
         generalCommandLine.environment["BC_SOURCE"] = "jetbrains"
-//        generalCommandLine.environment["LOG_LEVEL"] = "DEBUG"
+        generalCommandLine.environment["LOG_LEVEL"] = "DEBUG"
         if (!prismaUrl.isNullOrEmpty()) {
             generalCommandLine.environment["PRISMA_API_URL"] = prismaUrl
         }
@@ -198,14 +181,16 @@ class CheckovScanService {
         return generalCommandLine
     }
 
-    private fun isValidScanResults(result: String, errorCode: Int): Boolean {
+    private fun isValidScanResults(result: String, errorCode: Int, project: Project): Boolean {
         if (result.contains("Please check your API token")) {
-            LOG.error("Please check you API token\n\n $result")
+            LOG.warn("Please check you API token\n\n $result")
+            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningError()
             return false
         }
         if (errorCode != 0 || result.contains("[ERROR]")) {
-            LOG.error("Error scanning file\n" +
-                    "To report: open an issue at https://github.com/bridgecrewio/checkov-jetbrains-ide/issues\n\n")// $result")
+            LOG.warn("Error scanning file\n" +
+                    "To report: open an issue at https://github.com/bridgecrewio/checkov-jetbrains-ide/issues\n\n $result")
+            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningError()
             return false
         }
 
@@ -273,7 +258,7 @@ class CheckovScanService {
                     ScriptRunnerUtil.STDOUT_OR_STDERR_OUTPUT_KEY_FILTER,
                     DEFAULT_TIMEOUT)
             LOG.info("Checkov task output:")
-//            LOG.info(output)
+            LOG.info(output)
             project.service<CheckovScanService>().analyzeScan(output, processHandler.exitCode!!, project, filePath)
         }
     }
@@ -281,22 +266,14 @@ class CheckovScanService {
     private class RepositoryScanTask(project: Project, title: String, val framework: String, val processHandler: ProcessHandler) :
             Task.Backgroundable(project, title, true) {
         override fun run(indicator: ProgressIndicator) {
-            try {
-                LOG.info("Going to scan full repository for framework $framework")
-                indicator.isIndeterminate = false
-                val output = ScriptRunnerUtil.getProcessOutput(processHandler,
-                        ScriptRunnerUtil.STDOUT_OR_STDERR_OUTPUT_KEY_FILTER,
-                        DEFAULT_TIMEOUT)
-                LOG.info("Checkov full repository task finished successfully for framework $framework")
-//            LOG.info(output)
+            indicator.isIndeterminate = false
+            val output = ScriptRunnerUtil.getProcessOutput(processHandler,
+                    ScriptRunnerUtil.STDOUT_OR_STDERR_OUTPUT_KEY_FILTER,
+                    DEFAULT_TIMEOUT)
+            LOG.info("Checkov full repository task output:")
+            LOG.info(output)
 
-                project.service<CheckovScanService>().analyzeRepositoryScan(output, processHandler.exitCode!!, project, framework)
-            } catch (e: Exception) {
-                LOG.error("error while scanning framework $framework in full scan", e)
-                project.service<FullScanStateService>().fullScanFrameworkFinished(project)
-
-//                project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).frameworkScanningFinished()
-            }
+            project.service<CheckovScanService>().analyzeRepositoryScan(output, processHandler.exitCode!!, project, framework)
         }
     }
 }

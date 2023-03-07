@@ -47,10 +47,7 @@ data class CheckovResult(
 
 typealias ResourceToCheckovResultsList = MutableMap<String, ArrayList<CheckovResult>>
 
-fun getFailedChecksFromResultString(raw: String, framework: String = ""): ArrayList<CheckovResult> {
-    if (framework == "cloudformation") {
-        LOG.info("$framework")
-    }
+fun getFailedChecksFromResultString(raw: String): ArrayList<CheckovResult> {
     if (raw.isEmpty()){
         throw CheckovResultException("Checkov result returned empty")
     }
@@ -66,16 +63,16 @@ fun getFailedChecksFromResultString(raw: String, framework: String = ""): ArrayL
         break
     }
 
-    LOG.info("found checkov result for framework $framework") // - $checkovResult")
+    LOG.info("found checkov result - $checkovResult")
     checkovResult = checkovResult.replace("\u001B[0m","")
 
     return when (checkovResult[0]) {
-        '{' -> getFailedChecksFromObj(JSONObject(checkovResult), framework)
+        '{' -> getFailedChecksFromObj(JSONObject(checkovResult))
         '[' -> {
             val results = JSONArray(checkovResult)
             var res: ArrayList<CheckovResult> = arrayListOf()
             for (obj in results) {
-                res.addAll(getFailedChecksFromObj(obj as JSONObject, framework))
+                res.addAll(getFailedChecksFromObj(obj as JSONObject))
             }
             res
         }
@@ -98,17 +95,14 @@ fun groupResultsByResource(results: ArrayList<CheckovResult>, project: Project, 
     return resourceToResultsMap
 }
 
-fun getFailedChecksFromObj(resultsObj: JSONObject, framework: String): ArrayList<CheckovResult> {
+fun getFailedChecksFromObj(resultsObj: JSONObject): ArrayList<CheckovResult> {
     try {
-//        try {
-//            val failedRaw = resultsObj.get("failed")
-            if (resultsObj.has("failed") && resultsObj.get("failed") == 0) {
-                throw CheckovResultException("Results empty")
+        val failedRaw = resultsObj.get("failed")
+        if (failedRaw == 0) {
+            throw CheckovResultException("Results empty")
             }
-            // if failed does not appear in the raw response
-//        } catch (e: JSONException) {
-//        }
-
+        // if failed does not appear in the raw response
+        } catch (e : JSONException) { }
         val summary = resultsObj.getJSONObject("summary")
         val failedSummary = summary.get("failed")
         val parsingErrorSummary: Int = summary.getInt("parsing_errors")
@@ -118,17 +112,13 @@ fun getFailedChecksFromObj(resultsObj: JSONObject, framework: String): ArrayList
         if (failedSummary == 0){
             throw CheckovResultException("Results empty")
         }
-        val results = resultsObj.getJSONObject("results")
-        val failedChecks = results.getJSONArray("failed_checks")
-        val resultsList = object : TypeToken<List<CheckovResult>>() {}.type
-        val checkType = resultsObj.getString("check_type")
+    val results = resultsObj.getJSONObject("results")
+    val failedChecks = results.getJSONArray("failed_checks")
+    val resultsList = object : TypeToken<List<CheckovResult>>() {}.type
+    val checkType = resultsObj.getString("check_type")
 
-        val checkovResults: ArrayList<CheckovResult> = gson.fromJson(failedChecks.toString(), resultsList)
-        checkovResults.forEach { result -> result.check_type = checkType }
+    val checkovResults: ArrayList<CheckovResult> = gson.fromJson(failedChecks.toString(), resultsList)
+    checkovResults.forEach { result -> result.check_type = checkType }
 
-        return checkovResults
-    } catch (e: Exception) {
-        LOG.info("error while parsing result for framework $framework", e)
-        throw e
-    }
+    return checkovResults
 }

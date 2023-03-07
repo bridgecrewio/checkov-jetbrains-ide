@@ -28,11 +28,12 @@ class CheckovNotificationBalloon {
 
         fun showError(project: Project, failureNumber: Int) {
             var balloonContent: String
-            balloonContent = if (failureNumber == 1){
-                "Checkov has detected $failureNumber configuration error in your project. Check out the tool window to analyze your code "
-            } else {
-                "Checkov has detected $failureNumber configuration errors in your project. Check out the tool window to analyze your code "
-            }
+                if (failureNumber == 1){
+                    balloonContent= "Checkov has detected $failureNumber configuration error in your project. Check out the tool window to analyze your code "
+                } else {
+                    balloonContent =
+                        "Checkov has detected $failureNumber configuration errors in your project. Check out the tool window to analyze your code "
+                }
             val notification = GROUP.createNotification(
                 balloonContent,
                 NotificationType.WARNING

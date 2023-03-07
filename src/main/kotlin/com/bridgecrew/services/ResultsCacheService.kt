@@ -28,7 +28,6 @@ class ResultsCacheService {
         }
 
         return this.checkovResults.groupBy { it.filePath.toString() }
-//        return mutableMapOf()
     }
 
     fun getAllResults(): MutableMap<String, ResourceToCheckovResultsList> {
@@ -125,15 +124,14 @@ class ResultsCacheService {
         }
     }
     private fun addToSorted(checkovResult: BaseCheckovResult) {
-        checkovResults.add(checkovResult)
-//        val index = checkovResults.binarySearch(checkovResult, checkovResultsComparator)
-//        val insertionPoint =
-//                if (index < 0) {
-//                    -(index + 1)
-//                } else {
-//                    index
-//                }
-//        checkovResults.add(insertionPoint, checkovResult)
+        val index = checkovResults.binarySearch(checkovResult, checkovResultsComparator)
+        val insertionPoint =
+                if (index < 0) {
+                    -(index + 1)
+                } else {
+                    index
+                }
+        checkovResults.add(insertionPoint, checkovResult)
     }
     fun mapCheckovCheckTypeToScanType(checkType: String, checkId: String): Category {
         when (checkType) {
