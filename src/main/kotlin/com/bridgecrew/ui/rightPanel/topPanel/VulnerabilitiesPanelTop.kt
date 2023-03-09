@@ -5,7 +5,6 @@ import com.bridgecrew.ui.buttons.DocumentationButton
 import com.bridgecrew.ui.buttons.FixButton
 import com.bridgecrew.ui.buttons.FixCVEButton
 import com.bridgecrew.ui.buttons.SuppressionButton
-import com.bridgecrew.utils.isCustomPolicy
 import java.awt.BorderLayout
 import javax.swing.JPanel
 
@@ -18,8 +17,8 @@ class VulnerabilitiesPanelTop(val result: VulnerabilityCheckovResult): CheckovDe
 
     private fun createDescriptionPanelTitleActions(): JPanel {
         val panel = createActionsPanel()
-        if(! isCustomPolicy(result)){
-            panel.add(DocumentationButton(result.guideline, result.id))
+        if(isShowDocumentationButton(result)){
+            panel.add(result.guideline?.let { DocumentationButton(it) })
         }
         panel.add(SuppressionButton(result))
         if(result.fixDefinition != null){
