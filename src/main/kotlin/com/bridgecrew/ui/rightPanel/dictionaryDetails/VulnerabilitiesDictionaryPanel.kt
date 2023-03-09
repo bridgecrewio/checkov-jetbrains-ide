@@ -4,7 +4,7 @@ import com.bridgecrew.results.VulnerabilityCheckovResult
 
 class VulnerabilitiesDictionaryPanel(result: VulnerabilityCheckovResult): DictionaryExtraInfoPanel() {
 
-    override var fieldsMap: Map<String, Any?> = mapOf(
+    override var fieldsMap: MutableMap<String, Any?> = mutableMapOf(
         "Package Name" to result.resource,
         "CVE ID" to result.name,
         "Vulnerable Package Version" to result.packageVersion,
@@ -16,6 +16,7 @@ class VulnerabilitiesDictionaryPanel(result: VulnerabilityCheckovResult): Dictio
     )
 
     init {
+        addCustomPolicyGuidelinesIfNeeded(result)
         createDictionaryLayout()
     }
 }
