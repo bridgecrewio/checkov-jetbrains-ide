@@ -9,6 +9,7 @@ class LicenseExtraInfoPanel(result: LicenseCheckovResult): CheckovExtraInfoPanel
         initLayout()
         createRightPanelDescriptionLine(result.name)
         add(LicenseDictionaryPanel(result))
+        addCodeDiffPanel(result)
         setDimensions()
     }
 }

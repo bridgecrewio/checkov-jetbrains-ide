@@ -9,6 +9,7 @@ class VulnerabilitiesExtraInfoPanel(result: VulnerabilityCheckovResult): Checkov
         initLayout()
         createRightPanelDescriptionLine(result.name)
         add(VulnerabilitiesDictionaryPanel(result))
+        addCodeDiffPanel(result)
         setDimensions()
     }
 }

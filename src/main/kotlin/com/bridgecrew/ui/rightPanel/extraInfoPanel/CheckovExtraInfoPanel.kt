@@ -1,5 +1,7 @@
 package com.bridgecrew.ui.rightPanel.extraInfoPanel
 
+import com.bridgecrew.results.BaseCheckovResult
+import com.bridgecrew.ui.CodeDiffPanel
 import java.awt.Dimension
 import javax.swing.*
 
@@ -21,5 +23,11 @@ open class CheckovExtraInfoPanel: JPanel() {
     fun setDimensions(){
         add(Box.Filler(Dimension(0,0), Dimension(0, Short.MAX_VALUE.toInt()), Dimension(0, Short.MAX_VALUE.toInt())))
         preferredSize = Dimension(this.width, 0)
+    }
+
+    fun addCodeDiffPanel(result: BaseCheckovResult){
+//        if(result.fixDefinition != null){
+            add(CodeDiffPanel(result))
+//        }
     }
 }
