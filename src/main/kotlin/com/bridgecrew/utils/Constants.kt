@@ -12,8 +12,7 @@ object PANELTYPE {
     const val CHECKOV_INITIALIZATION_PROGRESS = 3
 }
 
-const val DEFAULT_TIMEOUT: Long = 80000
-const val FULL_SCAN_FRAMEWORK_DEFAULT_TIMEOUT: Long = 180000
+const val DEFAULT_TIMEOUT: Long = 180000
 
 const val GIT_DEFAULT_REPOSITORY_NAME = "jetbrains/extension"
 

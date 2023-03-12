@@ -121,7 +121,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
             return false
         }
 
-        val virtualFilePath: String = virtualFile.path.removePrefix(project.basePath!!).removePrefix(File.separator) // virtualFile.path.replace(project.basePath!!, "")
+        val virtualFilePath: String = virtualFile.path.removePrefix(project.basePath!!).removePrefix(File.separator)
 
         val excludedPaths = (getGitIgnoreValues(project) + FULL_SCAN_EXCLUDED_PATHS).distinct()
 

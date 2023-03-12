@@ -4,7 +4,6 @@ import com.bridgecrew.results.BaseCheckovResult
 import com.bridgecrew.results.Severity
 import com.bridgecrew.utils.CheckovUtils
 import com.bridgecrew.utils.getSeverityIconBySeverity
-import com.bridgecrew.utils.isCustomPolicy
 import com.bridgecrew.utils.isUrl
 import java.awt.BorderLayout
 import java.awt.Dimension
