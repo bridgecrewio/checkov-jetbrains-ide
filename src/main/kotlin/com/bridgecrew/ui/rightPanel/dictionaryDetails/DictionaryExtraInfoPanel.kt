@@ -1,5 +1,7 @@
 package com.bridgecrew.ui.rightPanel.dictionaryDetails
 
+import com.bridgecrew.results.BaseCheckovResult
+import com.bridgecrew.utils.isCustomPolicy
 import com.intellij.util.ui.JBUI
 import java.awt.Dimension
 import java.awt.Font
@@ -10,11 +12,17 @@ import javax.swing.*
 abstract class DictionaryExtraInfoPanel : JPanel() {
 
     // Field description (key) to field name from #BaseCheckovResult (value)
-    abstract var fieldsMap: Map<String, Any?>
+    abstract var fieldsMap: MutableMap<String, Any?>
 
     init {
         layout = GridBagLayout()
         border = BorderFactory.createEmptyBorder(10, 10, 10, 10)
+    }
+
+    fun addCustomPolicyGuidelinesIfNeeded(result: BaseCheckovResult){
+        if(isCustomPolicy(result) && result.guideline != null){
+            fieldsMap["Guidelines"] = "<html>${result.guideline}<html>"
+        }
     }
 
     fun createDictionaryLayout(){
