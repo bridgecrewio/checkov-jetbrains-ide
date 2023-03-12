@@ -1,7 +1,6 @@
 package com.bridgecrew.services.scan
 
 import com.bridgecrew.services.ResultsCacheService
-import com.bridgecrew.ui.CheckovErrorNotificationBalloon
 import com.bridgecrew.ui.CheckovNotificationBalloon
 import com.bridgecrew.utils.DESIRED_NUMBER_OF_FRAMEWORK_FOR_FULL_SCAN
 import com.intellij.notification.NotificationType
@@ -22,7 +21,7 @@ class FullScanStateService {
         if (fullScanFinishedFrameworksNumber == DESIRED_NUMBER_OF_FRAMEWORK_FOR_FULL_SCAN) {
             val totalErrors = project.service<ResultsCacheService>().getAllCheckovResults().size
             val errorMessage = "Checkov has detected $totalErrors configuration errors in your project. Check out the tool window to analyze your code"
-            CheckovErrorNotificationBalloon.showError(project, errorMessage, NotificationType.INFORMATION)
+            CheckovNotificationBalloon.showNotification(project, errorMessage, NotificationType.INFORMATION)
 //            CheckovErrorNotificationBalloon.showError(project, "", NotificationType.INFORMATION)
         }
     }

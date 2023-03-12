@@ -1,5 +1,6 @@
 package com.bridgecrew.ui.vulnerabilitiesTree
 
+import com.bridgecrew.utils.CHECKNAMEDEPTH
 import com.bridgecrew.utils.*
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.ui.SimpleToolWindowPanel

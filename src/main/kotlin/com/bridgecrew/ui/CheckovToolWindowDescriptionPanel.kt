@@ -20,7 +20,7 @@ class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindow
     var descriptionPanel: JPanel = JPanel()
 
     init {
-        installationDescription()
+        initializationDescription()
     }
 
     /**
@@ -33,13 +33,13 @@ class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindow
         return descriptionPanel
     }
 
-    fun installationDescription(): JPanel {
+    fun initializationDescription(): JPanel {
         descriptionPanel = JPanel()
         descriptionPanel.layout = GridLayoutManager(2, 1, Insets(0, 0, 0, 0), -1, -1)
         val imagePanel = JPanel()
         imagePanel.add(JLabel(IconLoader.getIcon("/icons/checkov_m.svg")), createGridRowCol(0,0,GridConstraints.ANCHOR_NORTHEAST))
         val scanningPanel = JPanel()
-        scanningPanel.add(JLabel("Checkov is being installed"),  createGridRowCol(1,0,GridConstraints.ANCHOR_NORTH))
+        scanningPanel.add(JLabel("Checkov is being initialized"),  createGridRowCol(1,0,GridConstraints.ANCHOR_NORTH))
         descriptionPanel.add(imagePanel, createGridRowCol(0,0,GridConstraints.ANCHOR_NORTHEAST))
         descriptionPanel.add(scanningPanel, createGridRowCol(1,0,GridConstraints.ANCHOR_NORTH))
         return descriptionPanel

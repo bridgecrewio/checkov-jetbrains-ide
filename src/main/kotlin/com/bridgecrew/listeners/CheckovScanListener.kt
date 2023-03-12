@@ -14,11 +14,11 @@ interface CheckovScanListener {
 
     fun scanningFinished()
 
-    fun frameworkScanningFinished()
+//    fun frameworkScanningFinished()
 
-    fun scanningFinished(fileName: String)
-
-    fun scanningParsingError()
-
-    fun scanningError()
+//    fun scanningFinished(fileName: String)
+//
+//    fun scanningParsingError(result: String, dataSource: String, error: Exception)
+//
+//    fun scanningError(result: String, dataSource: String, error: Exception)
 }

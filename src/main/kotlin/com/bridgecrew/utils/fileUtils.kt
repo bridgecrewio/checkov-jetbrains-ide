@@ -7,7 +7,10 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
+import org.apache.commons.io.FileUtils
+import org.apache.commons.io.FilenameUtils
 import org.jetbrains.rpc.LOG
+import java.io.File
 import java.net.URL
 
 fun navigateToFile(fileToNavigate: PsiFile) {
@@ -127,4 +130,24 @@ fun getGitIgnoreValues(project: Project): List<String> {
         LOG.error(Exception("error while reading .gitignore file", e))
     }
     return arrayListOf()
+}
+
+fun extractFileNameFromPath(filePath: String): String {
+    val filename: String = FilenameUtils.getName(filePath)
+    val extension: String = FilenameUtils.getExtension(filename)
+    return filename.removeSuffix(".$extension")
+}
+
+fun addLogsDirectoryToGitIgnore(project: Project) {
+    val file = File("${project.basePath}/.gitignore")
+
+    if (!file.exists()) {
+        file.createNewFile()
+        file.writeText(ERROR_LOG_DIR_PATH)
+        return
+    }
+
+    if (!file.readLines().any { line -> line.trim() == ERROR_LOG_DIR_PATH }) {
+        file.appendText("\n${ERROR_LOG_DIR_PATH}\n")
+    }
 }

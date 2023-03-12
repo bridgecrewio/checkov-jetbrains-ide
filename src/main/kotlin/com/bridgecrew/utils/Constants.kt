@@ -14,10 +14,11 @@ object PANELTYPE {
     const val CHECKOV_SCAN_ERROR = 4
     const val CHECKOV_PRE_SCAN = 5
     const val CHECKOV_SCAN_PARSING_ERROR = 6
-    const val CHECKOV_INSTALATION_STARTED = 7
+    const val CHECKOV_INITIALIZATION_PROGRESS = 7
 }
 
 const val DEFAULT_TIMEOUT: Long = 80000
+const val FULL_SCAN_FRAMEWORK_DEFAULT_TIMEOUT: Long = 180000
 
 const val GIT_DEFAULT_REPOSITORY_NAME = "jetbrains/extension"
 
@@ -36,3 +37,5 @@ enum class FileType {
     DOCKERFILE,
     UNKNOWN
 }
+
+const val ERROR_LOG_DIR_PATH = "prisma/error/logs"
