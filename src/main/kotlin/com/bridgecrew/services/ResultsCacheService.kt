@@ -1,28 +1,21 @@
 package com.bridgecrew.services
 
 import com.bridgecrew.CheckovResult
-//import com.bridgecrew.ResourceToCheckovResultsList
-//import com.bridgecrew.extractFailesCheckAndParsingErrorsFromCheckovResult
 import com.bridgecrew.results.*
 import com.bridgecrew.utils.CheckovUtils
 import com.intellij.openapi.components.Service
 import kotlin.io.path.Path
-import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
-import java.io.File
 
 @Service
 class ResultsCacheService(val project: Project) {
-    private val LOG = logger<ResultsCacheService>()
     private var checkovResults: MutableList<BaseCheckovResult> = mutableListOf()
-//    private val results: MutableMap<String, ResourceToCheckovResultsList> = mutableMapOf()
     private val checkovResultsComparator: Comparator<BaseCheckovResult> = compareBy({ it.filePath }, { it.resource }, {it.severity})
     private val baseDir: String = project.basePath!!
 
     fun getAllCheckovResults(): List<BaseCheckovResult> {
         return this.checkovResults
     }
-
 
     fun getCheckovResultsFilteredBySeverityGroupedByPath(severitiesToFilterBy: List<Severity>?): Map<String, List<BaseCheckovResult>> {
         if(severitiesToFilterBy != null) {
@@ -34,26 +27,12 @@ class ResultsCacheService(val project: Project) {
         }
 
         return this.checkovResults.groupBy { it.filePath.toString() }
-//        return mutableMapOf()
     }
-
-//    fun getAllResults(): MutableMap<String, ResourceToCheckovResultsList> {
-//        return results
-//    }
-//
-//    fun setResult(key: String, value: ResourceToCheckovResultsList) {
-//        results[key] = value
-//    }
-
     fun addCheckovResult(checkovResult: BaseCheckovResult) {
         checkovResults.add(checkovResult)
     }
 
     fun addCheckovResults(newCheckovResults: List<CheckovResult>) {
-//        if (checkovResults.isEmpty()) {
-//            LOG.debug("Results are empty, file scan result will not be added")
-//            return
-//        }
         newCheckovResults.forEach { newCheckovResult ->
             run {
                 checkovResults.removeIf { savedCheckovResult -> savedCheckovResult.absoluteFilePath == newCheckovResult.file_abs_path }
@@ -63,12 +42,6 @@ class ResultsCacheService(val project: Project) {
 
         setCheckovResultsFromResultsList(newCheckovResults)
     }
-
-//    fun deleteAll() {
-//        results.keys.forEach {
-//            results.remove(it)
-//        }
-//    }
 
     fun deleteAllCheckovResults() {
         checkovResults.clear()
@@ -146,7 +119,6 @@ class ResultsCacheService(val project: Project) {
         }
     }
     private fun addToSorted(checkovResult: BaseCheckovResult) {
-//        checkovResults.add(checkovResult)
         val index = checkovResults.binarySearch(checkovResult, checkovResultsComparator)
         val insertionPoint =
                 if (index < 0) {
@@ -179,7 +151,7 @@ class ResultsCacheService(val project: Project) {
         throw Exception("Scan type is not found in the result!")
     }
 
-    fun getResourceName(result: CheckovResult, category: Category): String? {
+    private fun getResourceName(result: CheckovResult, category: Category): String? {
         return when (category) {
             Category.IAC, Category.SECRETS -> {
                 result.check_name

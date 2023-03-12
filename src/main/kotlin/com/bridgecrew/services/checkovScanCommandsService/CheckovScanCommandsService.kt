@@ -54,7 +54,7 @@ abstract class CheckovScanCommandsService(val project: Project) {
                     "Please insert an Api Token to continue")
         }
 
-        return arrayListOf("-s", "--bc-api-key", apiToken, "--repo-id", gitRepo, "-o", "json") //, "--quiet" )
+        return arrayListOf("-s", "--bc-api-key", apiToken, "--repo-id", gitRepo, "-o", "json")
     }
 
     private fun getExcludePathCommand(): ArrayList<String> {

@@ -83,24 +83,6 @@ class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindow
         return descriptionPanel
     }
 
-    fun errorScanDescription(): JPanel {
-        descriptionPanel = JPanel()
-        descriptionPanel.add(JLabel("Checkov has failed to run on the file"), BorderLayout.CENTER) //
-        return descriptionPanel
-    }
-
-    fun errorParsingScanDescription(): JPanel {
-        descriptionPanel = JPanel()
-        descriptionPanel.add(JLabel("Checkov has failed to run on the file due to parsing errors, Please make sure that you file is valid."), BorderLayout.CENTER)
-        return descriptionPanel
-    }
-
-    fun successfulScanDescription(fileName: String): JPanel {
-        descriptionPanel = JPanel()
-        descriptionPanel.add(JLabel("Checkov scanning finished, No errors have been detected in this file: $fileName"), BorderLayout.CENTER)
-        return descriptionPanel
-    }
-
     /**
      * Create description for specific checkov result.
      */

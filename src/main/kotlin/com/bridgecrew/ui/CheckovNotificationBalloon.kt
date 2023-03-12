@@ -14,7 +14,6 @@ class CheckovNotificationBalloon {
                     notificationType
             )
             notification.notify(project)
-
         }
     }
 }

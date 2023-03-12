@@ -1,10 +1,8 @@
 package com.bridgecrew.ui
 
-import com.bridgecrew.errors.CheckovErrorHandlerService
-import com.bridgecrew.services.scan.CheckovScanService
 import com.bridgecrew.listeners.CheckovScanListener
 import com.bridgecrew.listeners.CheckovSettingsListener
-import com.bridgecrew.services.ResultsCacheService
+import com.bridgecrew.services.scan.CheckovScanService
 import com.bridgecrew.settings.CheckovSettingsState
 import com.bridgecrew.ui.vulnerabilitiesTree.CheckovToolWindowTree
 import com.bridgecrew.utils.FULL_SCAN_EXCLUDED_PATHS
@@ -15,6 +13,7 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.project.Project
@@ -34,6 +33,8 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
 
     private val checkovDescription = CheckovToolWindowDescriptionPanel(project)
     private val mainPanelSplitter = OnePixelSplitter(PANEL_SPLITTER_KEY, 0.5f)
+    private val LOG = logger<CheckovToolWindowManagerPanel>()
+
     /**
      * Create Splitter element which contains the tree element and description element
      * @return JBSplitter
@@ -50,32 +51,14 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
         removeAll()
         add(CheckovActionToolbar(null), BorderLayout.NORTH)
         when (panelType) {
-            PANELTYPE.CHECKOV_SCAN_ERROR -> {
-                add(checkovDescription.errorScanDescription())
-            }
-            PANELTYPE.CHECKOV_SCAN_STARTED -> {
-                add(checkovDescription.duringScanDescription("Scanning your file..."))
-            }
             PANELTYPE.CHECKOV_REPOSITORY_SCAN_STARTED -> {
                 add(checkovDescription.duringScanDescription("Scanning your repository..."))
             }
-            PANELTYPE.CHECKOV_PRE_SCAN -> {
-                add(checkovDescription.preScanDescription())
-            }
-            PANELTYPE.CHECKOV_SCAN_FINISHED_EMPTY -> {
-                add(checkovDescription.successfulScanDescription(fileName))
-            }
-            PANELTYPE.CHECKOV_SCAN_PARSING_ERROR -> {
-                add(checkovDescription.errorParsingScanDescription())
-            }
+
             PANELTYPE.CHECKOV_INITIALIZATION_PROGRESS -> {
                 add(checkovDescription.initializationDescription())
             }
             PANELTYPE.CHECKOV_SCAN_FINISHED -> {
-//                if (project.service<ResultsCacheService>().getAllCheckovResults().isEmpty()) {
-//                    return
-//                }
-
                 removeAll()
                 val checkovTree = CheckovToolWindowTree(project, mainPanelSplitter, checkovDescription)
                 val descriptionPanel = checkovDescription.emptyDescription()
@@ -120,11 +103,11 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
         // subscribe to update file events
         project.messageBus.connect().subscribe(VirtualFileManager.VFS_CHANGES, object : BulkFileListener {
             override fun after(events: MutableList<out VFileEvent>) {
+                LOG.debug("file event for file: ${events[0].file!!.path}. isValid: ${events[0].isValid}, isFromRefresh: ${events[0].isFromRefresh}, isFromSave: ${events[0].isFromSave}, requestor: ${events[0].requestor}")
+
                 if (events.isEmpty() || !events[0].isFromSave || events[0].file == null) {
                     return
                 }
-
-                System.out.println("TESSST ${events[0].file!!.path} isValid: ${events[0].isValid}} isFromRefresh:" + events[0].isFromRefresh + " isFromSave: " + events[0].isFromSave + " hash ${events[0].file.hashCode()} requester: ${events[0].requestor}")
 
                 if (shouldScanFile(events[0].file!!)){
                     project.service<CheckovScanService>().scanFile(events[0].file!!.path, project);
@@ -138,11 +121,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
             return false
         }
 
-        var virtualFilePath: String = virtualFile.path.removePrefix(project.basePath!!).removePrefix(File.separator) // virtualFile.path.replace(project.basePath!!, "")
-
-//        if (virtualFilePath.startsWith(File.separator)) {
-//            virtualFilePath = virtualFilePath.removePrefix(File.separator)
-//        }
+        val virtualFilePath: String = virtualFile.path.removePrefix(project.basePath!!).removePrefix(File.separator) // virtualFile.path.replace(project.basePath!!, "")
 
         val excludedPaths = (getGitIgnoreValues(project) + FULL_SCAN_EXCLUDED_PATHS).distinct()
 
@@ -154,9 +133,6 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
         // Subscribe to Scanning Topic
         project.messageBus.connect(this)
             .subscribe(CheckovScanListener.SCAN_TOPIC, object: CheckovScanListener {
-                override fun scanningStarted() {
-                    project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_SCAN_STARTED)
-                }
 
                 override fun projectScanningStarted() {
                     project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_REPOSITORY_SCAN_STARTED)
@@ -167,26 +143,6 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                         project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_SCAN_FINISHED)
                     }
                 }
-//                override fun scanningFinished(result: String, dataSource: String, error: Exception) {
-//                    ApplicationManager.getApplication().invokeLater {
-//                        project.service<CheckovErrorHandlerService>().saveErrorResultToFile(result, dataSource, error)
-//                    }
-//                }
-
-//                override fun frameworkScanningFinished() {
-////                    CheckovNotificationBalloon.showFullScanError(project)
-//                }
-
-//                override fun scanningError(result: String, dataSource: String, error: Exception) {
-//                    ApplicationManager.getApplication().invokeLater {
-//                        project.service<CheckovErrorHandlerService>().saveErrorResultToFile(result, dataSource, error)
-//                    }
-//                }
-//                override fun scanningParsingError() {
-//                    ApplicationManager.getApplication().invokeLater {
-//                        project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_SCAN_PARSING_ERROR)
-//                    }
-//                }
             })
 
         // Subscribe to Settings Topic

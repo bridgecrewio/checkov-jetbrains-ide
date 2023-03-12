@@ -1,7 +1,6 @@
 package com.bridgecrew.utils
 
 import com.bridgecrew.*
-//import com.bridgecrew.getFailedChecksFromObj
 import com.bridgecrew.results.BaseCheckovResult
 import com.google.gson.reflect.TypeToken
 import com.intellij.openapi.diagnostic.logger
@@ -45,6 +44,7 @@ class CheckovUtils {
                 '{' -> {
                     return extractFailedChecksAndParsingErrorsFromObj(JSONObject(checkovResult))
                 }
+
                 '[' -> {
                     val resultsArray = JSONArray(checkovResult)
 

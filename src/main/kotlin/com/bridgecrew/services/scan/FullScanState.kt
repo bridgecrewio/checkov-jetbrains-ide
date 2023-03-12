@@ -22,7 +22,6 @@ class FullScanStateService {
             val totalErrors = project.service<ResultsCacheService>().getAllCheckovResults().size
             val errorMessage = "Checkov has detected $totalErrors configuration errors in your project. Check out the tool window to analyze your code"
             CheckovNotificationBalloon.showNotification(project, errorMessage, NotificationType.INFORMATION)
-//            CheckovErrorNotificationBalloon.showError(project, "", NotificationType.INFORMATION)
         }
     }
 }

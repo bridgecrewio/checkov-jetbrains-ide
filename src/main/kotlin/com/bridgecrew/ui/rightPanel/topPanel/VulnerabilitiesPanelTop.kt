@@ -18,7 +18,7 @@ class VulnerabilitiesPanelTop(val result: VulnerabilityCheckovResult): CheckovDe
 
     private fun createDescriptionPanelTitleActions(): JPanel {
         val panel = createActionsPanel()
-        if(! CheckovUtils.isCustomPolicy(result)){
+        if (!CheckovUtils.isCustomPolicy(result)) {
             panel.add(DocumentationButton(result.guideline, result.id))
         }
         panel.add(SuppressionButton(result))
