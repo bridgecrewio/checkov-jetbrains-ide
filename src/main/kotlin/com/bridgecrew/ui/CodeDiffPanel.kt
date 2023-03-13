@@ -51,6 +51,13 @@ class CodeDiffPanel(val result: BaseCheckovResult): JPanel() {
 
     private fun buildFixLines(): String {
 //        return result.fixDefinition
-        return "resource \"google_compute_subnetwork\" \"region_default_subnetwork\" {\n  #checkov:skip=CKV_GCP_26: \"Ensure that VPC Flow Logs is enabled for every subnet in a VPC Network\"\n  project                  = google_project.tenant_project.project_id\n  name                     = \"subnetwork-\${var.lcaas}-\${var.region}\"\n  ip_cidr_range            = \"10.181.0.0/20\"\n  region                   = var.region\n  network                  = google_compute_network.default_network.self_link\n  private_ip_google_access = true\n  private_ipv6_google_access = true\n}"
+        val fixDefinition = "resource \"google_compute_subnetwork\" \"region_default_subnetwork\" {\n  #checkov:skip=CKV_GCP_26: \"Ensure that VPC Flow Logs is enabled for every subnet in a VPC Network\"\n  project                  = google_project.tenant_project.project_id\n  name                     = \"subnetwork-\${var.lcaas}-\${var.region}\"\n  ip_cidr_range            = \"10.181.0.0/20\"\n  region                   = var.region\n  network                  = google_compute_network.default_network.self_link\n  private_ip_google_access = true\n  private_ipv6_google_access = true\n}"
+        var currentLine = (result.codeBlock[0][0] as Double).toInt()
+        var fixWithRowNumber = ""
+        fixDefinition.split("\n").forEach { codeRow ->
+            fixWithRowNumber += "$currentLine\t$codeRow\n"
+            currentLine++
+        }
+        return fixWithRowNumber
     }
 }
