@@ -4,6 +4,7 @@ import com.bridgecrew.results.BaseCheckovResult
 import com.bridgecrew.ui.CodeDiffPanel
 import com.intellij.ui.components.JBScrollPane
 import java.awt.Dimension
+import java.awt.Point
 import javax.swing.*
 
 open class CheckovExtraInfoPanel(val result: BaseCheckovResult): JPanel() {
@@ -32,6 +33,9 @@ open class CheckovExtraInfoPanel(val result: BaseCheckovResult): JPanel() {
         if(result.fixDefinition != null){
             val scroll = JBScrollPane(CodeDiffPanel(result))
             scroll.preferredSize = Dimension(Short.MAX_VALUE.toInt(), Short.MAX_VALUE.toInt())
+            SwingUtilities.invokeLater(Runnable {
+                scroll.viewport.viewPosition = Point(0,0)
+            })
             add(scroll)
         }
     }
