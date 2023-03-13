@@ -2,10 +2,11 @@ package com.bridgecrew.ui.rightPanel.extraInfoPanel
 
 import com.bridgecrew.results.BaseCheckovResult
 import com.bridgecrew.ui.CodeDiffPanel
+import com.intellij.ui.components.JBScrollPane
 import java.awt.Dimension
 import javax.swing.*
 
-open class CheckovExtraInfoPanel: JPanel() {
+open class CheckovExtraInfoPanel(val result: BaseCheckovResult): JPanel() {
 
     fun initLayout() {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
@@ -21,13 +22,17 @@ open class CheckovExtraInfoPanel: JPanel() {
     }
 
     fun setDimensions(){
-        add(Box.Filler(Dimension(0,0), Dimension(0, Short.MAX_VALUE.toInt()), Dimension(0, Short.MAX_VALUE.toInt())))
+        if(result.fixDefinition == null) {
+            add(Box.Filler(Dimension(0,0), Dimension(0, Short.MAX_VALUE.toInt()), Dimension(0, Short.MAX_VALUE.toInt())))
+        }
         preferredSize = Dimension(this.width, 0)
     }
 
-    fun addCodeDiffPanel(result: BaseCheckovResult){
-//        if(result.fixDefinition != null){
-            add(CodeDiffPanel(result))
-//        }
+    fun addCodeDiffPanel(){
+        if(result.fixDefinition != null){
+            val scroll = JBScrollPane(CodeDiffPanel(result))
+            scroll.preferredSize = Dimension(Short.MAX_VALUE.toInt(), Short.MAX_VALUE.toInt())
+            add(scroll)
+        }
     }
 }
