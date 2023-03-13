@@ -1,7 +1,7 @@
 package com.bridgecrew.ui.rightPanel.dictionaryDetails
 
 import com.bridgecrew.results.BaseCheckovResult
-import com.bridgecrew.utils.isCustomPolicy
+import com.bridgecrew.utils.CheckovUtils
 import com.intellij.util.ui.JBUI
 import java.awt.Dimension
 import java.awt.Font
@@ -20,7 +20,7 @@ abstract class DictionaryExtraInfoPanel : JPanel() {
     }
 
     fun addCustomPolicyGuidelinesIfNeeded(result: BaseCheckovResult){
-        if(isCustomPolicy(result) && result.guideline != null){
+        if(CheckovUtils.isCustomPolicy(result) && result.guideline != null){
             fieldsMap["Guidelines"] = "<html>${result.guideline}<html>"
         }
     }

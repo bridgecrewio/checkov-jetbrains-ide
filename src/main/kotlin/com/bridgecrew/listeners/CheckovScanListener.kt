@@ -8,17 +8,7 @@ interface CheckovScanListener {
             Topic.create("Checkov scan", CheckovScanListener::class.java)
     }
 
-    fun scanningStarted()
-
     fun projectScanningStarted()
 
     fun scanningFinished()
-
-    fun frameworkScanningFinished()
-
-    fun scanningFinished(fileName: String)
-
-    fun scanningParsingError()
-
-    fun scanningError()
 }

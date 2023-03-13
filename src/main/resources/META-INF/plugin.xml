@@ -28,6 +28,8 @@
                              groupId="tools"
                              displayName="Checkov"/>
         <applicationService serviceImplementation="com.bridgecrew.settings.CheckovSettingsState"/>
+        <notificationGroup id="CheckovError"
+                           displayType="BALLOON"/>
 
     </extensions>
 

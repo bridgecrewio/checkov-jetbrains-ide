@@ -58,7 +58,7 @@ class SuppressionButton(private var result: BaseCheckovResult): CheckovLinkButto
         if(fileType == FileType.DOCKERFILE) {
             return 0
         }
-        return result.fileLineRange[0] - 1
+        return result.fileLineRange[0]
     }
 
     private fun generateCheckovSuppressionComment(): String {
