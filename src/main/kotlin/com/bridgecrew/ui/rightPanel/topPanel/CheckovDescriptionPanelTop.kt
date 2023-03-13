@@ -2,8 +2,8 @@ package com.bridgecrew.ui.rightPanel.topPanel
 
 import com.bridgecrew.results.BaseCheckovResult
 import com.bridgecrew.results.Severity
+import com.bridgecrew.utils.CheckovUtils
 import com.bridgecrew.utils.getSeverityIconBySeverity
-import com.bridgecrew.utils.isCustomPolicy
 import com.bridgecrew.utils.isUrl
 import java.awt.BorderLayout
 import java.awt.Dimension
@@ -22,7 +22,7 @@ open class CheckovDescriptionPanelTop : JPanel() {
     }
 
     fun getTitle(result: BaseCheckovResult): String {
-        return if(isCustomPolicy(result)){
+        return if (CheckovUtils.isCustomPolicy(result)){
             "(custom policy) ${result.name}"
         } else {
             result.id
@@ -36,6 +36,6 @@ open class CheckovDescriptionPanelTop : JPanel() {
     }
 
     fun isShowDocumentationButton(result: BaseCheckovResult): Boolean {
-        return ! isCustomPolicy(result) && result.guideline != null && isUrl(result.guideline)
+        return !CheckovUtils.isCustomPolicy(result) && result.guideline != null && isUrl(result.guideline)
     }
 }
