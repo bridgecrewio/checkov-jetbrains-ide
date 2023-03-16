@@ -1,18 +1,19 @@
 package com.bridgecrew.ui.buttons
 
 import com.bridgecrew.results.BaseCheckovResult
+import com.bridgecrew.ui.SuppressionDialog
 import com.bridgecrew.utils.FileType
 import com.bridgecrew.utils.getFileType
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.LocalFileSystem
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
-import javax.swing.JOptionPane
 
 const val suppressionButtonText = "Suppress"
 
@@ -34,9 +35,11 @@ class SuppressionButton(private var result: BaseCheckovResult): CheckovLinkButto
             Messages.showInfoMessage("File type $fileType cannot be suppressed inline", "Prisma Cloud");
             return
         }
-        val userInput = JOptionPane.showInputDialog(null, "Enter Suppression Justification", "Suppress Inline", JOptionPane.INFORMATION_MESSAGE)
-        if(userInput != null && userInput.isNotEmpty()){
-            generateComment(fileType, userInput)
+
+        val dialog = SuppressionDialog()
+        dialog.show()
+        if(dialog.exitCode == DialogWrapper.OK_EXIT_CODE) {
+            generateComment(fileType, dialog.userJustification)
         }
     }
 
@@ -70,7 +73,7 @@ class SuppressionButton(private var result: BaseCheckovResult): CheckovLinkButto
     }
 
     private fun generateCheckovSuppressionComment(userReason: String?): String {
-        val reason = userReason ?: "ADD REASON"
+        val reason = if(userReason.isNullOrEmpty()) "ADD REASON" else userReason
         return "#checkov:skip=${result.id}: $reason"
     }
 
