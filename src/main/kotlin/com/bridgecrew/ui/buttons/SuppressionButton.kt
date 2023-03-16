@@ -12,10 +12,11 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.LocalFileSystem
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
+import javax.swing.JOptionPane
 
 const val suppressionButtonText = "Suppress"
 
-class SuppressionButton(private var result: BaseCheckovResult): CheckovLinkButton(suppressionButtonText), ActionListener {
+class SuppressionButton(private var result: BaseCheckovResult): CheckovLinkButton(suppressionButtonText), ActionListener  {
 
     init {
         addActionListener(this)
@@ -33,7 +34,14 @@ class SuppressionButton(private var result: BaseCheckovResult): CheckovLinkButto
             Messages.showInfoMessage("File type $fileType cannot be suppressed inline", "Prisma Cloud");
             return
         }
-        val suppressionComment = generateCheckovSuppressionComment()
+        val userInput = JOptionPane.showInputDialog(null, "Enter Suppression Justification", "Suppress Inline", JOptionPane.INFORMATION_MESSAGE)
+        if(userInput != null && userInput.isNotEmpty()){
+            generateComment(fileType, userInput)
+        }
+    }
+
+    private fun generateComment(fileType: FileType, userReason: String?) {
+        val suppressionComment = generateCheckovSuppressionComment(userReason)
         val document = getDocument(result.absoluteFilePath)
         val lineNumber = getLineNumber(fileType)
         if(document != null && ! isSuppressionExists(document, lineNumber, suppressionComment)) {
@@ -61,8 +69,9 @@ class SuppressionButton(private var result: BaseCheckovResult): CheckovLinkButto
         return result.fileLineRange[0]
     }
 
-    private fun generateCheckovSuppressionComment(): String {
-        return "#checkov:skip=${result.id}: ADD REASON"
+    private fun generateCheckovSuppressionComment(userReason: String?): String {
+        val reason = userReason ?: "ADD REASON"
+        return "#checkov:skip=${result.id}: $reason"
     }
 
     private fun addTextToFile(document: Document, lineNumber: Int, suppressionComment: String) {
