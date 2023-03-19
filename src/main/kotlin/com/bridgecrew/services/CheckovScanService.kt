@@ -189,7 +189,7 @@ class CheckovScanService {
 
             processHandler.startNotify()
             if (!processHandler.waitFor(DEFAULT_TIMEOUT)) {
-                throw ExecutionException(ExecutionBundle.message("script.execution.timeout", (DEFAULT_TIMEOUT / 1000).toString()))
+                throw ExecutionException("Script execution took more than ${(DEFAULT_TIMEOUT / 1000)} seconds")
             }
             return Pair(debugOutputBuilder.toString(), checkovOutputBuilder.toString())
         }
