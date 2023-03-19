@@ -1,9 +1,6 @@
 package com.bridgecrew.ui.rightPanel
 
-import com.bridgecrew.results.BaseCheckovResult
-import com.bridgecrew.results.Category
-import com.bridgecrew.results.LicenseCheckovResult
-import com.bridgecrew.results.VulnerabilityCheckovResult
+import com.bridgecrew.results.*
 import com.bridgecrew.ui.rightPanel.extraInfoPanel.*
 import com.bridgecrew.ui.rightPanel.topPanel.*
 import javax.swing.*
@@ -19,10 +16,10 @@ class CheckovErrorRightPanel(var result: BaseCheckovResult): JPanel() {
 
     private fun createTitlePanel(): JPanel {
         val titlePanel = when(result.category) {
-            Category.IAC -> IacPanelTop(result)
+            Category.IAC -> IacPanelTop(result as IacCheckovResult)
             Category.VULNERABILITIES -> VulnerabilitiesPanelTop(result as VulnerabilityCheckovResult)
-            Category.SECRETS -> SecretsPanelTop(result)
-            Category.LICENSES -> LicensePanelTop(result)
+            Category.SECRETS -> SecretsPanelTop(result as SecretsCheckovResult)
+            Category.LICENSES -> LicensePanelTop(result as LicenseCheckovResult)
         }
         return titlePanel
     }

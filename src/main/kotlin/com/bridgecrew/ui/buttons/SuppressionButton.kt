@@ -1,12 +1,14 @@
 package com.bridgecrew.ui.buttons
 
 import com.bridgecrew.results.BaseCheckovResult
+import com.bridgecrew.ui.SuppressionDialog
 import com.bridgecrew.utils.FileType
 import com.bridgecrew.utils.getFileType
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.LocalFileSystem
@@ -15,7 +17,7 @@ import java.awt.event.ActionListener
 
 const val suppressionButtonText = "Suppress"
 
-class SuppressionButton(private var result: BaseCheckovResult): CheckovLinkButton(suppressionButtonText), ActionListener {
+class SuppressionButton(private var result: BaseCheckovResult): CheckovLinkButton(suppressionButtonText), ActionListener  {
 
     init {
         addActionListener(this)
@@ -33,7 +35,16 @@ class SuppressionButton(private var result: BaseCheckovResult): CheckovLinkButto
             Messages.showInfoMessage("File type $fileType cannot be suppressed inline", "Prisma Cloud");
             return
         }
-        val suppressionComment = generateCheckovSuppressionComment()
+
+        val dialog = SuppressionDialog()
+        dialog.show()
+        if(dialog.exitCode == DialogWrapper.OK_EXIT_CODE) {
+            generateComment(fileType, dialog.userJustification)
+        }
+    }
+
+    private fun generateComment(fileType: FileType, userReason: String?) {
+        val suppressionComment = generateCheckovSuppressionComment(userReason)
         val document = getDocument(result.absoluteFilePath)
         val lineNumber = getLineNumber(fileType)
         if(document != null && ! isSuppressionExists(document, lineNumber, suppressionComment)) {
@@ -61,8 +72,9 @@ class SuppressionButton(private var result: BaseCheckovResult): CheckovLinkButto
         return result.fileLineRange[0]
     }
 
-    private fun generateCheckovSuppressionComment(): String {
-        return "#checkov:skip=${result.id}: ADD REASON"
+    private fun generateCheckovSuppressionComment(userReason: String?): String {
+        val reason = if(userReason.isNullOrEmpty()) "ADD REASON" else userReason
+        return "#checkov:skip=${result.id}: $reason"
     }
 
     private fun addTextToFile(document: Document, lineNumber: Int, suppressionComment: String) {
