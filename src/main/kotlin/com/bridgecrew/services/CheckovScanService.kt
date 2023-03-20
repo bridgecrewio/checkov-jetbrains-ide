@@ -11,21 +11,20 @@ import com.bridgecrew.settings.CheckovSettingsState
 import com.bridgecrew.ui.CheckovNotificationBalloon
 import com.bridgecrew.utils.DEFAULT_TIMEOUT
 import com.bridgecrew.utils.defaultRepoName
+import com.intellij.execution.ExecutionException
 import com.intellij.execution.configurations.GeneralCommandLine
-import com.intellij.execution.process.OSProcessHandler
-import com.intellij.execution.process.ProcessHandler
-import com.intellij.execution.process.ScriptRunnerUtil
+import com.intellij.execution.process.*
+import com.intellij.ide.plugins.PluginManagerCore
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
-import com.intellij.openapi.project.Project
-import com.intellij.ide.plugins.PluginManagerCore
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.progress.Task
-
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Key
 import org.json.JSONException
 import java.nio.charset.Charset
 import javax.swing.SwingUtilities
@@ -91,23 +90,23 @@ class CheckovScanService {
         }
     }
 
-    private fun analyzeScan(result: String, errorCode: Int, project: Project, filePath: String){
-        if (result.contains("Please check your API token")) {
+    private fun analyzeScan(checkovResult: String, debugOutput: String, errorCode: Int, project: Project, filePath: String){
+        if (debugOutput.contains("Please check your API token")) {
             LOG.warn("Please check you API token\n\n" +
-                    " $result")
+                    " $debugOutput\n$checkovResult")
             project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningError()
             return
         }
-        if (errorCode != 0 || result.contains("[ERROR]")) {
+        if (errorCode != 0 || debugOutput.contains("[ERROR]")) {
             LOG.warn("Error scanning file\n" +
-                    "To report: open an issue at https://github.com/bridgecrewio/checkov-jetbrains-ide/issues\n\n $result")
+                    "To report: open an issue at https://github.com/bridgecrewio/checkov-jetbrains-ide/issues\n\n $debugOutput\n$checkovResult")
             project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningError()
             return
         }
         try {
             if (filePath == currentFile) {  // To show only the last run of checkov ( on the opened file)
                 val filePathRelativeToProject = filePath.replace(project.basePath!!, "")
-                val (resultsGroupedByResource, resultsLength) = getGroupedResults(result,
+                val (resultsGroupedByResource, resultsLength) = getGroupedResults(checkovResult,
                     project,
                     filePathRelativeToProject)
                 project.service<ResultsCacheService>()
@@ -122,7 +121,7 @@ class CheckovScanService {
             }
         } catch (e: JSONException) {
             LOG.warn("Error parsing checkov results \n" +
-                    "Raw response: $result\n" +
+                    "Raw response: $debugOutput\n$checkovResult\n" +
                     "To report: open a issue at https://github.com/bridgecrewio/checkov-jetbrains-ide/issues\n\n")
             e.printStackTrace()
             project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningError()
@@ -155,18 +154,45 @@ class CheckovScanService {
         return cmds
     }
 
-    private class ScanTask(project: Project, title: String, val filePath: String, val processHandler: ProcessHandler):
-        Task.Backgroundable(project, title,true) {
+    private class ScanTask(project: Project, title: String, val filePath: String, val processHandler: ProcessHandler) :
+            Task.Backgroundable(project, title, true) {
         override fun run(indicator: ProgressIndicator) {
-                indicator.isIndeterminate = false
-                val output = ScriptRunnerUtil.getProcessOutput(processHandler,
-                    ScriptRunnerUtil.STDOUT_OR_STDERR_OUTPUT_KEY_FILTER,
-                    DEFAULT_TIMEOUT)
-                LOG.info("Checkov task output:")
-                LOG.info(output)
-                project.service<CheckovScanService>().analyzeScan(output, processHandler.exitCode!!, project, filePath)
-            }
+            indicator.isIndeterminate = false
+            val processOutputs = getProcessOutputs()
+            LOG.info("Checkov task output:")
+            LOG.info(processOutputs.first + "\n" + processOutputs.second)
+            project.service<CheckovScanService>().analyzeScan(processOutputs.second, processOutputs.first, processHandler.exitCode!!, project, filePath)
         }
+
+        private fun getProcessOutputs(): Pair<String, String> {
+            LOG.assertTrue(!processHandler.isStartNotified)
+            val checkovOutputBuilder = StringBuilder()
+            val debugOutputBuilder = StringBuilder()
+            processHandler.addProcessListener(object : ProcessAdapter() {
+                override fun onTextAvailable(event: ProcessEvent, outputType: Key<*>) {
+                    if (outputType == ProcessOutputTypes.SYSTEM) {
+                        return
+                    }
+
+                    val text = event.text
+
+                    if (outputType == ProcessOutputTypes.STDOUT) {
+                        checkovOutputBuilder.append(text)
+                    } else if (outputType == ProcessOutputTypes.STDERR) {
+                        debugOutputBuilder.append(text)
+                    }
+
+                    LOG.debug(text)
+                }
+            })
+
+            processHandler.startNotify()
+            if (!processHandler.waitFor(DEFAULT_TIMEOUT)) {
+                throw ExecutionException("Script execution took more than ${(DEFAULT_TIMEOUT / 1000)} seconds")
+            }
+            return Pair(debugOutputBuilder.toString(), checkovOutputBuilder.toString())
+        }
+    }
 
     private fun replaceApiToken(command: String): String {
         val apiToknIndex = command.indexOf("--bc-api-key")

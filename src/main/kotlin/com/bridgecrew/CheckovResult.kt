@@ -30,18 +30,8 @@ fun getFailedChecksFromResultString(raw: String): ArrayList<CheckovResult> {
     if (raw.isEmpty()){
         throw CheckovResultException("Checkov result returned empty")
     }
-    var checkovResult = "checkovResult"
-    val outputListOfLines = raw.split("\n").map { it.trim() }
-    for (i in outputListOfLines.indices) {
-        // filter lines that can appear in the Python version output, like '[GCC 10.2.1 20210110]'
-        if (!outputListOfLines[i].startsWith('{') && !outputListOfLines[i].startsWith('[') ||
-                (outputListOfLines[i].startsWith("[") && outputListOfLines[i].endsWith("]"))){
-            continue
-        }
-        checkovResult = outputListOfLines.subList(i,outputListOfLines.size-1).joinToString("\n")
-        break
-    }
-    checkovResult = checkovResult.replace("\u001B[0m","")
+
+    var checkovResult = raw.replace("\u001B[0m","")
 
     return when (checkovResult[0]) {
         '{' -> getFailedChecksFromObj(JSONObject(checkovResult))
