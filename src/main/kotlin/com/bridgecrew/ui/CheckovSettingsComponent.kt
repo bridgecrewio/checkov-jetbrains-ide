@@ -18,7 +18,7 @@ class CheckovSettingsComponent () {
 
     init {
         rootPanel.layout = GridLayoutManager(1, 2, Insets(0, 0, 0, 0), -1, -1)
-        val settingsPanel = JPanel(GridLayoutManager(4, 2, Insets(0, 0, 0, 0), -1, -1))
+        val settingsPanel = JPanel(GridLayoutManager(5, 2, Insets(0, 0, 0, 0), -1, -1))
 
         val apiTokenLabel = JLabel("Token (Required)")
         apiTokenLabel.labelFor = apiTokenField
@@ -35,10 +35,13 @@ class CheckovSettingsComponent () {
         settingsPanel.add(certificateLabel, createGridRowCol(2,0,GridConstraints.ANCHOR_WEST))
         settingsPanel.add(certificateField, createGridRowCol(2,1,GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL))
 
-        val noCertVerifyLabel = JLabel("No cert verify - warning: use for testing only")
+        val noCertVerifyLabel = JLabel("Skip SSL cert verification")
         noCertVerifyLabel.labelFor = noCertVerifyField
         settingsPanel.add(noCertVerifyLabel, createGridRowCol(3,0,GridConstraints.ANCHOR_WEST))
         settingsPanel.add(noCertVerifyField, createGridRowCol(3,1,GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL))
+
+        val noCertVerifyWarning = JLabel("Warning: this is risky and prevents detecting invalid certificates - use for testing only")
+        settingsPanel.add(noCertVerifyWarning, createGridRowCol(4,0,GridConstraints.ANCHOR_WEST))
 
         rootPanel.add(settingsPanel, GridConstraints(
             0,
