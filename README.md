@@ -54,7 +54,7 @@ The Checkov plugin will invoke the latest version of ```Checkov```.
 
 ### Configuration
 
-* Sign up to a Bridgecrew Community account [here](http://bridgecrew.cloud/). If you already have an account, sign in and go to the next step.
+* Sign up to a Bridgecrew Community account [here](https://bridgecrew.cloud/). If you already have an account, sign in and go to the next step.
 
 * From [Integrations](https://www.bridgecrew.cloud/integrations/api-token), select **API Token** and copy the API key.
 * In Jetbrains, enter your API Token in the Checkov plugin settings page under tools.  
