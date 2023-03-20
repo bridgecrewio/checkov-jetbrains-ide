@@ -146,11 +146,16 @@ class CheckovScanService {
 
     private fun getCertParams(cmds: ArrayList<String>): ArrayList<String> {
         val certPath = settings?.certificate
+        val noCertVerify = settings?.noCertVerify
         if (!certPath.isNullOrEmpty()) {
             cmds.add("-ca")
             cmds.add(certPath)
-            return cmds
         }
+
+        if (noCertVerify == true) {
+            cmds.add("--no-cert-verify")
+        }
+
         return cmds
     }
 
