@@ -82,9 +82,10 @@ class CheckovToolWindowTree(val project: Project, val split: JBSplitter, private
 
     private fun addErrorNodesToFileNode(fileWithErrorsNode: DefaultMutableTreeNode, resultsPerFile: List<BaseCheckovResult>) {
         val resultsGroupedByResource = resultsPerFile.groupBy { it.resource }
+        val parentIcon = (fileWithErrorsNode.userObject as CheckovFileTreeNode).getNodeIcon()
 
         resultsGroupedByResource.forEach { (resource, results) ->
-            val resourceNode = DefaultMutableTreeNode(CheckovResourceTreeNode(resource))
+            val resourceNode = DefaultMutableTreeNode(CheckovResourceTreeNode(resource, parentIcon))
             results.forEach { checkovResult ->
                 val checkName = DefaultMutableTreeNode(CheckovVulnerabilityTreeNode(checkovResult))
                 resourceNode.add(checkName)
