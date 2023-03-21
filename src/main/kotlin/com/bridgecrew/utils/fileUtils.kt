@@ -102,8 +102,15 @@ fun getFileType(filePath: String): FileType {
         when(fileParts[1]) {
             "json" -> FileType.JSON
             "tf" -> FileType.TERRAFORM
+            "js" -> FileType.JAVASCRIPT
+            "ts" -> FileType.TYPESCRIPT
+            "py" -> FileType.PYTHON
+            "txt" -> FileType.TEXT
             "yml", "yaml" -> FileType.YAML
             "Dockerfile" -> FileType.DOCKERFILE
+            "xml" -> FileType.XML
+            "kt" -> FileType.KOTLIN
+            "java", "jar" -> FileType.JAVA
             else -> FileType.UNKNOWN
         }
     } else {

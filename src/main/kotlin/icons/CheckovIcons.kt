@@ -6,6 +6,10 @@ object CheckovIcons {
 
     val ErrorIcon = IconLoader.getIcon("/icons/balloonError.svg", javaClass)
     val TerraformIcon = IconLoader.getIcon("/icons/terraform.svg", javaClass)
+    val TypeScriptIcon = IconLoader.getIcon("/icons/TypeScriptFile.svg", javaClass)
+    val pythonIcon = IconLoader.getIcon("/icons/python.svg", javaClass)
+    val dockerIcon = IconLoader.getIcon("/icons/Docker.svg", javaClass)
+    val kotlinIcon = IconLoader.getIcon("/icons/kotlin.svg", javaClass)
     val SeverityUnknown = IconLoader.getIcon("/icons/severity_unknown.svg", javaClass)
     val SeverityLow = IconLoader.getIcon("/icons/severity_low.svg", javaClass)
     val SeverityMedium = IconLoader.getIcon("/icons/severity_medium.svg", javaClass)

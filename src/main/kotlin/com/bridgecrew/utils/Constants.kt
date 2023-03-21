@@ -29,6 +29,13 @@ enum class FileType {
     TERRAFORM,
     YAML,
     DOCKERFILE,
+    JAVASCRIPT,
+    TYPESCRIPT,
+    JAVA,
+    KOTLIN,
+    PYTHON,
+    TEXT,
+    XML,
     UNKNOWN
 }
 

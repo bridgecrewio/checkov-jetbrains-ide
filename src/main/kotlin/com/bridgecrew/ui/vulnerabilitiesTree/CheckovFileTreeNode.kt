@@ -20,7 +20,16 @@ class CheckovFileTreeNode(val fileName: String): CheckovTreeNode {
 
     private val iconMap: Map<FileType, Icon> = mapOf(
             FileType.TERRAFORM to CheckovIcons.TerraformIcon,
+            FileType.YAML to AllIcons.FileTypes.Yaml,
+            FileType.DOCKERFILE to CheckovIcons.dockerIcon,
             FileType.JSON to AllIcons.FileTypes.Json,
+            FileType.JAVASCRIPT to AllIcons.FileTypes.JavaScript,
+            FileType.TYPESCRIPT to CheckovIcons.TypeScriptIcon,
+            FileType.PYTHON to CheckovIcons.pythonIcon,
+            FileType.TEXT to AllIcons.FileTypes.Text,
+            FileType.JAVA to AllIcons.FileTypes.Java,
+            FileType.XML to AllIcons.FileTypes.Xml,
+            FileType.KOTLIN to CheckovIcons.kotlinIcon,
             FileType.UNKNOWN to AllIcons.FileTypes.Any_type
     )
 
