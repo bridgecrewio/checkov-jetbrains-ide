@@ -1,5 +1,6 @@
 package com.bridgecrew.services.scan
 
+import com.bridgecrew.analytics.AnalyticsService
 import com.bridgecrew.errors.CheckovErrorHandlerService
 import com.bridgecrew.listeners.CheckovScanListener
 import com.bridgecrew.services.ResultsCacheService
@@ -64,7 +65,6 @@ class CheckovScanService {
 
     fun scanProject(project: Project) {
         try {
-            project.service<FullScanStateService>().fullScanStarted()
             if (selectedCheckovScanner == null) {
                 LOG.warn("Checkov is not installed")
             }
@@ -76,6 +76,9 @@ class CheckovScanService {
 
             val execCommands: List<List<String>> = prepareRepositoryScanningExecCommand()
 
+            project.service<FullScanStateService>().fullScanStarted()
+            project.service<AnalyticsService>().fullScanStarted()
+
             execCommands.forEach { execCommand ->
                 run {
                     val processHandler: ProcessHandler = OSProcessHandler(generateCheckovCommand(execCommand))
@@ -83,6 +86,7 @@ class CheckovScanService {
                     val frameworkIndex = execCommand.indexOf("--framework") + 1
                     val framework = execCommand[frameworkIndex]
                     val scanTask = ScanTask(project, "Checkov scanning repository by framework $framework", framework, processHandler, ScanSourceType.FRAMEWORK)
+                    project.service<AnalyticsService>().fullScanByFrameworkStarted(framework)
                     if (SwingUtilities.isEventDispatchThread()) {
                         ProgressManager.getInstance().run(scanTask)
                     } else {
@@ -179,7 +183,7 @@ class CheckovScanService {
 
             project.service<ResultsCacheService>().addCheckovResults(extractionResult.failedChecks)
             CheckovNotificationBalloon.showNotification(project, "Checkov scanning finished for ${scanSourceType.toString().lowercase()}: ${scanningSource.replace(project.basePath!!, "")}, please check the results panel.", NotificationType.INFORMATION)
-            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished()
+            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished(scanSourceType)
 
         } catch (error: Exception) {
             project.service<CheckovErrorHandlerService>().scanningError(result, scanningSource, error, scanSourceType)
@@ -213,7 +217,7 @@ class CheckovScanService {
             LOG.info("Checkov scan task finished successfully for ${scanSourceType.toString().lowercase()} $scanSource")
 
             if (scanSourceType == ScanSourceType.FRAMEWORK) {
-                project.service<FullScanStateService>().fullScanFrameworkFinished(project)
+                project.service<FullScanStateService>().fullScanFrameworkFinished(project, scanSource)
             }
 
             project.service<CheckovScanService>().analyzeScan(output, processHandler.exitCode!!, project, scanSource, scanSourceType)
