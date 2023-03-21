@@ -14,10 +14,11 @@ class AnalyticsService {
     private var fullScanNumber = 0
 
     fun fullScanButtonWasPressed() {
+        val fullScanButtonWasPressedDate = Date()
         fullScanNumber += 1
         LOG.info("Prisma Plugin Analytics - scan #${fullScanNumber} - full scan button was pressed")
         fullScanData = FullScanData(fullScanNumber)
-        fullScanData.fullScanButtonPressedTime = Date()
+        fullScanData.fullScanButtonPressedTime = fullScanButtonWasPressedDate
     }
 
     fun fullScanStarted() {
