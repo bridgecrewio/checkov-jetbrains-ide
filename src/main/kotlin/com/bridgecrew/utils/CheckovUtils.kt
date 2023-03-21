@@ -25,20 +25,9 @@ class CheckovUtils {
                 return CheckovResultExtractionData(arrayListOf(), arrayListOf())
 
             }
-            var checkovResult = "checkovResult"
-            val outputListOfLines = rawResult.split("\n").map { it.trim() }
-            for (i in outputListOfLines.indices) {
-                // filter lines that can appear in the Python version output, like '[GCC 10.2.1 20210110]'
-                if (!outputListOfLines[i].startsWith('{') && !outputListOfLines[i].startsWith('[') ||
-                        (outputListOfLines[i].startsWith("[") && outputListOfLines[i].endsWith("]"))) {
-                    continue
-                }
-                checkovResult = outputListOfLines.subList(i, outputListOfLines.size - 1).joinToString("\n")
-                break
-            }
 
-            LOG.info("found checkov result for source $scanningSource") // - $checkovResult")
-            checkovResult = checkovResult.replace("\u001B[0m", "")
+            LOG.info("found checkov result for source $scanningSource")
+            val checkovResult = rawResult.replace("\u001B[0m", "")
 
             return when (checkovResult[0]) {
                 '{' -> {

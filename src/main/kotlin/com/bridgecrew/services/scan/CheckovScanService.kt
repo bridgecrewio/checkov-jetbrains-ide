@@ -50,13 +50,18 @@ class CheckovScanService {
             val processHandler: ProcessHandler = OSProcessHandler(generalCommandLine)
             val scanTask = ScanTask(project, "Checkov scanning file $filePath", filePath, processHandler, ScanSourceType.FILE)
 
-            if (SwingUtilities.isEventDispatchThread()) {
-                ProgressManager.getInstance().run(scanTask)
-            } else {
-                ApplicationManager.getApplication().invokeLater {
-                    ProgressManager.getInstance().run(scanTask)
+            ApplicationManager.getApplication().executeOnPooledThread {
+                kotlin.run {
+                    if (SwingUtilities.isEventDispatchThread()) {
+                        ProgressManager.getInstance().run(scanTask)
+                    } else {
+                        ApplicationManager.getApplication().invokeLater {
+                            ProgressManager.getInstance().run(scanTask)
+                        }
+                    }
                 }
             }
+
         } catch (e: Exception) {
             LOG.error(e)
             return
@@ -87,11 +92,15 @@ class CheckovScanService {
                     val framework = execCommand[frameworkIndex]
                     val scanTask = ScanTask(project, "Checkov scanning repository by framework $framework", framework, processHandler, ScanSourceType.FRAMEWORK)
                     project.service<AnalyticsService>().fullScanByFrameworkStarted(framework)
-                    if (SwingUtilities.isEventDispatchThread()) {
-                        ProgressManager.getInstance().run(scanTask)
-                    } else {
-                        ApplicationManager.getApplication().invokeLater {
-                            ProgressManager.getInstance().run(scanTask)
+                    ApplicationManager.getApplication().executeOnPooledThread {
+                        kotlin.run {
+                            if (SwingUtilities.isEventDispatchThread()) {
+                                ProgressManager.getInstance().run(scanTask)
+                            } else {
+                                ApplicationManager.getApplication().invokeLater {
+                                    ProgressManager.getInstance().run(scanTask)
+                                }
+                            }
                         }
                     }
                 }
@@ -163,66 +172,52 @@ class CheckovScanService {
             command
         }
     }
-    private fun analyzeScan(result: String, errorCode: Int, project: Project, scanningSource: String, scanSourceType: ScanSourceType) {
-        if (!isValidScanResults(result, errorCode, scanningSource, scanSourceType, project)) {
+    fun analyzeScan(scanTaskResult: ScanTaskResult, errorCode: Int, project: Project, scanningSource: String, scanSourceType: ScanSourceType) {
+        if (!isValidScanResults(scanTaskResult, errorCode, scanningSource, scanSourceType, project)) {
             return
         }
 
         try {
-            val extractionResult: CheckovResultExtractionData = CheckovUtils.extractFailedChecksAndParsingErrorsFromCheckovResult(result, scanningSource)
+            val extractionResult: CheckovResultExtractionData = CheckovUtils.extractFailedChecksAndParsingErrorsFromCheckovResult(scanTaskResult.checkovResult.readText(), scanningSource)
 
             if (extractionResult.parsingErrors.isNotEmpty()) {
-                project.service<CheckovErrorHandlerService>().scanningParsingError(result, scanningSource, extractionResult.parsingErrors, scanSourceType)
+                project.service<CheckovErrorHandlerService>().scanningParsingError(scanTaskResult, scanningSource, extractionResult.parsingErrors, scanSourceType)
             }
 
             if (extractionResult.failedChecks.isEmpty()) {
-                CheckovNotificationBalloon.showNotification(project, "Checkov scanning finished, no errors have been detected for ${scanSourceType.toString().lowercase()}: $scanningSource", NotificationType.INFORMATION)
-                LOG.info("Checkov scanning finished, No errors have been detected for ${scanSourceType.toString().lowercase()}: ${scanningSource.replace(project.basePath!!, "")}")
+                if (extractionResult.parsingErrors.isEmpty()) {
+                    CheckovNotificationBalloon.showNotification(project, "Checkov scanning finished, no errors have been detected for ${scanSourceType.toString().lowercase()}: $scanningSource", NotificationType.INFORMATION)
+                    LOG.info("Checkov scanning finished, No errors have been detected for ${scanSourceType.toString().lowercase()}: ${scanningSource.replace(project.basePath!!, "")}")
+                }
+                scanTaskResult.checkovResult.delete()
+                scanTaskResult.debugOutput.delete()
                 return
             }
 
             project.service<ResultsCacheService>().addCheckovResults(extractionResult.failedChecks)
             CheckovNotificationBalloon.showNotification(project, "Checkov scanning finished for ${scanSourceType.toString().lowercase()}: ${scanningSource.replace(project.basePath!!, "")}, please check the results panel.", NotificationType.INFORMATION)
             project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished(scanSourceType)
+            scanTaskResult.checkovResult.delete()
+            scanTaskResult.debugOutput.delete()
 
         } catch (error: Exception) {
-            project.service<CheckovErrorHandlerService>().scanningError(result, scanningSource, error, scanSourceType)
+            project.service<CheckovErrorHandlerService>().scanningError(scanTaskResult, scanningSource, error, scanSourceType)
         }
     }
 
-    private fun isValidScanResults(result: String, errorCode: Int, scanningSource: String, scanSourceType: ScanSourceType, project: Project): Boolean {
-        if (result.contains("Please check your API token")) {
-            project.service<CheckovErrorHandlerService>().scanningError(result, scanningSource, Exception("Please check your API token"), scanSourceType)
+    private fun isValidScanResults(scanTaskResult: ScanTaskResult, errorCode: Int, scanningSource: String, scanSourceType: ScanSourceType, project: Project): Boolean {
+        if (scanTaskResult.errorReason.contains("Please check your API token")) {
+            project.service<CheckovErrorHandlerService>().scanningError(scanTaskResult, scanningSource, Exception("Please check your API token"), scanSourceType)
 
             LOG.error("Please check you API token\n\n")
             return false
         }
-        if (errorCode != 0 || result.contains("[ERROR]")) {
-            project.service<CheckovErrorHandlerService>().scanningError(result, scanningSource, Exception("Error while scanning $scanningSource, exit code - $errorCode"), scanSourceType)
+        if (errorCode != 0 || scanTaskResult.errorReason.isNotEmpty()) {
+            project.service<CheckovErrorHandlerService>().scanningError(scanTaskResult, scanningSource, Exception("Error while scanning $scanningSource, exit code - $errorCode"), scanSourceType)
             return false
         }
 
         return true
-    }
-
-    private class ScanTask(project: Project, title: String, val scanSource: String, val processHandler: ProcessHandler, val scanSourceType: ScanSourceType) :
-            Task.Backgroundable(project, title, true) {
-        override fun run(indicator: ProgressIndicator) {
-            LOG.info("Going to scan for ${scanSourceType.toString().lowercase()} $scanSource")
-            indicator.isIndeterminate = false
-            val output = ScriptRunnerUtil.getProcessOutput(processHandler,
-                    ScriptRunnerUtil.STDOUT_OR_STDERR_OUTPUT_KEY_FILTER,
-                    DEFAULT_TIMEOUT)
-
-            LOG.info("Checkov scan task finished successfully for ${scanSourceType.toString().lowercase()} $scanSource")
-
-            if (scanSourceType == ScanSourceType.FRAMEWORK) {
-                project.service<FullScanStateService>().fullScanFrameworkFinished(project, scanSource)
-            }
-
-            project.service<CheckovScanService>().analyzeScan(output, processHandler.exitCode!!, project, scanSource, scanSourceType)
-
-        }
     }
 
     enum class ScanSourceType {
