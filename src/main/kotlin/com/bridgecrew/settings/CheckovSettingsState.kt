@@ -17,6 +17,7 @@ class CheckovSettingsState() : PersistentStateComponent<CheckovSettingsState> {
     var apiToken: String = ""
     var certificate: String = ""
     var prismaURL: String = ""
+    var noCertVerify: Boolean = false
 
     fun getInstance(): CheckovSettingsState? {
         return ApplicationManager.getApplication().getService(CheckovSettingsState::class.java)

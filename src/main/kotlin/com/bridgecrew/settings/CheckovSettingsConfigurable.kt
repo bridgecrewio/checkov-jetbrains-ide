@@ -21,7 +21,8 @@ class CheckovSettingsConfigurable(val project: Project) : Configurable {
         val settings = CheckovSettingsState().getInstance()
         return !checkovSettingsComponent.apiTokenField.text.equals(settings?.apiToken) ||
                 !checkovSettingsComponent.certificateField.text.equals(settings?.certificate) ||
-                !checkovSettingsComponent.prismaURLField.text.equals(settings?.prismaURL)
+                !checkovSettingsComponent.prismaURLField.text.equals(settings?.prismaURL) ||
+                !checkovSettingsComponent.noCertVerifyField.isSelected().equals(settings?.noCertVerify)
     }
 
     override fun apply() {
@@ -30,6 +31,7 @@ class CheckovSettingsConfigurable(val project: Project) : Configurable {
         settings?.apiToken = checkovSettingsComponent.apiTokenField.text.trim()
         settings?.certificate = checkovSettingsComponent.certificateField.text.trim()
         settings?.prismaURL = checkovSettingsComponent.prismaURLField.text.trim()
+        settings?.noCertVerify = checkovSettingsComponent.noCertVerifyField.isSelected()
         if (apiTokenModified){
             project.messageBus.syncPublisher(CheckovSettingsListener.SETTINGS_TOPIC).settingsUpdated()
         }
@@ -41,6 +43,7 @@ class CheckovSettingsConfigurable(val project: Project) : Configurable {
         checkovSettingsComponent.apiTokenField.text = setting?.apiToken
         checkovSettingsComponent.certificateField.text = setting?.certificate
         checkovSettingsComponent.prismaURLField.text = setting?.prismaURL
+        checkovSettingsComponent.noCertVerifyField.setSelected(setting?.noCertVerify == true)
 
 
     }
