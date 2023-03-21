@@ -1,5 +1,6 @@
 package com.bridgecrew.services.scan
 
+import com.bridgecrew.analytics.AnalyticsService
 import com.bridgecrew.services.ResultsCacheService
 import com.bridgecrew.ui.CheckovNotificationBalloon
 import com.bridgecrew.utils.DESIRED_NUMBER_OF_FRAMEWORK_FOR_FULL_SCAN
@@ -16,12 +17,14 @@ class FullScanStateService {
         fullScanFinishedFrameworksNumber = 0
     }
 
-    fun fullScanFrameworkFinished(project: Project) {
+    fun fullScanFrameworkFinished(project: Project, framework: String) {
+        project.service<AnalyticsService>().fullScanByFrameworkFinished(framework)
         fullScanFinishedFrameworksNumber++
         if (fullScanFinishedFrameworksNumber == DESIRED_NUMBER_OF_FRAMEWORK_FOR_FULL_SCAN) {
             val totalErrors = project.service<ResultsCacheService>().getAllCheckovResults().size
             val errorMessage = "Checkov has detected $totalErrors configuration errors in your project. Check out the tool window to analyze your code"
             CheckovNotificationBalloon.showNotification(project, errorMessage, NotificationType.INFORMATION)
+            project.service<AnalyticsService>().fullScanFinished()
         }
     }
 }

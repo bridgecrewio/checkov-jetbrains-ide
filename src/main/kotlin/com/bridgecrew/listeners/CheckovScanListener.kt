@@ -1,4 +1,5 @@
 package com.bridgecrew.listeners
+import com.bridgecrew.services.scan.CheckovScanService
 import com.intellij.util.messages.Topic
 
 interface CheckovScanListener {
@@ -10,5 +11,5 @@ interface CheckovScanListener {
 
     fun projectScanningStarted()
 
-    fun scanningFinished()
+    fun scanningFinished(scanSourceType: CheckovScanService.ScanSourceType)
 }

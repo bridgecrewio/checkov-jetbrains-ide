@@ -14,7 +14,8 @@ import java.io.PrintWriter
 import java.nio.charset.Charset
 import java.nio.file.Files
 import kotlin.io.path.Path
-
+import com.bridgecrew.analytics.AnalyticsService
+import com.intellij.openapi.components.service
 
 @Service
 class CheckovErrorHandlerService(val project: Project) {
@@ -87,6 +88,7 @@ class CheckovErrorHandlerService(val project: Project) {
 
             CheckovScanService.ScanSourceType.FRAMEWORK -> {
                 saveParsingErrorResultToFile(result, "framework", source, source, failedFiles, scanSourceType)
+                project.service<AnalyticsService>().fullScanFrameworkError(source)
             }
         }
 
@@ -101,7 +103,9 @@ class CheckovErrorHandlerService(val project: Project) {
 
             CheckovScanService.ScanSourceType.FRAMEWORK -> {
                 saveErrorResultToFile(result, "framework", source, source, error, scanSourceType)
-                            }
+                project.service<AnalyticsService>().fullScanFrameworkError(source)
+
+            }
         }
 
     }

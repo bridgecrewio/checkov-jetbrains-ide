@@ -1,5 +1,6 @@
 package com.bridgecrew.ui
 
+import com.bridgecrew.analytics.AnalyticsService
 import com.bridgecrew.listeners.CheckovScanListener
 import com.bridgecrew.listeners.CheckovSettingsListener
 import com.bridgecrew.services.scan.CheckovScanService
@@ -47,7 +48,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
         const val PANEL_SPLITTER_KEY = "CHECKOV_PANEL_SPLITTER_KEY"
     }
 
-    fun loadMainPanel(panelType: Int = PANELTYPE.AUTO_CHOOSE_PANEL, fileName: String = "") {
+    fun loadMainPanel(panelType: Int = PANELTYPE.AUTO_CHOOSE_PANEL, scanSourceType: CheckovScanService.ScanSourceType? = null) {
         removeAll()
         add(CheckovActionToolbar(null), BorderLayout.NORTH)
         when (panelType) {
@@ -77,6 +78,9 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
             }
         }
         revalidate()
+        if (panelType == PANELTYPE.CHECKOV_SCAN_FINISHED && scanSourceType != null && scanSourceType == CheckovScanService.ScanSourceType.FRAMEWORK) {
+            project.service<AnalyticsService>().fullScanResultsWereFullyDisplayed()
+        }
     }
 
     fun subscribeToProjectEventChange() {
@@ -138,9 +142,9 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                     project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_REPOSITORY_SCAN_STARTED)
                 }
 
-                override fun scanningFinished() {
+                override fun scanningFinished(scanSourceType: CheckovScanService.ScanSourceType) {
                     ApplicationManager.getApplication().invokeLater {
-                        project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_SCAN_FINISHED)
+                        project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_SCAN_FINISHED, scanSourceType)
                     }
                 }
             })

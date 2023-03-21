@@ -1,5 +1,6 @@
 package com.bridgecrew.ui.actions
 
+import com.bridgecrew.analytics.AnalyticsService
 import com.bridgecrew.services.scan.CheckovScanService
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnAction
@@ -11,6 +12,7 @@ class CheckovScanAction : AnAction(AllIcons.Actions.Execute), DumbAware {
 
     override fun actionPerformed(actionEvent: AnActionEvent) {
         val project = actionEvent.project
-        project?.service<CheckovScanService>()?.scanProject(project)
+        project!!.service<AnalyticsService>().fullScanButtonWasPressed()
+        project.service<CheckovScanService>().scanProject(project)
     }
 }
