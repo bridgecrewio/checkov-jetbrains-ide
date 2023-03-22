@@ -1,8 +1,7 @@
-package com.bridgecrew.ui
+package com.bridgecrew.ui.topPanel
 
 import com.bridgecrew.ui.actions.SeverityFilterActions
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import icons.CheckovIcons
@@ -17,7 +16,7 @@ data class ScanResultMetadata (
         val scanDuration: Long
 )
 
-class CheckovActionToolbar(val metadata: ScanResultMetadata?) : SimpleToolWindowPanel(true, true), Disposable {
+class CheckovTopPanel(val metadata: ScanResultMetadata?) : SimpleToolWindowPanel(true, true), Disposable {
 
     private val actionManager = ActionManager.getInstance()
 
@@ -35,10 +34,7 @@ class CheckovActionToolbar(val metadata: ScanResultMetadata?) : SimpleToolWindow
     }
 
     private fun createActionGroupPanel(actionToolbarPanel: JPanel){
-        val actionGroupToolbar = actionManager.getAction("com.bridgecrew.checkovScanActions") as ActionGroup
-        val actionToolbar = actionManager.createActionToolbar("Checkov Action Toolbar", actionGroupToolbar, true)
-        actionToolbar.setTargetComponent(this)
-        actionToolbarPanel.add(actionToolbar.component)
+        actionToolbarPanel.add(CheckovActionToolbar.actionToolBar.component)
     }
 
     private fun addSeverityLabel(actionToolbarPanel: JPanel){
