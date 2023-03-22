@@ -56,6 +56,11 @@ class AnalyticsService {
         LOG.info("Prisma Plugin Analytics - scan #${fullScanNumber} - error while scanning framework $framework")
     }
 
+    fun updateScanTotalFiles(passedFiles: Int, failedFiles: Int) {
+        fullScanData.totalPassed += passedFiles
+        fullScanData.totalFailed += failedFiles
+    }
+
     private fun logFullScanAnalytics() {
         var maximumScanFramework = 0L
         var minimumScanFramework = 0L
@@ -116,8 +121,15 @@ class AnalyticsService {
         lateinit var fullScanFinishedTime: Date
         lateinit var fullScanResultsWereFullyDisplayedTime: Date
         val fullScanFrameworkErrors = mutableSetOf<String>()
+        var totalPassed: Int = 0
+        var totalFailed: Int = 0
 
         fun isFullScanFinished() = ::fullScanFinishedTime.isInitialized
+        fun isFullScanStarted() = ::fullScanStartedTime.isInitialized
+    }
+
+    fun getFullScanData(): FullScanData? {
+        return if(this::fullScanData.isInitialized) this.fullScanData else null
     }
 
     data class FullScanFrameworkScanTimeData(val startTime: Date) {

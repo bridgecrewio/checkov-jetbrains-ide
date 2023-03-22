@@ -7,7 +7,6 @@ import com.bridgecrew.services.scan.CheckovScanService
 import com.bridgecrew.settings.CheckovSettingsState
 import com.bridgecrew.ui.actions.CheckovScanAction
 import com.bridgecrew.ui.topPanel.CheckovTopPanel
-import com.bridgecrew.ui.topPanel.ScanResultMetadata
 import com.bridgecrew.ui.vulnerabilitiesTree.CheckovToolWindowTree
 import com.bridgecrew.utils.FULL_SCAN_EXCLUDED_PATHS
 import com.bridgecrew.utils.PANELTYPE
@@ -53,7 +52,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
 
     fun loadMainPanel(panelType: Int = PANELTYPE.AUTO_CHOOSE_PANEL, scanSourceType: CheckovScanService.ScanSourceType? = null) {
         removeAll()
-        add(CheckovTopPanel(null), BorderLayout.NORTH)
+        add(CheckovTopPanel(project), BorderLayout.NORTH)
         when (panelType) {
             PANELTYPE.CHECKOV_REPOSITORY_SCAN_STARTED -> {
                 add(checkovDescription.duringScanDescription("Scanning your repository..."))
@@ -67,7 +66,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                 val checkovTree = CheckovToolWindowTree(project, mainPanelSplitter, checkovDescription)
                 val descriptionPanel = checkovDescription.emptyDescription()
                 val filesTreePanel = checkovTree.createScroll()
-                add(CheckovTopPanel(ScanResultMetadata(4, 35, 5222)), BorderLayout.NORTH)
+                add(CheckovTopPanel(project), BorderLayout.NORTH)
                 mainPanelSplitter.firstComponent = filesTreePanel
                 mainPanelSplitter.secondComponent = descriptionPanel
                 add(mainPanelSplitter)
