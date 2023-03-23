@@ -107,6 +107,10 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
         // subscribe to update file events
         project.messageBus.connect().subscribe(VirtualFileManager.VFS_CHANGES, object : BulkFileListener {
             override fun after(events: MutableList<out VFileEvent>) {
+                if (events.isEmpty()) {
+                    return
+                }
+
                 LOG.debug("file event for file: ${events[0].file!!.path}. isValid: ${events[0].isValid}, isFromRefresh: ${events[0].isFromRefresh}, isFromSave: ${events[0].isFromSave}, requestor: ${events[0].requestor}")
 
                 if (events.isEmpty() || !events[0].isFromSave || events[0].file == null) {
