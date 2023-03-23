@@ -39,4 +39,4 @@ enum class FileType {
     UNKNOWN
 }
 
-const val ERROR_LOG_DIR_PATH = "prisma/error/logs"
+//const val ERROR_LOG_DIR_PATH = "prisma/error/logs"

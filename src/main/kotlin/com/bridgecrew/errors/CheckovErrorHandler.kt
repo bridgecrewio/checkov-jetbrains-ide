@@ -2,7 +2,7 @@ package com.bridgecrew.errors
 
 import com.bridgecrew.services.scan.CheckovScanService
 import com.bridgecrew.ui.CheckovNotificationBalloon
-import com.bridgecrew.utils.ERROR_LOG_DIR_PATH
+//import com.bridgecrew.utils.ERROR_LOG_DIR_PATH
 import com.bridgecrew.utils.extractFileNameFromPath
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.components.Service
@@ -24,8 +24,7 @@ class CheckovErrorHandlerService(val project: Project) {
     private val LOG = logger<CheckovErrorHandlerService>()
 
     fun notifyAboutScanError(scanTaskResult: ScanTaskResult, dataSourceValue: String, error: Exception, scanSourceType: CheckovScanService.ScanSourceType) {
-
-        var errorMessagePrefix = if (error.message != null) {
+        val errorMessagePrefix = if (error.message != null) {
             "Error while scanning ${scanSourceType.toString().lowercase()} ${dataSourceValue.replace(project.basePath!!, "")}, original error message - ${error.message}"
         } else "Error while scanning $dataSourceValue"
 

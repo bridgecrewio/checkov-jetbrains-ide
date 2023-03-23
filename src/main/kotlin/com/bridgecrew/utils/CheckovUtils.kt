@@ -44,7 +44,7 @@ class CheckovUtils {
                     for (resultItem in resultsArray) {
                         val extractionResult = extractFailedChecksAndParsingErrorsFromObj(resultItem as JSONObject)
                         failedChecks.addAll(extractionResult.failedChecks)
-                        parsingErrors += extractionResult.passedChecksSize
+                        parsingErrors += extractionResult.parsingErrorsSize
                         passedChecks += extractionResult.passedChecksSize
                     }
                     CheckovResultExtractionData(failedChecks, parsingErrors, passedChecks)

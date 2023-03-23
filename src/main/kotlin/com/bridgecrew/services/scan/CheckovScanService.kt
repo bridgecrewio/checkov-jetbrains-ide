@@ -309,6 +309,17 @@ class CheckovScanService {
             LOG.error("Please check you API token\n\n")
             return false
         }
+
+        if (scanTaskResult.errorReason.contains("missing dependencies (e.g., helm or kustomize, which require those tools to be on your system")) {
+            val errorMessage = "Framework $scanningSource was not scanned since it's probably not installed: ${scanTaskResult.errorReason}"
+            LOG.warn(errorMessage)
+            scanTaskResult.checkovResult.delete()
+            scanTaskResult.debugOutput.delete()
+            project.service<FullScanStateService>().frameworkWasNotScanned(scanningSource)
+            return false
+
+        }
+
         if (errorCode != 0 || scanTaskResult.errorReason.isNotEmpty()) {
             project.service<CheckovErrorHandlerService>().scanningError(scanTaskResult, scanningSource, Exception("Error while scanning $scanningSource, exit code - $errorCode, error reason - ${scanTaskResult.errorReason}"), scanSourceType)
             return false
