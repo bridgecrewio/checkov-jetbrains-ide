@@ -238,69 +238,6 @@ class CheckovScanService {
             project.service<CheckovErrorHandlerService>().scanningError(scanTaskResult, filePath, error, ScanSourceType.FILE)
         }
     }
-//    fun analyzeScan(scanTaskResult: ScanTaskResult, errorCode: Int, project: Project, scanningSource: String, scanSourceType: ScanSourceType) {
-//        if (!isValidScanResults(scanTaskResult, errorCode, scanningSource, scanSourceType, project)) {
-//            return
-//        }
-//
-//        try {
-//            val extractionResult: CheckovResultExtractionData = CheckovUtils.extractFailedChecksAndParsingErrorsFromCheckovResult(scanTaskResult.checkovResult.readText(), scanningSource)
-//
-//            if (extractionResult.parsingErrors.isNotEmpty()) {
-//                project.service<CheckovErrorHandlerService>().scanningParsingError(scanTaskResult, scanningSource, extractionResult.parsingErrors, scanSourceType)
-//            }
-//
-//            if (!isScanFinishedWithoutErrors(extractionResult, scanSourceType, scanningSource, project)) {
-//                project.service<ResultsCacheService>().addCheckovResults(extractionResult.failedChecks)
-//                LOG.info("Checkov scanning finished for ${scanSourceType.toString().lowercase()}: ${scanningSource.replace(project.basePath!!, "")}, ${extractionResult.parsingErrors.size} errors have been detected in $scanningSource")
-////            CheckovNotificationBalloon.showNotification(project, "Checkov scanning finished for ${scanSourceType.toString().lowercase()}: ${scanningSource.replace(project.basePath!!, "")}, please check the results panel.", NotificationType.INFORMATION)
-//                project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished(scanSourceType)
-//
-//                if (scanSourceType == ScanSourceType.FRAMEWORK)
-//                    project.service<FullScanStateService>().frameworkScanFinishedAndDetectedIssues()
-//            }
-//
-////            if ( dextractionResult.failedChecks.isEmpty()) {
-////                if (extractionResult.parsingErrors.isEmpty()) {
-//////                    CheckovNotificationBalloon.showNotification(project, "Checkov scanning finished, no errors have been detected for ${scanSourceType.toString().lowercase()}: $scanningSource", NotificationType.INFORMATION)
-////                    LOG.info("Checkov scanning finished, no errors have been detected for ${scanSourceType.toString().lowercase()}: ${scanningSource.replace(project.basePath!!, "")}")
-////                    project.service<FullScanStateService>().frameworkFinishedWithNoErrors(scanningSource)
-////
-////                }
-////                scanTaskResult.checkovResult.delete()
-////                scanTaskResult.debugOutput.delete()
-////                return
-////            }
-//
-//
-//            project.service<FullScanStateService>().totalPassedCheckovChecks += extractionResult.passedChecksSize
-//            project.service<FullScanStateService>().totalFailedCheckovChecks += extractionResult.failedChecks.size
-//            scanTaskResult.checkovResult.delete()
-//            scanTaskResult.debugOutput.delete()
-//
-//        } catch (error: Exception) {
-//            LOG.warn("Error while analyzing scan results for ${scanSourceType.toString().lowercase()} $scanningSource")
-//            project.service<CheckovErrorHandlerService>().scanningError(scanTaskResult, scanningSource, error, scanSourceType)
-//        }
-//    }
-
-
-//    private fun isScanFinishedWithoutErrors(extractionResult: CheckovResultExtractionData, scanSourceType: ScanSourceType, scanningSource: String, project: Project): Boolean {
-//        if (extractionResult.failedChecks.isNotEmpty()) {
-//            return false
-//        }
-//
-//        if (extractionResult.parsingErrors.isEmpty()) {
-////                    CheckovNotificationBalloon.showNotification(project, "Checkov scanning finished, no errors have been detected for ${scanSourceType.toString().lowercase()}: $scanningSource", NotificationType.INFORMATION)
-//            LOG.info("Checkov scanning finished, no errors have been detected for ${scanSourceType.toString().lowercase()}: ${scanningSource.replace(project.basePath!!, "")}")
-//
-//            if (scanSourceType == ScanSourceType.FRAMEWORK)
-//                project.service<FullScanStateService>().frameworkFinishedWithNoErrors(scanningSource)
-//
-//        }
-//
-//        return true
-//    }
 
     private fun isValidScanResults(scanTaskResult: ScanTaskResult, errorCode: Int, scanningSource: String, scanSourceType: ScanSourceType, project: Project): Boolean {
         if (scanTaskResult.errorReason.contains("Please check your API token")) {

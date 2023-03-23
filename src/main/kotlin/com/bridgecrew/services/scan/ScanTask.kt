@@ -1,7 +1,6 @@
 package com.bridgecrew.services.scan
 
 import com.bridgecrew.analytics.AnalyticsService
-import com.bridgecrew.errors.CheckovErrorHandlerService
 import com.bridgecrew.utils.DEFAULT_TIMEOUT
 import com.bridgecrew.utils.extractFileNameFromPath
 import com.intellij.execution.ExecutionException
@@ -15,7 +14,6 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
-import com.intellij.workspaceModel.ide.impl.jps.serialization.FileInDirectorySourceNames
 import java.io.File
 
 data class ScanTaskResult(
@@ -29,37 +27,9 @@ abstract class ScanTask(project: Project, title: String, private val sourceName:
 
     protected val LOG = logger<ScanTask>()
 
-//    private val sourceName = if (scanSourceType == CheckovScanService.ScanSourceType.FILE) {
-//        extractFileNameFromPath(scanSource)
-//    } else scanSource
     val checkovResultFile: File = File.createTempFile("${sourceName}-checkov-result", ".tmp")
     val debugOutputFile: File = File.createTempFile("${sourceName}-debug-output", ".tmp")
     var errorReason = ""
-
-//    override fun run(indicator: ProgressIndicator) {
-//        try {
-//            LOG.info("Going to scan for ${scanSourceType.toString().lowercase()} $scanSource")
-//            indicator.isIndeterminate = false
-//
-//            val scanTaskResult: ScanTaskResult = getScanOutputs()
-//
-//            LOG.info("Checkov scan task finished successfully for ${scanSourceType.toString().lowercase()} $scanSource")
-//
-//            if (scanSourceType == CheckovScanService.ScanSourceType.FRAMEWORK) {
-//                project.service<AnalyticsService>().fullScanByFrameworkFinished(scanSource)
-//            }
-//            project.service<CheckovScanService>().analyzeScan(scanTaskResult, processHandler.exitCode!!, project, scanSource, scanSourceType)
-//
-//        } catch (error: Exception) {
-//            LOG.error("error while scanning ${scanSourceType.toString().lowercase()} $scanSource", error)
-//            if (scanSourceType == CheckovScanService.ScanSourceType.FRAMEWORK) {
-//                project.service<FullScanStateService>().fullScanFrameworkFinished(project, scanSource)
-//                project.service<FullScanStateService>().frameworkFinishedWithErrors(scanSource, ScanTaskResult(checkovResultFile, debugOutputFile, errorReason))
-//            }
-//            throw error
-//        }
-//
-//    }
 
     protected fun getScanOutputs(): ScanTaskResult {
         LOG.assertTrue(!processHandler.isStartNotified)
@@ -123,7 +93,6 @@ abstract class ScanTask(project: Project, title: String, private val sourceName:
                 LOG.error("error while scanning framework $framework", error)
                 project.service<AnalyticsService>().fullScanByFrameworkFinished(framework)
 
-//                project.service<FullScanStateService>().fullScanFrameworkFinished(framework)
                 project.service<FullScanStateService>().frameworkFinishedWithErrors(framework, ScanTaskResult(checkovResultFile, debugOutputFile, errorReason))
                 throw error
             }

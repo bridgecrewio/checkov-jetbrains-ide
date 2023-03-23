@@ -88,11 +88,6 @@ class CheckovUtils {
         private fun extractParsingErrors(summary: JSONObject): Int {
             try {
                 return summary.getInt("parsing_errors")
-//                if (parsingErrorSummary > 0) {
-//                    val parsingErrorsList = object : TypeToken<List<String>>() {}.type
-//
-//                    return listOf() // TODO - after getting the correct fields from checkov - gson.fromJson(results.getJSONArray("parsing_errors").toString(), parsingErrorsList)
-//                }
             } catch (e: Exception) {
                 LOG.error("Error while extracting parsing errors", e)
             }

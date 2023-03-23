@@ -72,12 +72,7 @@ class AnalyticsService(val project: Project) {
         LOG.info("Prisma Plugin Analytics - scan #${fullScanNumber} - $numberOfVulnerabilities security issues were detected while scanning framework $framework")
     }
 
-//    fun updateScanTotalFiles(passedFiles: Int, failedFiles: Int) {
-//        fullScanData.totalPassed += passedFiles
-//        fullScanData.totalFailed += failedFiles
-//    }
     fun fullScanParsingError(framework: String, failedFilesSize: Int) {
-//        fullScanData.invalidFiles.addAll(failedFiles)
         LOG.info("Prisma Plugin Analytics - scan #${fullScanNumber} - parsing error while scanning framework $framework in $failedFilesSize files}")
     }
 
@@ -141,18 +136,10 @@ class AnalyticsService(val project: Project) {
         val frameworksScanTime: MutableMap<String, FullScanFrameworkScanTimeData> = mutableMapOf()
         lateinit var scanFinishedTime: Date
         lateinit var resultsWereFullyDisplayedTime: Date
-//        val frameworkScansFinishedWithErrors = mutableMapOf<String, ScanTaskResult>()
-//        val invalidFiles = mutableSetOf<String>()
-//        val frameworkScamsFinishedWithNoVulnerabilities = mutableSetOf<String>()
 
         fun isFullScanFinished() = ::scanFinishedTime.isInitialized
         fun isFullScanStarted() = ::scanStartedTime.isInitialized
     }
-//
-
-//    fun getFullScanData(): FullScanData? {
-//        return if(this::fullScanData.isInitialized) this.fullScanData else null
-//    }
 
     data class FullScanFrameworkScanTimeData(val startTime: Date) {
         var endTime: Date = Date()

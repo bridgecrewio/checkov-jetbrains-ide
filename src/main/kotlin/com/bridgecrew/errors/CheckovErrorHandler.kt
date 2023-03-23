@@ -2,19 +2,10 @@ package com.bridgecrew.errors
 
 import com.bridgecrew.services.scan.CheckovScanService
 import com.bridgecrew.ui.CheckovNotificationBalloon
-//import com.bridgecrew.utils.ERROR_LOG_DIR_PATH
-import com.bridgecrew.utils.extractFileNameFromPath
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
-import org.json.JSONObject
-import java.io.FileWriter
-import java.io.PrintWriter
-import java.nio.charset.Charset
-import java.nio.file.Files
-import kotlin.io.path.Path
-import com.bridgecrew.analytics.AnalyticsService
 import com.bridgecrew.services.scan.FullScanStateService
 import com.bridgecrew.services.scan.ScanTaskResult
 import com.intellij.openapi.components.service
@@ -49,21 +40,6 @@ class CheckovErrorHandlerService(val project: Project) {
                 errorMessage,
                 NotificationType.WARNING)
     }
-
-//    fun scanningParsingError(scanTaskResult: ScanTaskResult, source: String, failedFiles: List<String>) {
-//
-//        when (scanSourceType) {
-//            CheckovScanService.ScanSourceType.FILE -> {
-//                saveParsingErrorResultToFile(scanTaskResult, source, failedFiles, scanSourceType)
-//            }
-//
-////            CheckovScanService.ScanSourceType.FRAMEWORK -> {
-////                saveParsingErrorResultToFile(scanTaskResult, source, failedFiles, scanSourceType)
-////                project.service<FullScanStateService>().parsingErrorsFoundInFiles(source, failedFiles)
-////            }
-//        }
-//
-//    }
 
     fun scanningError(scanTaskResult: ScanTaskResult, source: String, error: Exception, scanSourceType: CheckovScanService.ScanSourceType) {
 

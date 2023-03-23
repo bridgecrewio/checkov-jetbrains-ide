@@ -10,7 +10,6 @@ import com.bridgecrew.ui.topPanel.CheckovTopPanel
 import com.bridgecrew.ui.vulnerabilitiesTree.CheckovToolWindowTree
 import com.bridgecrew.utils.FULL_SCAN_EXCLUDED_PATHS
 import com.bridgecrew.utils.PANELTYPE
-//import com.bridgecrew.utils.addLogsDirectoryToGitIgnore
 import com.bridgecrew.utils.getGitIgnoreValues
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
@@ -87,7 +86,6 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
     }
 
     fun subscribeToProjectEventChange() {
-//        addLogsDirectoryToGitIgnore(project)
         if (SwingUtilities.isEventDispatchThread()) {
             project.service<CheckovToolWindowManagerPanel>().loadMainPanel()
         } else {

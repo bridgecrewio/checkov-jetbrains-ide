@@ -144,17 +144,3 @@ fun extractFileNameFromPath(filePath: String): String {
     val extension: String = FilenameUtils.getExtension(filename)
     return filename.removeSuffix(".$extension")
 }
-
-//fun addLogsDirectoryToGitIgnore(project: Project) {
-//    val file = File("${project.basePath}/.gitignore")
-//
-//    if (!file.exists()) {
-//        file.createNewFile()
-//        file.writeText(ERROR_LOG_DIR_PATH)
-//        return
-//    }
-//
-//    if (!file.readLines().any { line -> line.trim() == ERROR_LOG_DIR_PATH }) {
-//        file.appendText("\n${ERROR_LOG_DIR_PATH}\n")
-//    }
-//}
