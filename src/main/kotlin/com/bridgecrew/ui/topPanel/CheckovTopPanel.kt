@@ -1,25 +1,26 @@
-package com.bridgecrew.ui
+package com.bridgecrew.ui.topPanel
 
+import com.bridgecrew.analytics.AnalyticsService
 import com.bridgecrew.ui.actions.SeverityFilterActions
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.ActionGroup
-import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.components.service
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import icons.CheckovIcons
 import java.awt.BorderLayout
 import java.awt.Dimension
 import java.awt.FlowLayout
+import java.time.Duration
+import java.time.Instant
 import javax.swing.*
 
-data class ScanResultMetadata (
+data class ScanResultMetadata(
         val totalIssues: Int,
         val totalPassed: Int,
         val scanDuration: Long
 )
 
-class CheckovActionToolbar(val metadata: ScanResultMetadata?) : SimpleToolWindowPanel(true, true), Disposable {
-
-    private val actionManager = ActionManager.getInstance()
+class CheckovTopPanel(val project: Project) : SimpleToolWindowPanel(true, true), Disposable {
 
     init {
         val actionToolbarPanel = JPanel(FlowLayout(FlowLayout.LEFT, 0, 0))
@@ -34,19 +35,17 @@ class CheckovActionToolbar(val metadata: ScanResultMetadata?) : SimpleToolWindow
         toolbar = actionToolbarPanel
     }
 
-    private fun createActionGroupPanel(actionToolbarPanel: JPanel){
-        val actionGroupToolbar = actionManager.getAction("com.bridgecrew.checkovScanActions") as ActionGroup
-        val actionToolbar = actionManager.createActionToolbar("Checkov Action Toolbar", actionGroupToolbar, true)
-        actionToolbar.setTargetComponent(this)
-        actionToolbarPanel.add(actionToolbar.component)
+    private fun createActionGroupPanel(actionToolbarPanel: JPanel) {
+        CheckovActionToolbar.setComponent(this)
+        actionToolbarPanel.add(CheckovActionToolbar.actionToolBar.component)
     }
 
-    private fun addSeverityLabel(actionToolbarPanel: JPanel){
+    private fun addSeverityLabel(actionToolbarPanel: JPanel) {
         actionToolbarPanel.add(JLabel("Severity:"))
         actionToolbarPanel.add(Box.createRigidArea(Dimension(5, 24)))
     }
 
-    private fun createSeparator(actionToolbarPanel: JPanel){
+    private fun createSeparator(actionToolbarPanel: JPanel) {
         actionToolbarPanel.add(Box.createRigidArea(Dimension(5, 24)))
         val separator = JSeparator(JSeparator.VERTICAL)
         separator.preferredSize = Dimension(5, 24)
@@ -54,9 +53,10 @@ class CheckovActionToolbar(val metadata: ScanResultMetadata?) : SimpleToolWindow
         actionToolbarPanel.add(Box.createRigidArea(Dimension(5, 24)))
     }
 
-    private fun addScanStatusLabel(actionToolbarPanel: JPanel){
-        if(metadata != null){
-            createSeparator(actionToolbarPanel)
+    private fun addScanStatusLabel(actionToolbarPanel: JPanel) {
+        val metadata = getScanResultMetadata()
+        createSeparator(actionToolbarPanel)
+        if (metadata.scanDuration > 0) {
             val labelText = "Total issues: ${metadata.totalIssues}, passed: ${metadata.totalPassed} of ${metadata.totalIssues.plus(metadata.totalPassed)} tests - ${metadata.scanDuration}s"
             val scanStatusBar = JLabel(labelText)
             scanStatusBar.icon = CheckovIcons.ErrorIcon
@@ -64,7 +64,21 @@ class CheckovActionToolbar(val metadata: ScanResultMetadata?) : SimpleToolWindow
         }
     }
 
-    private fun addFilterActions(actionToolbarPanel: JPanel){
+    private fun getScanResultMetadata(): ScanResultMetadata {
+        val fullScanData = project.service<AnalyticsService>().getFullScanData()
+        val scanResultMetadata: ScanResultMetadata = if (fullScanData != null) {
+            val now = Instant.now()
+            val startedTime = if (fullScanData.isFullScanStarted()) fullScanData.fullScanStartedTime.toInstant() else now
+            val finishedTime = if (fullScanData.isFullScanFinished()) fullScanData.fullScanFinishedTime.toInstant() else now
+            val totalScanTimeDuration = Duration.between(startedTime, finishedTime)
+            ScanResultMetadata(totalIssues = fullScanData.totalFailed, totalPassed = fullScanData.totalPassed, scanDuration = totalScanTimeDuration.toSeconds())
+        } else {
+            ScanResultMetadata(totalIssues = 0, totalPassed = 0, scanDuration = 0)
+        }
+        return scanResultMetadata
+    }
+
+    private fun addFilterActions(actionToolbarPanel: JPanel) {
         actionToolbarPanel.add(createButton("I"));
         actionToolbarPanel.add(createButton("L"));
         actionToolbarPanel.add(createButton("M"));

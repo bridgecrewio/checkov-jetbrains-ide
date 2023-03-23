@@ -6,6 +6,8 @@ import com.bridgecrew.listeners.CheckovScanListener
 import com.bridgecrew.services.ResultsCacheService
 import com.bridgecrew.services.checkovScanCommandsService.CheckovScanCommandsService
 import com.bridgecrew.settings.CheckovSettingsState
+import com.bridgecrew.ui.CheckovNotificationBalloon
+import com.bridgecrew.ui.actions.CheckovScanAction
 import com.bridgecrew.utils.CheckovResultExtractionData
 import com.bridgecrew.utils.CheckovUtils
 import com.intellij.execution.configurations.GeneralCommandLine
@@ -102,6 +104,11 @@ class CheckovScanService {
             LOG.error(e)
             return
         }
+    }
+
+    fun cancelScan() {
+        print("canceling run")
+        CheckovScanAction.resetActionDynamically(true)
     }
 
     private fun generateCheckovCommand(execCommand: List<String>): GeneralCommandLine {
