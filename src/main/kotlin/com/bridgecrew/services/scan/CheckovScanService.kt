@@ -184,10 +184,14 @@ class CheckovScanService {
                 project.service<CheckovErrorHandlerService>().scanningParsingError(scanTaskResult, scanningSource, extractionResult.parsingErrors, scanSourceType)
             }
 
-            if (isScanFinishedWithoutErrors(extractionResult, scanSourceType, scanningSource, project)) {
-                scanTaskResult.checkovResult.delete()
-                scanTaskResult.debugOutput.delete()
-                return
+            if (!isScanFinishedWithoutErrors(extractionResult, scanSourceType, scanningSource, project)) {
+                project.service<ResultsCacheService>().addCheckovResults(extractionResult.failedChecks)
+                LOG.info("Checkov scanning finished for ${scanSourceType.toString().lowercase()}: ${scanningSource.replace(project.basePath!!, "")}, ${extractionResult.parsingErrors.size} errors have been detected in $scanningSource")
+//            CheckovNotificationBalloon.showNotification(project, "Checkov scanning finished for ${scanSourceType.toString().lowercase()}: ${scanningSource.replace(project.basePath!!, "")}, please check the results panel.", NotificationType.INFORMATION)
+                project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished(scanSourceType)
+
+                if (scanSourceType == ScanSourceType.FRAMEWORK)
+                    project.service<FullScanStateService>().frameworkScanFinishedAndDetectedIssues()
             }
 
 //            if ( dextractionResult.failedChecks.isEmpty()) {
@@ -202,14 +206,9 @@ class CheckovScanService {
 //                return
 //            }
 
-            project.service<ResultsCacheService>().addCheckovResults(extractionResult.failedChecks)
-            LOG.info("Checkov scanning finished for ${scanSourceType.toString().lowercase()}: ${scanningSource.replace(project.basePath!!, "")}, ${extractionResult.parsingErrors.size} errors have been detected in $scanningSource")
-//            CheckovNotificationBalloon.showNotification(project, "Checkov scanning finished for ${scanSourceType.toString().lowercase()}: ${scanningSource.replace(project.basePath!!, "")}, please check the results panel.", NotificationType.INFORMATION)
-            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished(scanSourceType)
 
-            if (scanSourceType == ScanSourceType.FRAMEWORK)
-                project.service<FullScanStateService>().frameworkScanFinishedAndDetectedIssues(scanningSource)
-
+            project.service<FullScanStateService>().totalPassed += extractionResult.passedChecksSize
+            project.service<FullScanStateService>().totalFailed += extractionResult.failedChecks.size
             scanTaskResult.checkovResult.delete()
             scanTaskResult.debugOutput.delete()
 

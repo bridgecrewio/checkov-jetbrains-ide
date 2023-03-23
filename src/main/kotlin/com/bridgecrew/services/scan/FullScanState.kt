@@ -24,12 +24,14 @@ class FullScanStateService(val project: Project) {
     var frameworkScansFinishedWithErrors = mutableMapOf<String, ScanTaskResult>()
     var invalidFiles = mutableSetOf<String>()
     var frameworkScansFinishedWithNoVulnerabilities = mutableSetOf<String>()
+    var totalPassed: Int = 0
+    var totalFailed: Int = 0
 
     fun fullScanStarted() {
         fullScanFinishedFrameworksNumber = 0
     }
 
-    fun frameworkScanFinishedAndDetectedIssues(framework: String) {
+    fun frameworkScanFinishedAndDetectedIssues() {
 //        project.service<AnalyticsService>().fullScanByFrameworkFinished(framework)
         fullScanFinishedFrameworksNumber++
 //        if (fullScanFinishedFrameworksNumber == DESIRED_NUMBER_OF_FRAMEWORK_FOR_FULL_SCAN) {

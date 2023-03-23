@@ -11,7 +11,7 @@ import org.json.JSONObject
 data class CheckovResultExtractionData(
         val failedChecks: List<CheckovResult> = arrayListOf(),
         val parsingErrors: List<String> = arrayListOf(),
-        val passedChecks: Int = 0
+        val passedChecksSize: Int = 0
 )
 
 class CheckovUtils {
@@ -45,7 +45,7 @@ class CheckovUtils {
                         val extractionResult = extractFailedChecksAndParsingErrorsFromObj(resultItem as JSONObject)
                         failedChecks.addAll(extractionResult.failedChecks)
                         parsingErrors.addAll(extractionResult.parsingErrors)
-                        passedChecks += extractionResult.passedChecks
+                        passedChecks += extractionResult.passedChecksSize
                     }
                     CheckovResultExtractionData(failedChecks, parsingErrors, passedChecks)
                 }
