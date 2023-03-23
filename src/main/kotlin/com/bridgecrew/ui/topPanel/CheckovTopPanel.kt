@@ -72,7 +72,7 @@ class CheckovTopPanel(val project: Project) : SimpleToolWindowPanel(true, true),
             val startedTime = if (fullScanAnalyticsData.isFullScanStarted()) fullScanAnalyticsData.scanStartedTime.toInstant() else now
             val finishedTime = if (fullScanAnalyticsData.isFullScanFinished()) fullScanAnalyticsData.scanFinishedTime.toInstant() else now
             val totalScanTimeDuration = Duration.between(startedTime, finishedTime)
-            ScanResultMetadata(totalIssues = project.service<FullScanStateService>().totalFailed, totalPassed = project.service<FullScanStateService>().totalPassed, scanDuration = totalScanTimeDuration.toSeconds())
+            ScanResultMetadata(totalIssues = project.service<FullScanStateService>().totalFailedCheckovChecks, totalPassed = project.service<FullScanStateService>().totalPassedCheckovChecks, scanDuration = totalScanTimeDuration.toSeconds())
         } else {
             ScanResultMetadata(totalIssues = 0, totalPassed = 0, scanDuration = 0)
         }

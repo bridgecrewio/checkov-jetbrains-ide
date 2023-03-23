@@ -23,7 +23,7 @@ import com.intellij.openapi.components.service
 class CheckovErrorHandlerService(val project: Project) {
     private val LOG = logger<CheckovErrorHandlerService>()
 
-    private fun saveErrorResultToFile(scanTaskResult: ScanTaskResult, dataSourceValue: String, error: Exception, scanSourceType: CheckovScanService.ScanSourceType) {
+    fun notifyAboutScanError(scanTaskResult: ScanTaskResult, dataSourceValue: String, error: Exception, scanSourceType: CheckovScanService.ScanSourceType) {
 
         var errorMessagePrefix = if (error.message != null) {
             "Error while scanning ${scanSourceType.toString().lowercase()} ${dataSourceValue.replace(project.basePath!!, "")}, original error message - ${error.message}"
@@ -41,41 +41,40 @@ class CheckovErrorHandlerService(val project: Project) {
                 NotificationType.ERROR)
     }
 
-    private fun saveParsingErrorResultToFile(scanTaskResult: ScanTaskResult, dataSourceValue: String, failedFiles: List<String>, scanSourceType: CheckovScanService.ScanSourceType) {
-        val errorMessage = "Error while parsing result while scanning ${scanSourceType.toString().lowercase()} ${dataSourceValue.replace(project.basePath!!, "")} for files ${failedFiles.joinToString { "," }}\n" +
-                "Please check the log file in ${scanTaskResult.debugOutput.path}.\n Checkov result can be found in ${scanTaskResult.checkovResult.path}.\n"
+    fun notifyAboutParsingError(scanningSource: String, scanSourceType: CheckovScanService.ScanSourceType) {
+        val errorMessage = "Error while scanning ${scanSourceType.toString().lowercase()} ${scanningSource.replace(project.basePath!!, "")} - file was found as invalid"
 
         LOG.warn(errorMessage)
 
         CheckovNotificationBalloon.showNotification(project,
                 errorMessage,
-                NotificationType.ERROR)
+                NotificationType.WARNING)
     }
 
-    fun scanningParsingError(scanTaskResult: ScanTaskResult, source: String, failedFiles: List<String>, scanSourceType: CheckovScanService.ScanSourceType) {
-
-        when (scanSourceType) {
-            CheckovScanService.ScanSourceType.FILE -> {
-                saveParsingErrorResultToFile(scanTaskResult, source, failedFiles, scanSourceType)
-            }
-
-            CheckovScanService.ScanSourceType.FRAMEWORK -> {
-                saveParsingErrorResultToFile(scanTaskResult, source, failedFiles, scanSourceType)
-                project.service<FullScanStateService>().parsingErrorsFoundInFiles(source, failedFiles)
-            }
-        }
-
-    }
+//    fun scanningParsingError(scanTaskResult: ScanTaskResult, source: String, failedFiles: List<String>) {
+//
+//        when (scanSourceType) {
+//            CheckovScanService.ScanSourceType.FILE -> {
+//                saveParsingErrorResultToFile(scanTaskResult, source, failedFiles, scanSourceType)
+//            }
+//
+////            CheckovScanService.ScanSourceType.FRAMEWORK -> {
+////                saveParsingErrorResultToFile(scanTaskResult, source, failedFiles, scanSourceType)
+////                project.service<FullScanStateService>().parsingErrorsFoundInFiles(source, failedFiles)
+////            }
+//        }
+//
+//    }
 
     fun scanningError(scanTaskResult: ScanTaskResult, source: String, error: Exception, scanSourceType: CheckovScanService.ScanSourceType) {
 
         when (scanSourceType) {
             CheckovScanService.ScanSourceType.FILE -> {
-                saveErrorResultToFile(scanTaskResult, source, error, scanSourceType)
+                notifyAboutScanError(scanTaskResult, source, error, scanSourceType)
             }
 
             CheckovScanService.ScanSourceType.FRAMEWORK -> {
-                saveErrorResultToFile(scanTaskResult, source, error, scanSourceType)
+                notifyAboutScanError(scanTaskResult, source, error, scanSourceType)
                 project.service<FullScanStateService>().frameworkFinishedWithErrors(source, scanTaskResult)
             }
         }

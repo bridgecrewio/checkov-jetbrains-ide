@@ -68,13 +68,17 @@ class AnalyticsService(val project: Project) {
         LOG.info("Prisma Plugin Analytics - scan #${fullScanNumber} - error while scanning framework $framework")
     }
 
+    fun fullScanFrameworkDetectedVulnerabilities(framework: String, numberOfVulnerabilities: Int) {
+        LOG.info("Prisma Plugin Analytics - scan #${fullScanNumber} - $numberOfVulnerabilities security issues were detected while scanning framework $framework")
+    }
+
 //    fun updateScanTotalFiles(passedFiles: Int, failedFiles: Int) {
 //        fullScanData.totalPassed += passedFiles
 //        fullScanData.totalFailed += failedFiles
 //    }
-    fun fullScanParsingError(framework: String, failedFiles: List<String>) {
+    fun fullScanParsingError(framework: String, failedFilesSize: Int) {
 //        fullScanData.invalidFiles.addAll(failedFiles)
-        LOG.info("Prisma Plugin Analytics - scan #${fullScanNumber} - parsing error while scanning framework $framework in files ${failedFiles.joinToString { "," }}")
+        LOG.info("Prisma Plugin Analytics - scan #${fullScanNumber} - parsing error while scanning framework $framework in $failedFilesSize files}")
     }
 
     private fun logFullScanAnalytics() {

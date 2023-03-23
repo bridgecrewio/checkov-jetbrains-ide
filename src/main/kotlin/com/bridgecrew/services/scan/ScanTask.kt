@@ -117,7 +117,7 @@ abstract class ScanTask(project: Project, title: String, private val sourceName:
 
                 project.service<AnalyticsService>().fullScanByFrameworkFinished(framework)
 
-                project.service<CheckovScanService>().analyzeScan(scanTaskResult, processHandler.exitCode!!, project, framework, CheckovScanService.ScanSourceType.FRAMEWORK)
+                project.service<CheckovScanService>().analyzeFrameworkScan(scanTaskResult, processHandler.exitCode!!, project, framework)
 
             } catch (error: Exception) {
                 LOG.error("error while scanning framework $framework", error)
@@ -141,7 +141,7 @@ abstract class ScanTask(project: Project, title: String, private val sourceName:
 
                 LOG.info("Checkov scan task finished successfully for file $filePath")
 
-                project.service<CheckovScanService>().analyzeScan(scanTaskResult, processHandler.exitCode!!, project, filePath, CheckovScanService.ScanSourceType.FRAMEWORK)
+                project.service<CheckovScanService>().analyzeFileScan(scanTaskResult, processHandler.exitCode!!, project, filePath)
 
             } catch (error: Exception) {
                 LOG.error("error while scanning file $filePath", error)

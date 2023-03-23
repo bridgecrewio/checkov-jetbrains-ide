@@ -22,16 +22,18 @@ class FullScanStateService(val project: Project) {
         }
 
     var frameworkScansFinishedWithErrors = mutableMapOf<String, ScanTaskResult>()
-    var invalidFiles = mutableSetOf<String>()
+    var invalidFilesSize: Int = 0
     var frameworkScansFinishedWithNoVulnerabilities = mutableSetOf<String>()
-    var totalPassed: Int = 0
-    var totalFailed: Int = 0
+    var totalPassedCheckovChecks: Int = 0
+    var totalFailedCheckovChecks: Int = 0
 
     fun fullScanStarted() {
         fullScanFinishedFrameworksNumber = 0
     }
 
-    fun frameworkScanFinishedAndDetectedIssues() {
+    fun frameworkScanFinishedAndDetectedIssues(framework: String, numberOfIssues: Int) {
+        project.service<AnalyticsService>().fullScanFrameworkDetectedVulnerabilities(framework, numberOfIssues)
+
 //        project.service<AnalyticsService>().fullScanByFrameworkFinished(framework)
         fullScanFinishedFrameworksNumber++
 //        if (fullScanFinishedFrameworksNumber == DESIRED_NUMBER_OF_FRAMEWORK_FOR_FULL_SCAN) {
@@ -56,9 +58,9 @@ class FullScanStateService(val project: Project) {
 
     }
 
-    fun parsingErrorsFoundInFiles(framework: String, failedFiles: List<String>) {
-        invalidFiles.addAll(failedFiles)
-        project.service<AnalyticsService>().fullScanParsingError(framework, failedFiles)
+    fun parsingErrorsFoundInFiles(framework: String, failedFilesSize: Int) {
+        invalidFilesSize += failedFilesSize
+        project.service<AnalyticsService>().fullScanParsingError(framework, failedFilesSize)
     }
 
     fun displayNotificationForFullScanSummary() {
@@ -71,8 +73,7 @@ class FullScanStateService(val project: Project) {
                 "[${frameworkScansFinishedWithErrors.map { (framework, scanResults) -> "$framework:\n" +
                         "log file - ${scanResults.debugOutput.path}\n" +
                         "checkov result - ${scanResults.checkovResult.path}\n" }}]\n" +
-                "${invalidFiles.size} files were detected as invalid:\n" +
-                "[${invalidFiles.joinToString { ",\n" }}]\n" +
+                "${invalidFilesSize}} files were detected as invalid:\n" +
                 "No errors have been detected for frameworks $frameworkScansFinishedWithNoVulnerabilities :)"
 
         CheckovNotificationBalloon.showNotification(project,

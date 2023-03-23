@@ -10,7 +10,7 @@ import org.json.JSONObject
 
 data class CheckovResultExtractionData(
         val failedChecks: List<CheckovResult> = arrayListOf(),
-        val parsingErrors: List<String> = arrayListOf(),
+        val parsingErrorsSize: Int = 0,
         val passedChecksSize: Int = 0
 )
 
@@ -23,7 +23,7 @@ class CheckovUtils {
 
         fun extractFailedChecksAndParsingErrorsFromCheckovResult(rawResult: String, scanningSource: String): CheckovResultExtractionData {
             if (rawResult.isEmpty()) {
-                return CheckovResultExtractionData(arrayListOf(), arrayListOf(), 0)
+                return CheckovResultExtractionData(arrayListOf(), 0, 0)
             }
 
             LOG.info("found checkov result for source $scanningSource")
@@ -38,13 +38,13 @@ class CheckovUtils {
                     val resultsArray = JSONArray(checkovResult)
 
                     val failedChecks = arrayListOf<CheckovResult>()
-                    val parsingErrors = arrayListOf<String>()
+                    var parsingErrors = 0
                     var passedChecks = 0
 
                     for (resultItem in resultsArray) {
                         val extractionResult = extractFailedChecksAndParsingErrorsFromObj(resultItem as JSONObject)
                         failedChecks.addAll(extractionResult.failedChecks)
-                        parsingErrors.addAll(extractionResult.parsingErrors)
+                        parsingErrors += extractionResult.passedChecksSize
                         passedChecks += extractionResult.passedChecksSize
                     }
                     CheckovResultExtractionData(failedChecks, parsingErrors, passedChecks)
@@ -63,7 +63,7 @@ class CheckovUtils {
             val results = outputObj.getJSONObject("results")
 
             val failedChecks: List<CheckovResult> = extractFailedChecks(summary, results, outputObj)
-            val parsingErrors: List<String> = extractParsingErrors(summary, results)
+            val parsingErrors: Int = extractParsingErrors(summary)
             val passedChecks: Int = summary.getInt("passed")
 
             return CheckovResultExtractionData(failedChecks, parsingErrors, passedChecks)
@@ -85,19 +85,19 @@ class CheckovUtils {
             return checkovResults
         }
 
-        private fun extractParsingErrors(summary: JSONObject, results: JSONObject): List<String> {
+        private fun extractParsingErrors(summary: JSONObject): Int {
             try {
-                val parsingErrorSummary: Int = summary.getInt("parsing_errors")
-                if (parsingErrorSummary > 0) {
-                    val parsingErrorsList = object : TypeToken<List<String>>() {}.type
-
-                    return listOf() // TODO - after getting the correct fields from checkov - gson.fromJson(results.getJSONArray("parsing_errors").toString(), parsingErrorsList)
-                }
+                return summary.getInt("parsing_errors")
+//                if (parsingErrorSummary > 0) {
+//                    val parsingErrorsList = object : TypeToken<List<String>>() {}.type
+//
+//                    return listOf() // TODO - after getting the correct fields from checkov - gson.fromJson(results.getJSONArray("parsing_errors").toString(), parsingErrorsList)
+//                }
             } catch (e: Exception) {
                 LOG.error("Error while extracting parsing errors", e)
             }
 
-            return listOf()
+            return 0
         }
     }
 }
