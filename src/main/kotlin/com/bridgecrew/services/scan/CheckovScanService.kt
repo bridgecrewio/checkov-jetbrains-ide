@@ -181,6 +181,7 @@ class CheckovScanService {
                 project.service<CheckovErrorHandlerService>().scanningParsingError(result, scanningSource, extractionResult.parsingErrors, scanSourceType)
             }
 
+            project.service<AnalyticsService>().updateScanTotalFiles(extractionResult.passedChecks, extractionResult.failedChecks.size)
             if (extractionResult.failedChecks.isEmpty()) {
                 CheckovNotificationBalloon.showNotification(project, "Checkov scanning finished, no errors have been detected for ${scanSourceType.toString().lowercase()}: $scanningSource", NotificationType.INFORMATION)
                 LOG.info("Checkov scanning finished, No errors have been detected for ${scanSourceType.toString().lowercase()}: ${scanningSource.replace(project.basePath!!, "")}")

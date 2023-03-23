@@ -10,7 +10,8 @@ import org.json.JSONObject
 
 data class CheckovResultExtractionData(
         val failedChecks: List<CheckovResult> = arrayListOf(),
-        val parsingErrors: List<String> = arrayListOf()
+        val parsingErrors: List<String> = arrayListOf(),
+        val passedChecks: Int = 0
 )
 
 class CheckovUtils {
@@ -22,8 +23,7 @@ class CheckovUtils {
 
         fun extractFailedChecksAndParsingErrorsFromCheckovResult(rawResult: String, scanningSource: String): CheckovResultExtractionData {
             if (rawResult.isEmpty()) {
-                return CheckovResultExtractionData(arrayListOf(), arrayListOf())
-
+                return CheckovResultExtractionData(arrayListOf(), arrayListOf(), 0)
             }
             var checkovResult = "checkovResult"
             val outputListOfLines = rawResult.split("\n").map { it.trim() }
@@ -50,13 +50,15 @@ class CheckovUtils {
 
                     val failedChecks = arrayListOf<CheckovResult>()
                     val parsingErrors = arrayListOf<String>()
+                    var passedChecks = 0
 
                     for (resultItem in resultsArray) {
                         val extractionResult = extractFailedChecksAndParsingErrorsFromObj(resultItem as JSONObject)
                         failedChecks.addAll(extractionResult.failedChecks)
                         parsingErrors.addAll(extractionResult.parsingErrors)
+                        passedChecks += extractionResult.passedChecks
                     }
-                    CheckovResultExtractionData(failedChecks, parsingErrors)
+                    CheckovResultExtractionData(failedChecks, parsingErrors, passedChecks)
                 }
 
                 else -> throw Exception("couldn't parse checkov results output, reason: $rawResult")
@@ -73,9 +75,9 @@ class CheckovUtils {
 
             val failedChecks: List<CheckovResult> = extractFailedChecks(summary, results, outputObj)
             val parsingErrors: List<String> = extractParsingErrors(summary, results)
+            val passedChecks: Int = summary.getInt("passed")
 
-            return CheckovResultExtractionData(failedChecks, parsingErrors)
-
+            return CheckovResultExtractionData(failedChecks, parsingErrors, passedChecks)
         }
 
         private fun extractFailedChecks(summary: JSONObject, results: JSONObject, outputObj: JSONObject): List<CheckovResult> {
