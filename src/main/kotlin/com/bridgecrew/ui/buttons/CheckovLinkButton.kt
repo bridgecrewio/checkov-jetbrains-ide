@@ -16,4 +16,8 @@ open class CheckovLinkButton(private var text: String): JButton() {
     private fun setButtonTitle(title: String) {
         setText(title)
     }
+
+    protected fun setDisabledLook() {
+        this.cursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)
+    }
 }
