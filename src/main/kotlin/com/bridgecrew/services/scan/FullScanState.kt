@@ -35,14 +35,7 @@ class FullScanStateService(val project: Project) {
     fun frameworkScanFinishedAndDetectedIssues(framework: String, numberOfIssues: Int) {
         project.service<AnalyticsService>().fullScanFrameworkDetectedVulnerabilities(framework, numberOfIssues)
 
-//        project.service<AnalyticsService>().fullScanByFrameworkFinished(framework)
         fullScanFinishedFrameworksNumber++
-//        if (fullScanFinishedFrameworksNumber == DESIRED_NUMBER_OF_FRAMEWORK_FOR_FULL_SCAN) {
-////            val totalErrors = project.service<ResultsCacheService>().getAllCheckovResults().size
-////            val message = "Checkov has detected $totalErrors configuration errors in your project. Check out the tool window to analyze your code"
-////            CheckovNotificationBalloon.showNotification(project, message, NotificationType.INFORMATION)
-//            project.service<AnalyticsService>().fullScanFinished()
-//        }
     }
 
     fun frameworkFinishedWithNoErrors(framework: String) {

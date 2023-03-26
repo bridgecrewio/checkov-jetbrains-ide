@@ -114,7 +114,6 @@ class AnalyticsService(val project: Project) {
                         "framework $framework took ${formatTimeAsString(scanResults.startTime, scanResults.endTime)} minutes to be scanned\n" }
                 }\n" +
                 "full scan button pressed on ${dateFormatter.format(fullScanData!!.buttonPressedTime)}\n" +
-                "full scan button pressed on ${dateFormatter.format(fullScanData!!.buttonPressedTime)}\n" +
                 "full scan started on ${dateFormatter.format(fullScanData!!.scanStartedTime)}\n" +
                 "full scan finished on ${dateFormatter.format(fullScanData!!.scanFinishedTime)}\n" +
                 "full scan results displayed on ${dateFormatter.format(fullScanData!!.resultsWereFullyDisplayedTime)}\n"
