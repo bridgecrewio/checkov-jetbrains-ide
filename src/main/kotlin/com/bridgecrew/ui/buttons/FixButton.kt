@@ -18,7 +18,7 @@ class FixButton(val result: BaseCheckovResult) : JButton(), ActionListener {
     }
 
     override fun actionPerformed(e: ActionEvent?) {
-        JOptionPane.showMessageDialog(null, "Fix clicked")
+//        JOptionPane.showMessageDialog(null, "Fix clicked") // Maybe display a dialog for showing we're going to fix?
         val project = ProjectManager.getInstance().defaultProject
         ApplicationManager.getApplication().invokeLater {
             if(result.fixDefinition != null){
