@@ -19,8 +19,10 @@ const val suppressionButtonText = "Suppress"
 
 class SuppressionButton(private var result: BaseCheckovResult): CheckovLinkButton(suppressionButtonText), ActionListener  {
 
+    private var isOpenDialog : Boolean
     init {
         addActionListener(this)
+        isOpenDialog = true
     }
 
     private val allowedFileType: Set<FileType> = setOf(
@@ -37,9 +39,16 @@ class SuppressionButton(private var result: BaseCheckovResult): CheckovLinkButto
         }
 
         val dialog = SuppressionDialog()
-        dialog.show()
-        if(dialog.exitCode == DialogWrapper.OK_EXIT_CODE) {
-            generateComment(fileType, dialog.userJustification)
+        if(isOpenDialog) {
+            dialog.show()
+            isOpenDialog = false
+            setDisabledLook()
+            if(dialog.exitCode == DialogWrapper.OK_EXIT_CODE) {
+                generateComment(fileType, dialog.userJustification)
+            } else if (dialog.exitCode == DialogWrapper.CANCEL_EXIT_CODE) {
+                isOpenDialog = true
+                setEnabledLook()
+            }
         }
     }
 
@@ -47,7 +56,7 @@ class SuppressionButton(private var result: BaseCheckovResult): CheckovLinkButto
         val suppressionComment = generateCheckovSuppressionComment(userReason)
         val document = getDocument(result.absoluteFilePath)
         val lineNumber = getLineNumber(fileType)
-        if(document != null && ! isSuppressionExists(document, lineNumber, suppressionComment)) {
+        if(document != null && ! isSuppressionExists(document, lineNumber, suppressionComment) && ! isSuppressionExists(document, lineNumber + 1, suppressionComment)) {
             addTextToFile(document, lineNumber, suppressionComment)
         }
     }
@@ -62,7 +71,8 @@ class SuppressionButton(private var result: BaseCheckovResult): CheckovLinkButto
         val lineStartOffset = document.getLineStartOffset(checkLineNumber)
         val lineEndOffset = document.getLineEndOffset(checkLineNumber)
         val lineText = document.getText(TextRange(lineStartOffset, lineEndOffset)).trimEnd()
-        return lineText.contains(suppressionComment)
+        val existingList= lineText.split(" ").filter { existingWord -> suppressionComment.split(" ").contains(existingWord) && existingWord.lowercase().contains("checkov") }
+        return existingList.isNotEmpty()
     }
 
     private fun getLineNumber(fileType: FileType): Int {

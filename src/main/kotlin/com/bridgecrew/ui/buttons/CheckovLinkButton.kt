@@ -10,10 +10,18 @@ open class CheckovLinkButton(private var text: String): JButton() {
         this.isBorderPainted = false
         this.isOpaque = false
         this.isContentAreaFilled = false
-        this.cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
+        setEnabledLook()
     }
 
     private fun setButtonTitle(title: String) {
         setText(title)
+    }
+
+    protected fun setDisabledLook() {
+        this.cursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)
+    }
+
+    protected fun setEnabledLook() {
+        this.cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
     }
 }
