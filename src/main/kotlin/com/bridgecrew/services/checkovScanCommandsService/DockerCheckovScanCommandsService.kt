@@ -14,7 +14,7 @@ class DockerCheckovScanCommandsService(project: Project) : CheckovScanCommandsSe
                 PluginManagerCore.getPlugin(PluginId.getId("com.github.bridgecrewio.checkov"))?.version ?: "UNKNOWN"
 
         val volumeDir = "${FilenameUtils.separatorsToUnix(project.basePath!!)}:/${volumeDirectory}"
-        val dockerCommand = arrayListOf("docker", "run", "--rm", "--tty", "--env", "BC_SOURCE=jetbrains", "--env", "BC_SOURCE_VERSION=$pluginVersion", "--env", "LOG_LEVEL=DEBUG")
+        val dockerCommand = arrayListOf("docker", "run", "--rm", "-a", "stdout", "-a", "stderr", "--env", "BC_SOURCE=jetbrains", "--env", "BC_SOURCE_VERSION=$pluginVersion", "--env", "LOG_LEVEL=DEBUG")
         val prismaUrl = settings?.prismaURL
         if (!prismaUrl.isNullOrEmpty()) {
             dockerCommand.addAll(arrayListOf("--env", "PRISMA_API_URL=${prismaUrl}"))

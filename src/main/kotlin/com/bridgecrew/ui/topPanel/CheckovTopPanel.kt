@@ -1,6 +1,7 @@
 package com.bridgecrew.ui.topPanel
 
 import com.bridgecrew.analytics.AnalyticsService
+import com.bridgecrew.services.scan.FullScanStateService
 import com.bridgecrew.ui.actions.SeverityFilterActions
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.service
@@ -65,13 +66,13 @@ class CheckovTopPanel(val project: Project) : SimpleToolWindowPanel(true, true),
     }
 
     private fun getScanResultMetadata(): ScanResultMetadata {
-        val fullScanData = project.service<AnalyticsService>().getFullScanData()
-        val scanResultMetadata: ScanResultMetadata = if (fullScanData != null) {
+        val fullScanAnalyticsData: AnalyticsService.FullScanAnalyticsData? = project.service<AnalyticsService>().fullScanData
+        val scanResultMetadata: ScanResultMetadata = if (fullScanAnalyticsData != null) {
             val now = Instant.now()
-            val startedTime = if (fullScanData.isFullScanStarted()) fullScanData.fullScanStartedTime.toInstant() else now
-            val finishedTime = if (fullScanData.isFullScanFinished()) fullScanData.fullScanFinishedTime.toInstant() else now
+            val startedTime = if (fullScanAnalyticsData.isFullScanStarted()) fullScanAnalyticsData.scanStartedTime.toInstant() else now
+            val finishedTime = if (fullScanAnalyticsData.isFullScanFinished()) fullScanAnalyticsData.scanFinishedTime.toInstant() else now
             val totalScanTimeDuration = Duration.between(startedTime, finishedTime)
-            ScanResultMetadata(totalIssues = fullScanData.totalFailed, totalPassed = fullScanData.totalPassed, scanDuration = totalScanTimeDuration.toSeconds())
+            ScanResultMetadata(totalIssues = project.service<FullScanStateService>().totalFailedCheckovChecks, totalPassed = project.service<FullScanStateService>().totalPassedCheckovChecks, scanDuration = totalScanTimeDuration.toSeconds())
         } else {
             ScanResultMetadata(totalIssues = 0, totalPassed = 0, scanDuration = 0)
         }
