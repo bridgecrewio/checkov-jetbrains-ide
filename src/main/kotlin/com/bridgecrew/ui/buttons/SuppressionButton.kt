@@ -45,6 +45,9 @@ class SuppressionButton(private var result: BaseCheckovResult): CheckovLinkButto
             setDisabledLook()
             if(dialog.exitCode == DialogWrapper.OK_EXIT_CODE) {
                 generateComment(fileType, dialog.userJustification)
+            } else if (dialog.exitCode == DialogWrapper.CANCEL_EXIT_CODE) {
+                isOpenDialog = true
+                setEnabledLook()
             }
         }
     }
