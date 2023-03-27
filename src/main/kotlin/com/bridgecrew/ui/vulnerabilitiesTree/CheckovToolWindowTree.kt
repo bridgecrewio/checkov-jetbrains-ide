@@ -25,6 +25,7 @@ import javax.swing.tree.DefaultMutableTreeNode
 
 class CheckovToolWindowTree(val project: Project, val split: JBSplitter, private val descriptionPanel: CheckovToolWindowDescriptionPanel) : SimpleToolWindowPanel(true, true), Disposable {
     private val resultsPanel = JPanel(BorderLayout())
+    var isTreeEmpty = true
 
     /**
      * Create scrollers panel around a Tree element
@@ -72,6 +73,7 @@ class CheckovToolWindowTree(val project: Project, val split: JBSplitter, private
         }
 
         resultsPanel.add(tree)
+        isTreeEmpty = tree.isEmpty
         return resultsPanel
     }
 

@@ -15,4 +15,5 @@ object CheckovIcons {
     val SeverityMedium = IconLoader.getIcon("/icons/severity_medium.svg", javaClass)
     val SeverityHigh = IconLoader.getIcon("/icons/severity_high.svg", javaClass)
     val SeverityCritical = IconLoader.getIcon("/icons/severity_critical.svg", javaClass)
+    val prismaIcon = IconLoader.getIcon("/icons/prisma.svg", javaClass)
 }
