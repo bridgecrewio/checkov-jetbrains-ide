@@ -65,14 +65,16 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                 add(CheckovTopPanel(project), BorderLayout.NORTH)
                 val checkovTree = CheckovToolWindowTree(project, mainPanelSplitter, checkovDescription)
                 val filesTreePanel = checkovTree.createScroll()
-                val isFullScanFinished = project.service<AnalyticsService>().getFullScanData()?.isFullScanFinished()
-                if(checkovTree.isTreeEmpty && isFullScanFinished == true) {
-                    add(checkovDescription.noErrorsPanel())
-                } else {
-                    val descriptionPanel = checkovDescription.emptyDescription()
-                    mainPanelSplitter.firstComponent = filesTreePanel
-                    mainPanelSplitter.secondComponent = descriptionPanel
-                    add(mainPanelSplitter)
+                val fullScanAnalyticsData: AnalyticsService.FullScanAnalyticsData? = project.service<AnalyticsService>().fullScanData
+                if (fullScanAnalyticsData != null) {
+                    if(checkovTree.isTreeEmpty && fullScanAnalyticsData.isFullScanFinished()) {
+                        add(checkovDescription.noErrorsPanel())
+                    } else {
+                        val descriptionPanel = checkovDescription.emptyDescription()
+                        mainPanelSplitter.firstComponent = filesTreePanel
+                        mainPanelSplitter.secondComponent = descriptionPanel
+                        add(mainPanelSplitter)
+                    }
                 }
                 CheckovScanAction.resetActionDynamically(true)
             }
