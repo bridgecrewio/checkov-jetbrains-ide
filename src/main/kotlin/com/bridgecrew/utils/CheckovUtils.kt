@@ -10,8 +10,8 @@ import org.json.JSONObject
 
 data class CheckovResultExtractionData(
         val failedChecks: List<CheckovResult> = arrayListOf(),
-        val parsingErrors: List<String> = arrayListOf(),
-        val passedChecks: Int = 0
+        val parsingErrorsSize: Int = 0,
+        val passedChecksSize: Int = 0
 )
 
 class CheckovUtils {
@@ -23,22 +23,11 @@ class CheckovUtils {
 
         fun extractFailedChecksAndParsingErrorsFromCheckovResult(rawResult: String, scanningSource: String): CheckovResultExtractionData {
             if (rawResult.isEmpty()) {
-                return CheckovResultExtractionData(arrayListOf(), arrayListOf(), 0)
-            }
-            var checkovResult = "checkovResult"
-            val outputListOfLines = rawResult.split("\n").map { it.trim() }
-            for (i in outputListOfLines.indices) {
-                // filter lines that can appear in the Python version output, like '[GCC 10.2.1 20210110]'
-                if (!outputListOfLines[i].startsWith('{') && !outputListOfLines[i].startsWith('[') ||
-                        (outputListOfLines[i].startsWith("[") && outputListOfLines[i].endsWith("]"))) {
-                    continue
-                }
-                checkovResult = outputListOfLines.subList(i, outputListOfLines.size - 1).joinToString("\n")
-                break
+                return CheckovResultExtractionData(arrayListOf(), 0, 0)
             }
 
-            LOG.info("found checkov result for source $scanningSource") // - $checkovResult")
-            checkovResult = checkovResult.replace("\u001B[0m", "")
+            LOG.info("found checkov result for source $scanningSource")
+            val checkovResult = rawResult.replace("\u001B[0m", "")
 
             return when (checkovResult[0]) {
                 '{' -> {
@@ -49,14 +38,14 @@ class CheckovUtils {
                     val resultsArray = JSONArray(checkovResult)
 
                     val failedChecks = arrayListOf<CheckovResult>()
-                    val parsingErrors = arrayListOf<String>()
+                    var parsingErrors = 0
                     var passedChecks = 0
 
                     for (resultItem in resultsArray) {
                         val extractionResult = extractFailedChecksAndParsingErrorsFromObj(resultItem as JSONObject)
                         failedChecks.addAll(extractionResult.failedChecks)
-                        parsingErrors.addAll(extractionResult.parsingErrors)
-                        passedChecks += extractionResult.passedChecks
+                        parsingErrors += extractionResult.parsingErrorsSize
+                        passedChecks += extractionResult.passedChecksSize
                     }
                     CheckovResultExtractionData(failedChecks, parsingErrors, passedChecks)
                 }
@@ -74,7 +63,7 @@ class CheckovUtils {
             val results = outputObj.getJSONObject("results")
 
             val failedChecks: List<CheckovResult> = extractFailedChecks(summary, results, outputObj)
-            val parsingErrors: List<String> = extractParsingErrors(summary, results)
+            val parsingErrors: Int = extractParsingErrors(summary)
             val passedChecks: Int = summary.getInt("passed")
 
             return CheckovResultExtractionData(failedChecks, parsingErrors, passedChecks)
@@ -96,19 +85,14 @@ class CheckovUtils {
             return checkovResults
         }
 
-        private fun extractParsingErrors(summary: JSONObject, results: JSONObject): List<String> {
+        private fun extractParsingErrors(summary: JSONObject): Int {
             try {
-                val parsingErrorSummary: Int = summary.getInt("parsing_errors")
-                if (parsingErrorSummary > 0) {
-                    val parsingErrorsList = object : TypeToken<List<String>>() {}.type
-
-                    return gson.fromJson(results.getJSONArray("parsing_errors").toString(), parsingErrorsList)
-                }
+                return summary.getInt("parsing_errors")
             } catch (e: Exception) {
                 LOG.error("Error while extracting parsing errors", e)
             }
 
-            return listOf()
+            return 0
         }
     }
 }

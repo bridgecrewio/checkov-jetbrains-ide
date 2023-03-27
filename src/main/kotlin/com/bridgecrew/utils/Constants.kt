@@ -12,7 +12,7 @@ object PANELTYPE {
     const val CHECKOV_INITIALIZATION_PROGRESS = 3
 }
 
-const val DEFAULT_TIMEOUT: Long = 180000
+const val DEFAULT_TIMEOUT: Long = 1800000
 
 const val GIT_DEFAULT_REPOSITORY_NAME = "jetbrains/extension"
 
@@ -39,4 +39,3 @@ enum class FileType {
     UNKNOWN
 }
 
-const val ERROR_LOG_DIR_PATH = "prisma/error/logs"
