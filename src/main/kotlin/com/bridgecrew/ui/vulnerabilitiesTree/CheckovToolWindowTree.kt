@@ -1,25 +1,22 @@
 package com.bridgecrew.ui.vulnerabilitiesTree
 
-import com.bridgecrew.utils.*
-import com.intellij.openapi.Disposable
-import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.bridgecrew.results.BaseCheckovResult
 import com.bridgecrew.services.ResultsCacheService
 import com.bridgecrew.ui.CheckovToolWindowDescriptionPanel
-
-import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiFile
-import com.intellij.ui.treeStructure.Tree
-
-import javax.swing.*
+import com.bridgecrew.utils.navigateToFile
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.components.service
-import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.ui.JBSplitter
-
-import javax.swing.JPanel
-import java.awt.BorderLayout
 import com.intellij.ui.ScrollPaneFactory
+import com.intellij.ui.treeStructure.Tree
+import java.awt.BorderLayout
+import javax.swing.JPanel
+import javax.swing.JScrollPane
+import javax.swing.ScrollPaneConstants
 import javax.swing.tree.DefaultMutableTreeNode
 
 
@@ -63,11 +60,13 @@ class CheckovToolWindowTree(val project: Project, val split: JBSplitter, private
             ApplicationManager.getApplication().invokeLater {
                 val selectionPath = tree.selectionPath
                 val node: DefaultMutableTreeNode = selectionPath!!.lastPathComponent as DefaultMutableTreeNode
-                if(node.userObject is  CheckovVulnerabilityTreeNode){
+                if (node.userObject is CheckovVulnerabilityTreeNode) {
                     val vulnerabilityTreeNode = node.userObject as CheckovVulnerabilityTreeNode
                     val checkovResult = vulnerabilityTreeNode.checkovResult
                     split.secondComponent = descriptionPanel.createScroll(checkovResult)
-                    navigateAndSelectFailure(tree, checkovResult)
+                    WriteCommandAction.runWriteCommandAction(project) {
+                        navigateToFile(project, checkovResult.absoluteFilePath, checkovResult.fileLineRange[0])
+                    }
                 }
             }
         }
@@ -123,26 +122,6 @@ class CheckovToolWindowTree(val project: Project, val split: JBSplitter, private
             }
         }
         return null
-    }
-
-    /**
-     * Navigate to the selected file and select the failed check area.
-     * @return Unit
-     */
-    private fun navigateAndSelectFailure(tree: Tree, checkovResultObject: BaseCheckovResult){
-        val selectionPath = tree.selectionPath
-        if (selectionPath.pathCount == CHECKNAMEDEPTH) {
-            val fileToNavigate: PsiFile? =
-                getPsFileByPath(selectionPath.parentPath.parentPath.lastPathComponent.toString(),
-                    project = project)
-            if (fileToNavigate != null) {
-                navigateToFile(fileToNavigate)
-            }
-            val range = checkovResultObject.fileLineRange
-            val (startOffset, endOffset) = getOffsetHighlighByLines(range, project)
-            val editor = FileEditorManager.getInstance(project).selectedTextEditor
-            editor?.selectionModel?.setSelection(startOffset, endOffset)
-        }
     }
 
     override fun dispose() = Unit

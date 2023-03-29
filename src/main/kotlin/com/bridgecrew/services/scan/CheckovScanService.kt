@@ -227,7 +227,7 @@ class CheckovScanService {
             }
 
             project.service<ResultsCacheService>().addCheckovResults(extractionResult.failedChecks)
-            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished(ScanSourceType.FRAMEWORK)
+            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished(ScanSourceType.FILE)
 
 
             scanTaskResult.checkovResult.delete()

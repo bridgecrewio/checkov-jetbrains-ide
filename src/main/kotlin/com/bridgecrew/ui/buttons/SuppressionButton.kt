@@ -4,10 +4,13 @@ import com.bridgecrew.results.BaseCheckovResult
 import com.bridgecrew.ui.SuppressionDialog
 import com.bridgecrew.utils.FileType
 import com.bridgecrew.utils.getFileType
+import com.bridgecrew.utils.navigateToFile
+import com.intellij.ide.DataManager
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.util.TextRange
@@ -33,8 +36,8 @@ class SuppressionButton(private var result: BaseCheckovResult): CheckovLinkButto
 
     override fun actionPerformed(e: ActionEvent?) {
         val fileType = getFileType(result.filePath.toString())
-        if(! allowedFileType.contains(fileType)) {
-            Messages.showInfoMessage("File type $fileType cannot be suppressed inline", "Prisma Cloud");
+        if(!allowedFileType.contains(fileType)) {
+            Messages.showInfoMessage("File type $fileType cannot be suppressed inline", "Prisma Cloud")
             return
         }
 
@@ -93,6 +96,12 @@ class SuppressionButton(private var result: BaseCheckovResult): CheckovLinkButto
         WriteCommandAction.runWriteCommandAction(null) {
             val editor = EditorFactory.getInstance().createEditor(document, null)
             val newLineText = "${suppressionComment}\n"
+
+            val dataContext = DataManager.getInstance().dataContext
+            val project = dataContext.getData("project") as Project
+
+            navigateToFile(project, result.absoluteFilePath, insertionOffset + newLineText.length)
+
             document.insertString(insertionOffset, newLineText)
             editor.caretModel.moveToOffset(insertionOffset + newLineText.length)
         }
