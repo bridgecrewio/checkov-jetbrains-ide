@@ -31,6 +31,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.8.9")
     implementation("org.json:json:20220320")
     implementation("commons-io:commons-io:2.11.0")
+    implementation("io.github.java-diff-utils:java-diff-utils:4.12")
 }
 
 // Configure gradle-intellij-plugin plugin.
