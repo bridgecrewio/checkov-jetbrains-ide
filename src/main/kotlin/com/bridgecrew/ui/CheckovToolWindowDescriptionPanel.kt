@@ -10,7 +10,10 @@ import com.intellij.openapi.util.IconLoader
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.uiDesigner.core.GridConstraints
 import com.intellij.uiDesigner.core.GridLayoutManager
+import icons.CheckovIcons
 import java.awt.BorderLayout
+import java.awt.Dimension
+import java.awt.Font
 import java.awt.Insets
 import javax.swing.*
 
@@ -31,6 +34,29 @@ class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindow
         descriptionPanel = JPanel()
         descriptionPanel.add(JLabel("Select a file from the errors tree to show more details about it here"), BorderLayout.CENTER)
         return descriptionPanel
+    }
+
+    fun noErrorsPanel(): JPanel {
+        val mainPanel = JPanel()
+        val imagePanel = JPanel()
+        imagePanel.layout = BoxLayout(imagePanel, BoxLayout.Y_AXIS)
+        val status = JLabel("Great Job - Your Code Is Valid!")
+        status.alignmentX = CENTER_ALIGNMENT
+        status.font = Font(status.font.name, Font.BOLD, 14)
+        val iconLabel = JLabel(CheckovIcons.prismaIcon)
+        iconLabel.alignmentX = CENTER_ALIGNMENT
+        val prismaText = JLabel("Prisma Cloud")
+        prismaText.alignmentX = CENTER_ALIGNMENT
+        imagePanel.add(Box.createRigidArea(Dimension(0, 50)))
+        imagePanel.add(Box.createVerticalGlue())
+        imagePanel.add(status)
+        imagePanel.add(Box.createRigidArea(Dimension(0, 15)))
+        imagePanel.add(iconLabel)
+        imagePanel.add(Box.createRigidArea(Dimension(0, 10)))
+        imagePanel.add(prismaText)
+        imagePanel.add(Box.createVerticalGlue())
+        mainPanel.add(imagePanel, BorderLayout.CENTER)
+        return mainPanel
     }
 
     fun initializationDescription(): JPanel {
