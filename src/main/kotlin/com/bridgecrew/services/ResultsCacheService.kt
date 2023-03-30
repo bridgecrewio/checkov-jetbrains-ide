@@ -9,13 +9,14 @@ import com.intellij.openapi.project.Project
 
 @Service
 class ResultsCacheService(val project: Project) {
-    private var checkovResults: MutableList<BaseCheckovResult> = mutableListOf()
+    var checkovResults: MutableList<BaseCheckovResult> = mutableListOf()
     private val checkovResultsComparator: Comparator<BaseCheckovResult> = compareBy({ it.filePath }, { it.resource }, {it.severity})
     private val baseDir: String = project.basePath!!
 
     fun getAllCheckovResults(): List<BaseCheckovResult> {
         return this.checkovResults
     }
+
 
     fun getCheckovResultsFilteredBySeverityGroupedByPath(severitiesToFilterBy: List<Severity>?): Map<String, List<BaseCheckovResult>> {
         if(severitiesToFilterBy != null) {

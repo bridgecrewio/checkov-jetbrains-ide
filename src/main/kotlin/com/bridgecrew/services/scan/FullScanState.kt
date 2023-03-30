@@ -1,13 +1,23 @@
 package com.bridgecrew.services.scan
 
 import com.bridgecrew.analytics.AnalyticsService
+import com.bridgecrew.listeners.CheckovScanListener
+import com.bridgecrew.results.BaseCheckovResult
 import com.bridgecrew.services.ResultsCacheService
 import com.bridgecrew.ui.CheckovNotificationBalloon
+import com.bridgecrew.ui.actions.CheckovScanAction
 import com.bridgecrew.utils.DESIRED_NUMBER_OF_FRAMEWORK_FOR_FULL_SCAN
+import com.bridgecrew.utils.FULL_SCAN_STATE_FILE
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
+import org.json.JSONArray
+import org.json.JSONObject
+import java.io.File
 
 @Service
 class FullScanStateService(val project: Project) {
@@ -18,7 +28,6 @@ class FullScanStateService(val project: Project) {
                 project.service<AnalyticsService>().fullScanFinished()
                 displayNotificationForFullScanSummary()
             }
-
         }
 
     var frameworkScansFinishedWithErrors = mutableMapOf<String, ScanTaskResult>()
@@ -28,10 +37,46 @@ class FullScanStateService(val project: Project) {
     var totalPassedCheckovChecks: Int = 0
     var totalFailedCheckovChecks: Int = 0
 
+    private var stateFile: File? = null
+    private var totalCancelledFrameworks = 0
+
+    private val LOG = logger<FullScanStateService>()
+
+
     fun fullScanStarted() {
+        saveCurrentState()
         fullScanFinishedFrameworksNumber = 0
+        totalCancelledFrameworks = 0
     }
 
+    private fun saveCurrentState() {
+        val currentResults: List<BaseCheckovResult> = project.service<ResultsCacheService>().getAllCheckovResults()
+        stateFile = File.createTempFile(FULL_SCAN_STATE_FILE, ".json")
+
+        val resultsAsJson = JSONArray(currentResults) //  Json.encodeToJsonElement(currentResults)
+        stateFile!!.writeText(resultsAsJson.toString())
+    }
+
+    fun returnToPreviousState() {
+        try {
+            val stateContent = stateFile!!.readText()
+            project.service<ResultsCacheService>().checkovResults = JSONArray(stateContent).toList() as MutableList<BaseCheckovResult>
+            stateFile!!.delete()
+        } catch (e: Exception) {
+            LOG.warn("Could not restore previous state from file, clearing the list", e)
+        }
+    }
+
+    fun frameworkWasCancelled(framework: String) {
+        LOG.info("[TEST] - framework $framework is cancelled in full state")
+        totalCancelledFrameworks++
+        if (totalCancelledFrameworks == DESIRED_NUMBER_OF_FRAMEWORK_FOR_FULL_SCAN) {
+            LOG.info("[TEST] - All frameworks were canceled")
+            project.service<FullScanStateService>().returnToPreviousState()
+            CheckovScanAction.resetActionDynamically(true)
+            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished(CheckovScanService.ScanSourceType.FRAMEWORK)
+        }
+    }
     fun frameworkScanFinishedAndDetectedIssues(framework: String, numberOfIssues: Int) {
         project.service<AnalyticsService>().fullScanFrameworkDetectedVulnerabilities(framework, numberOfIssues)
 
@@ -42,7 +87,6 @@ class FullScanStateService(val project: Project) {
         frameworkScansFinishedWithNoVulnerabilities.add(framework)
         project.service<AnalyticsService>().fullScanFrameworkFinishedNoErrors(framework)
         fullScanFinishedFrameworksNumber++
-
     }
 
     fun frameworkFinishedWithErrors(framework: String, scanTaskResult: ScanTaskResult) {
@@ -83,5 +127,9 @@ class FullScanStateService(val project: Project) {
                 message,
                 NotificationType.INFORMATION)
 
+    }
+
+    fun isFullScanFinishedWithNoErrors(): Boolean {
+        return frameworkScansFinishedWithNoVulnerabilities.size == DESIRED_NUMBER_OF_FRAMEWORK_FOR_FULL_SCAN
     }
 }

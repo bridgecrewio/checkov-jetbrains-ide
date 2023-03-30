@@ -21,8 +21,10 @@ const val DOCKER_MOUNT_DIR = "/checkovScan"
 val FULL_SCAN_FRAMEWORKS = arrayListOf("ansible", "arm", "bicep", "cloudformation", "dockerfile", "helm", "json",
         "yaml", "kubernetes", "kustomize", "openapi", "sca_package", "sca_image", "secrets", "serverless", "terraform", "terraform_plan")
 val FULL_SCAN_EXCLUDED_PATHS = arrayListOf("node_modules")
+const val FULL_SCAN_STATE_FILE = "full_scan_state"
 
 val DESIRED_NUMBER_OF_FRAMEWORK_FOR_FULL_SCAN = FULL_SCAN_FRAMEWORKS.size
+val DESIRED_NUMBER_OF_SINGLE_FILE_SCANS = 10
 
 enum class FileType {
     JSON,
