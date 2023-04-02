@@ -35,7 +35,7 @@ class SuppressionButton(private var result: BaseCheckovResult): CheckovLinkButto
     )
 
     override fun actionPerformed(e: ActionEvent?) {
-        val fileType = getFileType(result.filePath.toString())
+        val fileType = getFileType(result.filePath)
         if(!allowedFileType.contains(fileType)) {
             Messages.showInfoMessage("File type $fileType cannot be suppressed inline", "Prisma Cloud")
             return

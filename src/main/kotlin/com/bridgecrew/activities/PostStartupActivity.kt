@@ -3,6 +3,7 @@ package com.bridgecrew.activities
 import com.bridgecrew.initialization.InitializationService
 import com.bridgecrew.listeners.InitializationListener
 import com.bridgecrew.listeners.InitializationListener.Companion.INITIALIZATION_TOPIC
+import com.bridgecrew.services.scan.FullScanStateService
 import com.bridgecrew.ui.CheckovToolWindowManagerPanel
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger

@@ -8,6 +8,7 @@ import com.bridgecrew.utils.getGitIgnoreValues
 import com.bridgecrew.utils.getRepoName
 import com.intellij.openapi.project.Project
 import org.apache.commons.lang.StringUtils
+import java.io.File
 
 abstract class CheckovScanCommandsService(val project: Project) {
     protected val settings = CheckovSettingsState().getInstance()
@@ -37,6 +38,7 @@ abstract class CheckovScanCommandsService(val project: Project) {
 
         for (framework in FULL_SCAN_FRAMEWORKS) {
             val cmdByFramework = arrayListOf<String>()
+            baseCmds.addAll(addCheckovResultOutputFilePath(framework))
             cmdByFramework.addAll(baseCmds)
             cmdByFramework.add("--framework")
             cmdByFramework.add(framework)
@@ -55,6 +57,12 @@ abstract class CheckovScanCommandsService(val project: Project) {
         }
 
         return arrayListOf("-s", "--bc-api-key", apiToken, "--repo-id", gitRepo, "--quiet", "-o", "json")
+    }
+
+    private fun addCheckovResultOutputFilePath(prefix: String): ArrayList<String> {
+        val outputFilePath = File.createTempFile("${prefix}-checkov-result", ".json").toPath().d
+        return arrayListOf("--output-file-path", outputFilePath)
+
     }
 
     private fun getExcludePathCommand(): ArrayList<String> {

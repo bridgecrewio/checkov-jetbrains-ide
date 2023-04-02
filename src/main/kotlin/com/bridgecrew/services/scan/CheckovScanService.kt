@@ -22,6 +22,7 @@ import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
+import java.io.File
 import java.nio.charset.Charset
 import javax.swing.SwingUtilities
 
@@ -77,6 +78,8 @@ class CheckovScanService {
 
     fun scanProject(project: Project) {
         try {
+            project.service<AnalyticsService>().fullScanStarted()
+
             if (selectedCheckovScanner == null) {
                 LOG.warn("Checkov is not installed")
             }
@@ -84,20 +87,28 @@ class CheckovScanService {
             LOG.info("Trying to scan the project $selectedCheckovScanner")
             project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).projectScanningStarted()
 
+            project.service<FullScanStateService>().saveCurrentState()
             project.service<ResultsCacheService>().deleteAllCheckovResults() // TODO - save the previous state for the case where the client cancels the
 
             val execCommands: List<List<String>> = prepareRepositoryScanningExecCommand()
 
             project.service<FullScanStateService>().fullScanStarted()
-            project.service<AnalyticsService>().fullScanStarted()
 
             execCommands.forEach { execCommand ->
                 run {
-                    val processHandler: ProcessHandler = OSProcessHandler.Silent(generateCheckovCommand(execCommand))
-
                     val frameworkIndex = execCommand.indexOf("--framework") + 1
                     val framework = execCommand[frameworkIndex]
-                    val scanTask = ScanTask.FrameworkScanTask(project, "Checkov scanning repository by framework $framework", framework, processHandler)
+
+                    val outputFilePathIndex = execCommand.indexOf("--output-file-path") + 1
+                    val outputFilePath = execCommand[outputFilePathIndex]
+
+//                    val checkovResultOutputFile = File.createTempFile("${framework}-checkov-result", ".tmp").path
+//                    val file = File("dsdhj")
+
+                    val processHandler: ProcessHandler = OSProcessHandler.Silent(generateCheckovCommand(execCommand))
+
+
+                    val scanTask = ScanTask.FrameworkScanTask(project, "Checkov scanning repository by framework $framework", framework, processHandler, outputFilePath)
                     fullScanTasks.add(scanTask)
                     project.service<AnalyticsService>().fullScanByFrameworkStarted(framework)
 
@@ -127,8 +138,13 @@ class CheckovScanService {
 
     fun cancelScan(project: Project) {
         print("canceling run")
+        project.service<FullScanStateService>().onCancel = true
+
 //        CheckovScanAction.resetActionDynamically(true)
-        fullScanTasks.forEach { frameworkScanTask -> frameworkScanTask.cancelTask() }
+        fullScanTasks.forEach { frameworkScanTask ->
+            LOG.info("[TEST] - Going to cancel for ${frameworkScanTask.framework}")
+            frameworkScanTask.cancelTask()
+        }
 
 
 //        project.service<FullScanStateService>().returnToPreviousState()

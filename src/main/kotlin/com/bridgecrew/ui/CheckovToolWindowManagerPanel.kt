@@ -4,6 +4,7 @@ import com.bridgecrew.analytics.AnalyticsService
 import com.bridgecrew.listeners.CheckovScanListener
 import com.bridgecrew.listeners.CheckovSettingsListener
 import com.bridgecrew.services.scan.CheckovScanService
+import com.bridgecrew.services.scan.FullScanStateService
 import com.bridgecrew.settings.CheckovSettingsState
 import com.bridgecrew.ui.actions.CheckovScanAction
 import com.bridgecrew.ui.topPanel.CheckovTopPanel
@@ -49,7 +50,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
         const val PANEL_SPLITTER_KEY = "CHECKOV_PANEL_SPLITTER_KEY"
     }
 
-    fun loadMainPanel(panelType: Int = PANELTYPE.AUTO_CHOOSE_PANEL, scanSourceType: CheckovScanService.ScanSourceType? = null) {
+    fun loadMainPanel(panelType: Int = PANELTYPE.AUTO_CHOOSE_PANEL) {
         removeAll()
         add(CheckovTopPanel(project), BorderLayout.NORTH)
         when (panelType) {
@@ -60,35 +61,108 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
             PANELTYPE.CHECKOV_INITIALIZATION_PROGRESS -> {
                 add(checkovDescription.initializationDescription())
             }
-            PANELTYPE.CHECKOV_SCAN_FINISHED -> {
-                removeAll()
-                add(CheckovTopPanel(project), BorderLayout.NORTH)
-                val checkovTree = CheckovToolWindowTree(project, mainPanelSplitter, checkovDescription)
-                val filesTreePanel = checkovTree.createScroll()
-                val fullScanAnalyticsData: AnalyticsService.FullScanAnalyticsData? = project.service<AnalyticsService>().fullScanData
-                if (fullScanAnalyticsData != null) {
-                    if(checkovTree.isTreeEmpty && fullScanAnalyticsData.isFullScanFinished()) {
-                        add(checkovDescription.noErrorsPanel())
-                    } else {
-                        val descriptionPanel = checkovDescription.emptyDescription()
-                        mainPanelSplitter.firstComponent = filesTreePanel
-                        mainPanelSplitter.secondComponent = descriptionPanel
-                        add(mainPanelSplitter)
+            PANELTYPE.CHECKOV_FILE_SCAN_FINISHED -> {
+                loadScanResultsPanel()
+//                removeAll()
+//                add(CheckovTopPanel(project), BorderLayout.NORTH)
+//                val checkovTree = CheckovToolWindowTree(project, mainPanelSplitter, checkovDescription)
+//                val filesTreePanel = checkovTree.createScroll()
+////                val fullScanAnalyticsData: AnalyticsService.FullScanAnalyticsData? = project.service<AnalyticsService>().fullScanData
+////                if (fullScanAnalyticsData != null) {
+//                    if(checkovTree.isTreeEmpty) { // && fullScanAnalyticsData.isFullScanFinished()) { // TODO - check on single file
+//                        add(checkovDescription.noErrorsPanel())
+//                    } else {
+//                        val descriptionPanel = checkovDescription.emptyDescription()
+//                        mainPanelSplitter.firstComponent = filesTreePanel
+//                        mainPanelSplitter.secondComponent = descriptionPanel
+//                        add(mainPanelSplitter)
+//                    }
+
+//                if (scanSourceType == CheckovScanService.ScanSourceType.FRAMEWORK) {
+//                }
+//                    &&
+//                } project.service<FullScanStateService>().wereAllFrameworksCancelled()) {
+//                    CheckovScanAction.resetActionDynamically(true)
+//
+//                }
+//                }
+            }
+            PANELTYPE.CHECKOV_FRAMEWORK_SCAN_FINISHED -> {
+                if (project.service<FullScanStateService>().wereAllFrameworksFinished()) {
+                    CheckovScanAction.resetActionDynamically(true)
+                    if (project.service<FullScanStateService>().onCancel) {
+                        loadPreviousStatePanel()
+                        return
+                        // display all canceled and return
+                    }
+
+                    if (project.service<FullScanStateService>().wereAllFrameworksFinishedWithErrors()) {
+                        // load errors
+                        loadErrorsPanel()
+                        return
                     }
                 }
-                CheckovScanAction.resetActionDynamically(true)
-            }
-            PANELTYPE.AUTO_CHOOSE_PANEL ->{
-                val setting = CheckovSettingsState().getInstance()
-                when {
-                    setting?.apiToken.isNullOrEmpty() -> add(checkovDescription.configurationDescription())
-                    else -> add(checkovDescription.preScanDescription())
+
+//                if (project.service<FullScanStateService>().wereAllFrameworksFinished()) {
+//                    CheckovScanAction.resetActionDynamically(true)
+//                }
+                if (!project.service<FullScanStateService>().onCancel) {
+                    loadScanResultsPanel()
+                    // display all canceled and return
                 }
+
             }
+            PANELTYPE.AUTO_CHOOSE_PANEL -> {
+                loadAutoChoosePanel()
+            }
+
         }
         revalidate()
-        if (panelType == PANELTYPE.CHECKOV_SCAN_FINISHED && scanSourceType != null && scanSourceType == CheckovScanService.ScanSourceType.FRAMEWORK) {
+        if (panelType == PANELTYPE.CHECKOV_FRAMEWORK_SCAN_FINISHED) {
             project.service<AnalyticsService>().fullScanResultsWereFullyDisplayed()
+        }
+    }
+
+    private fun loadScanResultsPanel() {
+        removeAll()
+        add(CheckovTopPanel(project), BorderLayout.NORTH)
+        val checkovTree = CheckovToolWindowTree(project, mainPanelSplitter, checkovDescription)
+        val filesTreePanel = checkovTree.createScroll()
+//                val fullScanAnalyticsData: AnalyticsService.FullScanAnalyticsData? = project.service<AnalyticsService>().fullScanData
+//                if (fullScanAnalyticsData != null) {
+        if(checkovTree.isTreeEmpty) { // && fullScanAnalyticsData.isFullScanFinished()) { // TODO - check on single file
+            add(checkovDescription.noErrorsPanel())
+        } else {
+            val descriptionPanel = checkovDescription.emptyDescription()
+            mainPanelSplitter.firstComponent = filesTreePanel
+            mainPanelSplitter.secondComponent = descriptionPanel
+            add(mainPanelSplitter)
+        }
+    }
+
+    private fun loadAutoChoosePanel() {
+        val setting = CheckovSettingsState().getInstance()
+        when {
+            setting?.apiToken.isNullOrEmpty() -> add(checkovDescription.configurationDescription())
+            else -> add(checkovDescription.preScanDescription())
+        }
+    }
+
+    private fun loadErrorsPanel() {
+        add(checkovDescription.failedScanDescription())
+    }
+
+    private fun loadPreviousStatePanel() {
+        when (project.service<FullScanStateService>().previousState) {
+            FullScanStateService.State.FIRST_TIME_SCAN -> {
+                loadAutoChoosePanel()
+            }
+            FullScanStateService.State.SUCCESSFUL_SCAN -> {
+                loadScanResultsPanel()
+            }
+            FullScanStateService.State.FAILED_SCAN -> {
+                loadErrorsPanel()
+            }
         }
     }
 
@@ -156,7 +230,13 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
 
                 override fun scanningFinished(scanSourceType: CheckovScanService.ScanSourceType) {
                     ApplicationManager.getApplication().invokeLater {
-                        project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_SCAN_FINISHED, scanSourceType)
+                        if (scanSourceType == CheckovScanService.ScanSourceType.FILE) {
+                            project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_FILE_SCAN_FINISHED)
+
+                        } else {
+                            project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_FRAMEWORK_SCAN_FINISHED)
+
+                        }
                     }
                 }
             })
