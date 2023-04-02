@@ -56,7 +56,7 @@ class CheckovScanService {
 
             LOG.info("Trying to scan a file using $selectedCheckovScanner")
 
-            val checkovResultFile = createCheckovTempFile(extractFileNameFromPath(filePath), ".json")
+            val checkovResultFile = createCheckovTempFile("${extractFileNameFromPath(filePath)}-checkov-result", ".json")
             val execCommand = prepareExecCommand(filePath, checkovResultFile.path, ScanSourceType.FILE)
             val generalCommandLine = generateCheckovCommand(execCommand)
 
@@ -105,7 +105,7 @@ class CheckovScanService {
 //                    val outputFilePathIndex = execCommand.indexOf("--output-file-path") + 1
 //                    var outputFilePath = if(execCommand[outputFilePathIndex].contains(",")) execCommand[outputFilePathIndex]
 
-                    val checkovResultFile: File = createCheckovTempFile(framework, ".json")
+                    val checkovResultFile: File = createCheckovTempFile("$framework-checkov-result", ".json")
                     val execCommand: List<String> = prepareExecCommand(framework, checkovResultFile.path, ScanSourceType.FRAMEWORK)
 //                    val checkovResultOutputFile = File.createTempFile("${framework}-checkov-result", ".tmp").path
 //                    val file = File("dsdhj")

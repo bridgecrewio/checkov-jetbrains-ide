@@ -13,10 +13,11 @@ import java.nio.file.Path
 
 var checkovTempDirPath: Path = Files.createTempDirectory("checkov")
 fun navigateToFile(project: Project, virtualFile: VirtualFile, startOffset: Int = 0) {
+    val offset = if(startOffset < 0 ) 0 else if (startOffset < virtualFile.length.toInt()) virtualFile.length.toInt() else startOffset
     PsiNavigationSupport.getInstance().createNavigatable(
             project,
             virtualFile,
-            startOffset
+            offset
     ).navigate(false)
 }
 
@@ -108,10 +109,10 @@ fun deleteCheckovTempDir() {
         }
 
         LOG.info("[TEST] - cancelling task - list of temp files: ${checkovTempDirPath.toFile().list().map { path -> path.toString() }}")
-        if (checkovTempDirPath.toFile().list()!!.isEmpty() || checkovTempDirPath.toFile().list()!!.none { filePath -> !filePath.startsWith(FULL_SCAN_STATE_FILE) }) {
+        if (checkovTempDirPath.toFile().list()!!.isEmpty() || checkovTempDirPath.toFile().list()!!.none { filePath -> !filePath.startsWith("error") && !filePath.startsWith("full_scan_state") }) {
             checkovTempDirPath.toFile().deleteRecursively()
         }
     } catch (e: Exception) {
-        LOG.info("could not delete temp file from $checkovTempDirPath")
+        LOG.info("could not delete temp directory in $checkovTempDirPath")
     }
 }

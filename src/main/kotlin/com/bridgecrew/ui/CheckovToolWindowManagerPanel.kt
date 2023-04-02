@@ -3,6 +3,7 @@ package com.bridgecrew.ui
 import com.bridgecrew.analytics.AnalyticsService
 import com.bridgecrew.listeners.CheckovScanListener
 import com.bridgecrew.listeners.CheckovSettingsListener
+import com.bridgecrew.services.ResultsCacheService
 import com.bridgecrew.services.scan.CheckovScanService
 import com.bridgecrew.services.scan.FullScanStateService
 import com.bridgecrew.settings.CheckovSettingsState
@@ -63,7 +64,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                 add(checkovDescription.initializationDescription())
             }
             PANELTYPE.CHECKOV_FILE_SCAN_FINISHED -> {
-                loadScanResultsPanel()
+                loadScanResultsPanel(panelType)
 //                removeAll()
 //                add(CheckovTopPanel(project), BorderLayout.NORTH)
 //                val checkovTree = CheckovToolWindowTree(project, mainPanelSplitter, checkovDescription)
@@ -92,7 +93,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                 if (project.service<FullScanStateService>().wereAllFrameworksFinished()) {
                     CheckovScanAction.resetActionDynamically(true)
                     if (project.service<FullScanStateService>().onCancel) {
-                        loadPreviousStatePanel()
+                        loadPreviousStatePanel(panelType)
                         return
                         // display all canceled and return
                     }
@@ -108,7 +109,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
 //                    CheckovScanAction.resetActionDynamically(true)
 //                }
                 if (!project.service<FullScanStateService>().onCancel) {
-                    loadScanResultsPanel()
+                    loadScanResultsPanel(panelType)
                     // display all canceled and return
                 }
 
@@ -124,14 +125,14 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
         }
     }
 
-    private fun loadScanResultsPanel() {
+    private fun loadScanResultsPanel(panelType: Int) {
         removeAll()
         add(CheckovTopPanel(project), BorderLayout.NORTH)
         val checkovTree = CheckovToolWindowTree(project, mainPanelSplitter, checkovDescription)
         val filesTreePanel = checkovTree.createScroll()
 //                val fullScanAnalyticsData: AnalyticsService.FullScanAnalyticsData? = project.service<AnalyticsService>().fullScanData
 //                if (fullScanAnalyticsData != null) {
-        if(checkovTree.isTreeEmpty) { // && fullScanAnalyticsData.isFullScanFinished()) { // TODO - check on single file
+        if(shouldDisplayNoErrorPanel(panelType)) { // TODO - check on single file
             add(checkovDescription.noErrorsPanel())
         } else {
             val descriptionPanel = checkovDescription.emptyDescription()
@@ -141,6 +142,11 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
         }
     }
 
+    fun shouldDisplayNoErrorPanel(panelType: Int): Boolean {
+        return project.service<ResultsCacheService>().getAllCheckovResults().isEmpty() &&
+                (panelType == PANELTYPE.CHECKOV_FILE_SCAN_FINISHED ||
+                        (panelType == PANELTYPE.CHECKOV_FRAMEWORK_SCAN_FINISHED && project.service<FullScanStateService>().wereAllFrameworksFinished()))
+    }
     private fun loadAutoChoosePanel() {
         val setting = CheckovSettingsState().getInstance()
         when {
@@ -153,13 +159,13 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
         add(checkovDescription.failedScanDescription())
     }
 
-    private fun loadPreviousStatePanel() {
+    private fun loadPreviousStatePanel(panelType: Int) {
         when (project.service<FullScanStateService>().previousState) {
             FullScanStateService.State.FIRST_TIME_SCAN -> {
                 loadAutoChoosePanel()
             }
             FullScanStateService.State.SUCCESSFUL_SCAN -> {
-                loadScanResultsPanel()
+                loadScanResultsPanel(panelType)
             }
             FullScanStateService.State.FAILED_SCAN -> {
                 loadErrorsPanel()

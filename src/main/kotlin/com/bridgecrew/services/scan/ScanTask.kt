@@ -118,6 +118,7 @@ abstract class ScanTask(project: Project, title: String, private val sourceName:
             processHandler.destroyProcess()
             checkovResultFile.delete()
             debugOutputFile.delete()
+            LOG.info("[TEST] - files deleted for $sourceName")
         }
     }
 
