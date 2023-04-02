@@ -11,6 +11,7 @@ import com.bridgecrew.ui.topPanel.CheckovTopPanel
 import com.bridgecrew.ui.vulnerabilitiesTree.CheckovToolWindowTree
 import com.bridgecrew.utils.FULL_SCAN_EXCLUDED_PATHS
 import com.bridgecrew.utils.PANELTYPE
+import com.bridgecrew.utils.deleteCheckovTempDir
 import com.bridgecrew.utils.getGitIgnoreValues
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
@@ -204,6 +205,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                 }
             }
         })
+
     }
 
     fun shouldScanFile(virtualFile: VirtualFile): Boolean {
@@ -249,5 +251,8 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                 }
             })
     }
-    override fun dispose() = Unit
+    override fun dispose() {
+        project.service<CheckovScanService>().cancelAllScans()
+        CheckovScanAction.resetActionDynamically(true)
+    }
 }

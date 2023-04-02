@@ -6,19 +6,16 @@ import com.bridgecrew.services.ResultsCacheService
 import com.bridgecrew.ui.CheckovNotificationBalloon
 import com.bridgecrew.utils.DESIRED_NUMBER_OF_FRAMEWORK_FOR_FULL_SCAN
 import com.bridgecrew.utils.FULL_SCAN_STATE_FILE
+import com.bridgecrew.utils.createCheckovTempFile
 import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import com.google.gson.InstanceCreator
 import com.google.gson.reflect.TypeToken
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
-import com.jayway.jsonpath.internal.Path
 import org.json.JSONArray
 import java.io.File
-import java.lang.reflect.Type
 
 @Service
 class FullScanStateService(val project: Project) {
@@ -32,6 +29,7 @@ class FullScanStateService(val project: Project) {
                 } else {
                     returnToPreviousState()
                 }
+                deletePreviousState()
                 project.service<AnalyticsService>().fullScanFinished()
 
             }
@@ -62,7 +60,7 @@ class FullScanStateService(val project: Project) {
 
     fun saveCurrentState() {
         val currentResults: List<BaseCheckovResult> = project.service<ResultsCacheService>().getAllCheckovResults()
-        stateFile = File.createTempFile(FULL_SCAN_STATE_FILE, ".json")
+        stateFile = createCheckovTempFile(FULL_SCAN_STATE_FILE, ".json")
 
         val resultsAsJson = JSONArray(currentResults) //  Json.encodeToJsonElement(currentResults)
         stateFile!!.writeText(resultsAsJson.toString())
@@ -97,9 +95,16 @@ class FullScanStateService(val project: Project) {
 //                project.service<ResultsCacheService>().addCheckovResult(baseCheckovResult)
 //            }
             project.service<ResultsCacheService>().checkovResults = checkovResultsList
-            stateFile!!.delete()
         } catch (e: Exception) {
             LOG.warn("Could not restore previous state from file, clearing the list", e)
+        }
+    }
+
+    private fun deletePreviousState() {
+        try {
+            stateFile!!.delete()
+        } catch (e: Exception) {
+            LOG.warn("Could not delete previous state file in $stateFile")
         }
     }
 

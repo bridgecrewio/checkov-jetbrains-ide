@@ -1,17 +1,17 @@
 package com.bridgecrew.utils
 import com.intellij.ide.util.PsiNavigationSupport
-import com.intellij.openapi.command.WriteCommandAction
-import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.PsiFile
-import com.intellij.psi.PsiManager
 import org.apache.commons.io.FilenameUtils
 import org.jetbrains.rpc.LOG
+//import sun.security.action.GetPropertyAction
+import java.io.File
 import java.net.URL
+import java.nio.file.Files
+import java.nio.file.Path
 
+var checkovTempDirPath: Path = Files.createTempDirectory("checkov")
 fun navigateToFile(project: Project, virtualFile: VirtualFile, startOffset: Int = 0) {
     PsiNavigationSupport.getInstance().createNavigatable(
             project,
@@ -88,4 +88,30 @@ fun extractFileNameFromPath(filePath: String): String {
     val filename: String = FilenameUtils.getName(filePath)
     val extension: String = FilenameUtils.getExtension(filename)
     return filename.removeSuffix(".$extension")
+}
+
+fun createCheckovTempFile(prefix: String, suffix: String): File {
+    if (!Files.exists(checkovTempDirPath)) {
+        checkovTempDirPath = Files.createTempDirectory("checkov")
+    }
+//    val fileName = "$TEMP_DIRECTORY_NAME${File.separatorChar}$prefix"
+    return File.createTempFile(prefix,
+            suffix,
+            checkovTempDirPath.toFile())
+//            File("${GetPropertyAction.privilegedGetProperty("java.io.tmpdir")}${File.separatorChar}$TEMP_DIRECTORY_NAME"))
+}
+
+fun deleteCheckovTempDir() {
+    try {
+        if (!Files.exists(checkovTempDirPath)) {
+            return
+        }
+
+        LOG.info("[TEST] - cancelling task - list of temp files: ${checkovTempDirPath.toFile().list().map { path -> path.toString() }}")
+        if (checkovTempDirPath.toFile().list()!!.isEmpty() || checkovTempDirPath.toFile().list()!!.none { filePath -> !filePath.startsWith(FULL_SCAN_STATE_FILE) }) {
+            checkovTempDirPath.toFile().deleteRecursively()
+        }
+    } catch (e: Exception) {
+        LOG.info("could not delete temp file from $checkovTempDirPath")
+    }
 }

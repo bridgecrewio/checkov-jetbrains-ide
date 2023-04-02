@@ -2,34 +2,52 @@ package com.bridgecrew.services.checkovScanCommandsService
 
 import com.bridgecrew.listeners.CheckovSettingsListener
 import com.bridgecrew.settings.CheckovSettingsState
-import com.bridgecrew.utils.FULL_SCAN_EXCLUDED_PATHS
-import com.bridgecrew.utils.FULL_SCAN_FRAMEWORKS
-import com.bridgecrew.utils.getGitIgnoreValues
-import com.bridgecrew.utils.getRepoName
+import com.bridgecrew.utils.*
 import com.intellij.openapi.project.Project
 import org.apache.commons.lang.StringUtils
-import java.io.File
 
 abstract class CheckovScanCommandsService(val project: Project) {
     protected val settings = CheckovSettingsState().getInstance()
     var gitRepo = getRepoName()
 
-    fun getExecCommandForSingleFile(filePath: String): ArrayList<String> {
+    fun getExecCommandForSingleFile(filePath: String, outputFilePath: String): ArrayList<String> {
         val cmds = ArrayList<String>()
         cmds.addAll(getCheckovRunningCommandByServiceType())
-        cmds.addAll(getCheckovCliArgsForExecCommand())
+        cmds.addAll(getCheckovCliArgsForExecCommand(outputFilePath))
 
         cmds.add("-f")
         cmds.add(getFilePath(filePath))
         return cmds
     }
 
-    fun getExecCommandsForRepositoryByFramework(): ArrayList<ArrayList<String>> {
+    fun getExecCommandsForRepositoryByFramework(framework: String, outputFilePath: String): ArrayList<String> {
+//        val directoryByFrameworkCommands = arrayListOf<ArrayList<String>>()
+
+        val baseCmds = ArrayList<String>()
+        baseCmds.addAll(getCheckovRunningCommandByServiceType())
+//        baseCmds.addAll(getCheckovCliArgsForExecCommand())
+
+        baseCmds.add("-d")
+        baseCmds.add(getDirectory())
+
+        baseCmds.addAll(getExcludePathCommand())
+
+        val cmdByFramework = arrayListOf<String>()
+//            baseCmds.addAll(addCheckovResultOutputFilePath(framework))
+        cmdByFramework.addAll(baseCmds)
+        cmdByFramework.addAll(getCheckovCliArgsForExecCommand(outputFilePath))
+        cmdByFramework.add("--framework")
+        cmdByFramework.add(framework)
+//        directoryByFrameworkCommands.add(cmdByFramework)
+
+        return cmdByFramework
+    }
+    fun getExecCommandsForRepositoryByFramework(outputFilePath: String): ArrayList<ArrayList<String>> {
         val directoryByFrameworkCommands = arrayListOf<ArrayList<String>>()
 
         val baseCmds = ArrayList<String>()
         baseCmds.addAll(getCheckovRunningCommandByServiceType())
-        baseCmds.addAll(getCheckovCliArgsForExecCommand())
+//        baseCmds.addAll(getCheckovCliArgsForExecCommand())
 
         baseCmds.add("-d")
         baseCmds.add(getDirectory())
@@ -38,8 +56,9 @@ abstract class CheckovScanCommandsService(val project: Project) {
 
         for (framework in FULL_SCAN_FRAMEWORKS) {
             val cmdByFramework = arrayListOf<String>()
-            baseCmds.addAll(addCheckovResultOutputFilePath(framework))
+//            baseCmds.addAll(addCheckovResultOutputFilePath(framework))
             cmdByFramework.addAll(baseCmds)
+            cmdByFramework.addAll(getCheckovCliArgsForExecCommand(outputFilePath))
             cmdByFramework.add("--framework")
             cmdByFramework.add(framework)
             directoryByFrameworkCommands.add(cmdByFramework)
@@ -48,7 +67,7 @@ abstract class CheckovScanCommandsService(val project: Project) {
         return directoryByFrameworkCommands
     }
 
-    private fun getCheckovCliArgsForExecCommand(): ArrayList<String> {
+    private fun getCheckovCliArgsForExecCommand(outputFilePath: String): ArrayList<String> {
         val apiToken = settings?.apiToken
         if (apiToken.isNullOrEmpty()) {
             project.messageBus.syncPublisher(CheckovSettingsListener.SETTINGS_TOPIC).settingsUpdated()
@@ -56,12 +75,15 @@ abstract class CheckovScanCommandsService(val project: Project) {
                     "Please insert an Api Token to continue")
         }
 
-        return arrayListOf("-s", "--bc-api-key", apiToken, "--repo-id", gitRepo, "--quiet", "-o", "json")
+//        val outputFilePath = getCheckovResultOutputFilePath(scannedSource)
+        return arrayListOf("-s", "--bc-api-key", apiToken, "--repo-id", gitRepo, "--quiet", "-o", "cli", "-o", "json",
+                "--output-file-path", "console,$outputFilePath")
     }
 
-    private fun addCheckovResultOutputFilePath(prefix: String): ArrayList<String> {
-        val outputFilePath = File.createTempFile("${prefix}-checkov-result", ".json").toPath().d
-        return arrayListOf("--output-file-path", outputFilePath)
+    private fun getCheckovResultOutputFilePath(prefix: String): String {
+        return createCheckovTempFile("${prefix}-checkov-result", ".json").path
+//        FilenameUtils.getFullPath(outputFilePath.toString())
+//        return arrayListOf("--output-file-path", outputFilePath)
 
     }
 

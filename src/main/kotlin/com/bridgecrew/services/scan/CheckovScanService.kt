@@ -7,9 +7,7 @@ import com.bridgecrew.services.ResultsCacheService
 import com.bridgecrew.services.checkovScanCommandsService.CheckovScanCommandsService
 import com.bridgecrew.settings.CheckovSettingsState
 import com.bridgecrew.ui.actions.CheckovScanAction
-import com.bridgecrew.utils.CheckovResultExtractionData
-import com.bridgecrew.utils.CheckovUtils
-import com.bridgecrew.utils.DESIRED_NUMBER_OF_SINGLE_FILE_SCANS
+import com.bridgecrew.utils.*
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.OSProcessHandler
 import com.intellij.execution.process.ProcessHandler
@@ -35,6 +33,12 @@ class CheckovScanService {
     private val fullScanTasks = mutableSetOf<ScanTask.FrameworkScanTask>()
     private var singleFileCurrentScans = mutableMapOf<String, ScanTask.FileScanTask>()
 
+    fun cancelAllScans() {
+        for (scanTask in fullScanTasks + singleFileCurrentScans.values) {
+            scanTask.cancelTask()
+        }
+        deleteCheckovTempDir()
+    }
     fun scanFile(filePath: String, project: Project) {
         try {
             if (singleFileCurrentScans.containsKey(filePath)) {
@@ -43,6 +47,7 @@ class CheckovScanService {
 
             if (singleFileCurrentScans.size == DESIRED_NUMBER_OF_SINGLE_FILE_SCANS) {
                 LOG.warn("${singleFileCurrentScans.size} scans for files are currently running. Please try scanning again in a couple of minutes")
+                return
             }
 
             if (selectedCheckovScanner == null) {
@@ -51,11 +56,12 @@ class CheckovScanService {
 
             LOG.info("Trying to scan a file using $selectedCheckovScanner")
 
-            val execCommand = prepareExecCommand(filePath)
+            val checkovResultFile = createCheckovTempFile(extractFileNameFromPath(filePath), ".json")
+            val execCommand = prepareExecCommand(filePath, checkovResultFile.path, ScanSourceType.FILE)
             val generalCommandLine = generateCheckovCommand(execCommand)
 
             val processHandler: ProcessHandler = OSProcessHandler.Silent(generalCommandLine)
-            val scanTask = ScanTask.FileScanTask(project, "Checkov scanning file $filePath", filePath, processHandler)
+            val scanTask = ScanTask.FileScanTask(project, "Checkov scanning file $filePath", filePath, processHandler, checkovResultFile)
             singleFileCurrentScans[filePath] = scanTask
 
             ApplicationManager.getApplication().executeOnPooledThread {
@@ -90,25 +96,24 @@ class CheckovScanService {
             project.service<FullScanStateService>().saveCurrentState()
             project.service<ResultsCacheService>().deleteAllCheckovResults() // TODO - save the previous state for the case where the client cancels the
 
-            val execCommands: List<List<String>> = prepareRepositoryScanningExecCommand()
 
             project.service<FullScanStateService>().fullScanStarted()
 
-            execCommands.forEach { execCommand ->
-                run {
-                    val frameworkIndex = execCommand.indexOf("--framework") + 1
-                    val framework = execCommand[frameworkIndex]
+            for (framework in FULL_SCAN_FRAMEWORKS) {
 
-                    val outputFilePathIndex = execCommand.indexOf("--output-file-path") + 1
-                    val outputFilePath = execCommand[outputFilePathIndex]
+                kotlin.run {
+//                    val outputFilePathIndex = execCommand.indexOf("--output-file-path") + 1
+//                    var outputFilePath = if(execCommand[outputFilePathIndex].contains(",")) execCommand[outputFilePathIndex]
 
+                    val checkovResultFile: File = createCheckovTempFile(framework, ".json")
+                    val execCommand: List<String> = prepareExecCommand(framework, checkovResultFile.path, ScanSourceType.FRAMEWORK)
 //                    val checkovResultOutputFile = File.createTempFile("${framework}-checkov-result", ".tmp").path
 //                    val file = File("dsdhj")
 
                     val processHandler: ProcessHandler = OSProcessHandler.Silent(generateCheckovCommand(execCommand))
 
 
-                    val scanTask = ScanTask.FrameworkScanTask(project, "Checkov scanning repository by framework $framework", framework, processHandler, outputFilePath)
+                    val scanTask = ScanTask.FrameworkScanTask(project, "Checkov scanning repository by framework $framework", framework, processHandler, checkovResultFile)
                     fullScanTasks.add(scanTask)
                     project.service<AnalyticsService>().fullScanByFrameworkStarted(framework)
 
@@ -129,14 +134,57 @@ class CheckovScanService {
                         }
                     }
                 }
+
             }
+
+//            val execCommands: List<List<String>> = prepareRepositoryScanningExecCommand()
+//
+//            project.service<FullScanStateService>().fullScanStarted()
+//
+//            execCommands.forEach { execCommand ->
+//                run {
+//                    val frameworkIndex = execCommand.indexOf("--framework") + 1
+//                    val framework = execCommand[frameworkIndex]
+//
+//                    val outputFilePathIndex = execCommand.indexOf("--output-file-path") + 1
+//                    var outputFilePath = if(execCommand[outputFilePathIndex].contains(",")) execCommand[outputFilePathIndex]
+//
+////                    val checkovResultOutputFile = File.createTempFile("${framework}-checkov-result", ".tmp").path
+////                    val file = File("dsdhj")
+//
+//                    val processHandler: ProcessHandler = OSProcessHandler.Silent(generateCheckovCommand(execCommand))
+//
+//
+//                    val scanTask = ScanTask.FrameworkScanTask(project, "Checkov scanning repository by framework $framework", framework, processHandler, outputFilePath)
+//                    fullScanTasks.add(scanTask)
+//                    project.service<AnalyticsService>().fullScanByFrameworkStarted(framework)
+//
+//                    ApplicationManager.getApplication().executeOnPooledThread {
+//                        kotlin.run {
+//                            try {
+//                                if (SwingUtilities.isEventDispatchThread()) {
+//                                    ProgressManager.getInstance().run(scanTask)
+//                                } else {
+//                                    ApplicationManager.getApplication().invokeLater {
+//                                        ProgressManager.getInstance().run(scanTask)
+//                                    }
+//                                }
+//                            } catch (e: ProcessCanceledException) {
+//                                LOG.warn("Process for running framework $framework was canceled")
+//                            }
+//
+//                        }
+//                    }
+//                }
+//            }
         } catch (e: Exception) {
+            CheckovScanAction.resetActionDynamically(true)
             LOG.error(e)
             return
         }
     }
 
-    fun cancelScan(project: Project) {
+    fun cancelFullScan(project: Project) {
         print("canceling run")
         project.service<FullScanStateService>().onCancel = true
 
@@ -175,8 +223,12 @@ class CheckovScanService {
         return generalCommandLine
     }
 
-    private fun prepareExecCommand(filePath: String): List<String> {
-        val execCommand = selectedCheckovScanner!!.getExecCommandForSingleFile(filePath) + getCertParams()
+    private fun prepareExecCommand(scanningSource: String, checkovResultFilePath: String, scanSourceType: ScanSourceType): List<String> {
+        val execCommand = if(scanSourceType == ScanSourceType.FILE)
+            selectedCheckovScanner!!.getExecCommandForSingleFile(scanningSource, checkovResultFilePath) else
+                selectedCheckovScanner!!.getExecCommandsForRepositoryByFramework(scanningSource, checkovResultFilePath)
+        execCommand.addAll(getCertParams())
+
 
         val maskedCommand = replaceApiToken(execCommand.joinToString(" "))
         LOG.info("Running command: $maskedCommand")
@@ -184,19 +236,30 @@ class CheckovScanService {
         return execCommand
     }
 
-    private fun prepareRepositoryScanningExecCommand(): List<List<String>> {
-        val execCommandsByFramework = selectedCheckovScanner!!.getExecCommandsForRepositoryByFramework()
 
-        execCommandsByFramework.forEach { command ->
-            run {
-                command.addAll(getCertParams())
-                val maskedCommand = replaceApiToken(command.joinToString(" "))
-                LOG.info("Running command: $maskedCommand")
-            }
-        }
+//    private fun prepareRepositoryScanningExecCommand(framework: String, outputFilePath: String): List<String> {
+//        val execCommandByFramework = selectedCheckovScanner!!.getExecCommandsForRepositoryByFramework(framework, outputFilePath)
+//        execCommandByFramework.addAll(getCertParams())
+//
+//        val maskedCommand = replaceApiToken(execCommandByFramework.joinToString(" "))
+//        LOG.info("Running command: $maskedCommand")
+//
+//        return execCommandByFramework
+//    }
 
-        return execCommandsByFramework
-    }
+//    private fun prepareRepositoryScanningExecCommand(): List<List<String>> {
+//        val execCommandsByFramework = selectedCheckovScanner!!.getExecCommandsForRepositoryByFramework()
+//
+//        execCommandsByFramework.forEach { command ->
+//            run {
+//                command.addAll(getCertParams())
+//                val maskedCommand = replaceApiToken(command.joinToString(" "))
+//                LOG.info("Running command: $maskedCommand")
+//            }
+//        }
+//
+//        return execCommandsByFramework
+//    }
 
     private fun getCertParams(): ArrayList<String> {
         val cmds = ArrayList<String>()

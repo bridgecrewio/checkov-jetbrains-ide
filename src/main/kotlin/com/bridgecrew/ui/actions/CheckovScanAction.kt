@@ -28,7 +28,7 @@ object CheckovScanAction : AnAction(AllIcons.Actions.Execute), DumbAware {
         } else {
             isExecuteState = true
             presentation.isEnabled = false
-            project?.service<CheckovScanService>()?.cancelScan(project)
+            project?.service<CheckovScanService>()?.cancelFullScan(project)
         }
         updateIcon()
         update(actionEvent)
