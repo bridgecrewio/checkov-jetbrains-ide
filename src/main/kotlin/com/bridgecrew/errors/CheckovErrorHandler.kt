@@ -1,18 +1,15 @@
 package com.bridgecrew.errors
 
 import com.bridgecrew.services.scan.CheckovScanService
+import com.bridgecrew.services.scan.FullScanStateService
+import com.bridgecrew.services.scan.ScanTaskResult
 import com.bridgecrew.ui.CheckovNotificationBalloon
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.components.Service
+import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
-import com.bridgecrew.services.scan.FullScanStateService
-import com.bridgecrew.services.scan.ScanTaskResult
-import com.intellij.openapi.components.service
 import java.io.File
-import java.nio.file.Files
-import java.nio.file.Path
-import kotlin.io.path.Path
 
 @Service
 class CheckovErrorHandlerService(val project: Project) {
@@ -22,11 +19,6 @@ class CheckovErrorHandlerService(val project: Project) {
         val errorMessagePrefix = if (error.message != null) {
             "Error while scanning ${scanSourceType.toString().lowercase()} ${dataSourceValue.replace(project.basePath!!, "")}, original error message - ${error.message}"
         } else "Error while scanning $dataSourceValue"
-
-//        Files.move(Path(scanTaskResult.debugOutput.path),
-//                Path(scanTaskResult.debugOutput.resolveSibling("error-${scanTaskResult.debugOutput.path}").path))
-//        Files.move(Path(scanTaskResult.debugOutput.path),
-//                Path(scanTaskResult.checkovResult.resolveSibling("error-${scanTaskResult.checkovResult.path}").path))
 
 
         val checkResultPath = scanTaskResult.checkovResult.path.split(dataSourceValue)

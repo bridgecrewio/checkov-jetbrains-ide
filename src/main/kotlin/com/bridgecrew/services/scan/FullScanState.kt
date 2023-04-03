@@ -43,15 +43,11 @@ class FullScanStateService(val project: Project) {
     var totalFailedCheckovChecks: Int = 0
 
     private var stateFile: File? = null
-//    private var totalCancelledFrameworks = 0
-//
     var onCancel: Boolean = false
-
     var previousState = if (project.service<ResultsCacheService>().checkovResults.size > 0) State.SUCCESSFUL_SCAN else State.FIRST_TIME_SCAN
 
     private val gson = Gson()
     private val LOG = logger<FullScanStateService>()
-
 
     fun fullScanStarted() {
         fullScanFinishedFrameworksNumber = 0
@@ -62,38 +58,15 @@ class FullScanStateService(val project: Project) {
         val currentResults: List<BaseCheckovResult> = project.service<ResultsCacheService>().getAllCheckovResults()
         stateFile = createCheckovTempFile(FULL_SCAN_STATE_FILE, ".json")
 
-        val resultsAsJson = JSONArray(currentResults) //  Json.encodeToJsonElement(currentResults)
+        val resultsAsJson = JSONArray(currentResults)
         stateFile!!.writeText(resultsAsJson.toString())
     }
 
     fun returnToPreviousState() {
         try {
-//            val file = File("/var/folders/3k/hvlw1vqn42z12wv5_yy83_nc0000gp/T/full_scan_state9804721563029024034.json")
             val stateContent = stateFile!!.readText()
-
-//            val gsonBuilder = GsonBuilder()
-//            gsonBuilder.registerTypeAdapter(
-//                    BaseCheckovResult::class.java,
-//                    {
-//                        object : InstanceCreator<BaseCheckovResult> {
-//                            override fun createInstance(p0: Type?): BaseCheckovResult {
-//
-//                            }
-//
-//                        }
-//                    }
-//            )
-//            val customGson: Gson = gsonBuilder.create()
-
-//            val customObject: UserContext = customGson.fromJson(userSimpleJson, UserContext::class.java)
-
             val resultsListType = object : TypeToken<List<BaseCheckovResult>>() {}.type
             val checkovResultsList: MutableList<BaseCheckovResult> = gson.fromJson(stateContent, resultsListType)
-
-//            checkovResultList.forEach{resultObject ->
-//                val baseCheckovResult: BaseCheckovResult = resultObject as BaseCheckovResult
-//                project.service<ResultsCacheService>().addCheckovResult(baseCheckovResult)
-//            }
             project.service<ResultsCacheService>().checkovResults = checkovResultsList
         } catch (e: Exception) {
             LOG.warn("Could not restore previous state from file, clearing the list", e)
@@ -111,11 +84,8 @@ class FullScanStateService(val project: Project) {
     fun frameworkWasCancelled(framework: String) {
         LOG.info("[TEST] - framework $framework is cancelled in full state")
         fullScanFinishedFrameworksNumber++
-//        if (fullScanFinishedFrameworksNumber == DESIRED_NUMBER_OF_FRAMEWORK_FOR_FULL_SCAN) {
-//            LOG.info("[TEST] - All frameworks were canceled")
-//            returnToPreviousState()
-//        }
     }
+
     fun frameworkScanFinishedAndDetectedIssues(framework: String, numberOfIssues: Int) {
         project.service<AnalyticsService>().fullScanFrameworkDetectedVulnerabilities(framework, numberOfIssues)
 
@@ -167,10 +137,6 @@ class FullScanStateService(val project: Project) {
                 NotificationType.INFORMATION)
 
     }
-
-//    fun wereAllFrameworksCancelled(): Boolean {
-//        return onCancel && wereAllFrameworksFinished()
-//    }
 
     fun wereAllFrameworksFinished(): Boolean {
         return fullScanFinishedFrameworksNumber == DESIRED_NUMBER_OF_FRAMEWORK_FOR_FULL_SCAN

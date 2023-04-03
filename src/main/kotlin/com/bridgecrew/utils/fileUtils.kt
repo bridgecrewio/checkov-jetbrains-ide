@@ -5,7 +5,6 @@ import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 import org.apache.commons.io.FilenameUtils
 import org.jetbrains.rpc.LOG
-//import sun.security.action.GetPropertyAction
 import java.io.File
 import java.net.URL
 import java.nio.file.Files
@@ -95,11 +94,9 @@ fun createCheckovTempFile(prefix: String, suffix: String): File {
     if (!Files.exists(checkovTempDirPath)) {
         checkovTempDirPath = Files.createTempDirectory("checkov")
     }
-//    val fileName = "$TEMP_DIRECTORY_NAME${File.separatorChar}$prefix"
     return File.createTempFile(prefix,
             suffix,
             checkovTempDirPath.toFile())
-//            File("${GetPropertyAction.privilegedGetProperty("java.io.tmpdir")}${File.separatorChar}$TEMP_DIRECTORY_NAME"))
 }
 
 fun deleteCheckovTempDir() {

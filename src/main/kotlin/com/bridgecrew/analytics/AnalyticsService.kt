@@ -21,7 +21,7 @@ class AnalyticsService(val project: Project) {
     private val LOG = logger<AnalyticsService>()
 
     var fullScanData: FullScanAnalyticsData? = null
-    var fullScanNumber = 0
+    private var fullScanNumber = 0
 
     fun fullScanButtonWasPressed() {
         val fullScanButtonWasPressedDate = Date()
