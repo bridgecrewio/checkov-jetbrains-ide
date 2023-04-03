@@ -24,8 +24,15 @@ import java.io.File
 data class ScanTaskResult(
         val checkovResult: File,
         val debugOutput: File,
-        val errorReason: String
-)
+        val errorReason: String)
+{
+    fun deleteResultsFile() {
+        if (checkovResult.exists())
+            checkovResult.delete()
+        if (debugOutput.exists())
+            debugOutput.delete()
+    }
+}
 
 abstract class ScanTask(project: Project, title: String, private val sourceName: String, private val processHandler: ProcessHandler, val checkovResultFile: File) :
         Task.Backgroundable(project, title, true) {
@@ -64,15 +71,10 @@ abstract class ScanTask(project: Project, title: String, private val sourceName:
 
                     LOG.debug(text)
                 } catch (e: ProcessCanceledException) {
-                    LOG.info("[TEST] - Process was canceled for $sourceName", e)
+                    LOG.info("Process was canceled for $sourceName during onTextAvailable, destroying process for processHandler", e)
                     processHandler.destroyProcess()
                 }
 
-            }
-
-            override fun processTerminated(event: ProcessEvent) {
-                super.processTerminated(event)
-                LOG.info("[TEST] - Process was canceled for $sourceName, event.exitCode - ${event.exitCode}, event.text - ${event.text}")
             }
         })
 
@@ -98,14 +100,20 @@ abstract class ScanTask(project: Project, title: String, private val sourceName:
 
     fun cancelTask() {
         if (this.indicator != null) {
-            LOG.info("[TEST] - cancelling task for for $sourceName")
+            LOG.info("Going to cancel task for $sourceName")
             this.indicator!!.cancel()
             ProgressManager.canceled(indicator!!)
             processHandler.destroyProcess()
-            checkovResultFile.delete()
-            debugOutputFile.delete()
-            LOG.info("[TEST] - files deleted for $sourceName")
+            deleteResultsFile()
+            LOG.info("Task was canceled for $sourceName")
         }
+    }
+
+    fun deleteResultsFile() {
+        if (checkovResultFile.exists())
+            checkovResultFile.delete()
+        if (debugOutputFile.exists())
+            debugOutputFile.delete()
     }
 
     class FrameworkScanTask(project: Project, title: String, val framework: String, private val processHandler: ProcessHandler, checkovResultOutputFile: File) :
@@ -121,10 +129,6 @@ abstract class ScanTask(project: Project, title: String, private val sourceName:
                 val scanTaskResult: ScanTaskResult = getScanOutputs()
                 indicator.checkCanceled()
 
-                LOG.info("[TEST] - framework $framework - processHandler.exitCode - ${processHandler.exitCode}, " +
-                        "processHandler.isProcessTerminated -${processHandler.isProcessTerminated}" +
-                        "processHandler.isProcessTerminating -${processHandler.isProcessTerminating}")
-
                 LOG.info("Checkov scan task finished successfully for framework $framework")
 
                 project.service<AnalyticsService>().fullScanByFrameworkFinished(framework)
@@ -132,17 +136,14 @@ abstract class ScanTask(project: Project, title: String, private val sourceName:
                 project.service<CheckovScanService>().analyzeFrameworkScan(scanTaskResult, processHandler.exitCode!!, project, framework)
 
             } catch (e: ProcessCanceledException) {
-                LOG.info("[TEST] - framework $framework was canceled - ProcessCanceledException: ", e)
+                LOG.info("Task for framework $framework was canceled ", e)
                 processHandler.destroyProcess()
-                checkovResultFile.delete()
-                debugOutputFile.delete()
-                project.service<FullScanStateService>().frameworkWasCancelled(framework)
+                deleteResultsFile()
+                project.service<FullScanStateService>().frameworkWasCancelled()
                 project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished(CheckovScanService.ScanSourceType.FRAMEWORK)
             } catch (error: Exception) {
-                LOG.info("[TEST] - framework $framework - error - ", error)
                 LOG.error("error while scanning framework $framework", error)
                 project.service<AnalyticsService>().fullScanByFrameworkFinished(framework)
-
                 project.service<FullScanStateService>().frameworkFinishedWithErrors(framework, ScanTaskResult(checkovResultFile, debugOutputFile, errorReason))
                 throw error
             }
@@ -153,19 +154,6 @@ abstract class ScanTask(project: Project, title: String, private val sourceName:
                 throw ProcessCanceledException(Exception("Could not start process on cancel state"))
             }
             indicator!!.checkCanceled()
-        }
-
-        override fun projectClosing(project: Project) {
-            LOG.info("[TEST] - projectClosing")
-            cancelTask()
-            super.projectClosing(project)
-        }
-
-        override fun projectClosed(project: Project) {
-            LOG.info("[TEST] - projectClosed")
-
-            super.projectClosed(project)
-
         }
     }
 
@@ -187,10 +175,9 @@ abstract class ScanTask(project: Project, title: String, private val sourceName:
                 project.service<CheckovScanService>().analyzeFileScan(scanTaskResult, processHandler.exitCode!!, project, filePath)
 
             } catch (e: ProcessCanceledException) {
-                LOG.info("[TEST] - file $filePath was canceled - ProcessCanceledException: ", e)
+                LOG.info("Task for file $filePath was canceled", e)
                 processHandler.destroyProcess()
-                checkovResultFile.delete()
-                debugOutputFile.delete()
+                deleteResultsFile()
             }
             catch (error: Exception) {
                 LOG.error("error while scanning file $filePath", error)

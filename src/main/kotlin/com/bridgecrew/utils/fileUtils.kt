@@ -12,7 +12,7 @@ import java.nio.file.Path
 
 var checkovTempDirPath: Path = Files.createTempDirectory("checkov")
 fun navigateToFile(project: Project, virtualFile: VirtualFile, startOffset: Int = 0) {
-    val offset = if(startOffset < 0 ) 0 else if (startOffset < virtualFile.length.toInt()) virtualFile.length.toInt() else startOffset
+    val offset = calculateOffset(startOffset, virtualFile.length.toInt())
     PsiNavigationSupport.getInstance().createNavigatable(
             project,
             virtualFile,
@@ -25,7 +25,15 @@ fun navigateToFile(project: Project, filePath: String, startOffset: Int = 0) {
             ?: return
     navigateToFile(project, virtualFile, startOffset)
 }
+fun calculateOffset(startOffset: Int, fileSize: Int): Int {
+    if (startOffset < 0)
+        return 0
 
+    if (startOffset > fileSize)
+        return fileSize
+
+    return startOffset
+}
 /**
  * Helper function that validates url string.
  */
@@ -105,11 +113,11 @@ fun deleteCheckovTempDir() {
             return
         }
 
-        LOG.info("[TEST] - cancelling task - list of temp files: ${checkovTempDirPath.toFile().list().map { path -> path.toString() }}")
+        LOG.info("Checking if Checkov temp dir should be deleted, current files - ${checkovTempDirPath.toFile().list()?.map { path -> path.toString() }}")
         if (checkovTempDirPath.toFile().list()!!.isEmpty() || checkovTempDirPath.toFile().list()!!.none { filePath -> !filePath.startsWith("error") && !filePath.startsWith("full_scan_state") }) {
             checkovTempDirPath.toFile().deleteRecursively()
         }
     } catch (e: Exception) {
-        LOG.info("could not delete temp directory in $checkovTempDirPath")
+        LOG.warn("could not delete temp directory in $checkovTempDirPath", e)
     }
 }

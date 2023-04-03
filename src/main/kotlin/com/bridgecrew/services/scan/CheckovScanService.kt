@@ -12,6 +12,7 @@ import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.OSProcessHandler
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.ide.plugins.PluginManagerCore
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
@@ -27,18 +28,12 @@ import javax.swing.SwingUtilities
 private val LOG = logger<CheckovScanService>()
 
 @Service
-class CheckovScanService {
+class CheckovScanService: Disposable {
     var selectedCheckovScanner: CheckovScanCommandsService? = null
     private val settings = CheckovSettingsState().getInstance()
     private val fullScanTasks = mutableSetOf<ScanTask.FrameworkScanTask>()
     private var singleFileCurrentScans = mutableMapOf<String, ScanTask.FileScanTask>()
 
-    fun cancelAllScans() {
-        for (scanTask in fullScanTasks + singleFileCurrentScans.values) {
-            scanTask.cancelTask()
-        }
-        deleteCheckovTempDir()
-    }
     fun scanFile(filePath: String, project: Project) {
         try {
             if (singleFileCurrentScans.containsKey(filePath)) {
@@ -84,8 +79,6 @@ class CheckovScanService {
 
     fun scanProject(project: Project) {
         try {
-            project.service<AnalyticsService>().fullScanStarted()
-
             if (selectedCheckovScanner == null) {
                 LOG.warn("Checkov is not installed")
             }
@@ -97,6 +90,7 @@ class CheckovScanService {
             project.service<ResultsCacheService>().deleteAllCheckovResults()
 
             project.service<FullScanStateService>().fullScanStarted()
+            project.service<AnalyticsService>().fullScanStarted()
 
             for (framework in FULL_SCAN_FRAMEWORKS) {
 
@@ -123,8 +117,8 @@ class CheckovScanService {
                                 }
                             } catch (e: ProcessCanceledException) {
                                 LOG.warn("Process for running framework $framework was canceled")
+                                project.service<FullScanStateService>().frameworkWasCancelled()
                             }
-
                         }
                     }
                 }
@@ -138,13 +132,19 @@ class CheckovScanService {
     }
 
     fun cancelFullScan(project: Project) {
-        print("canceling run")
+        LOG.info("Going to cancel full scan")
         project.service<FullScanStateService>().onCancel = true
 
-        fullScanTasks.forEach { frameworkScanTask ->
-            LOG.info("[TEST] - Going to cancel for ${frameworkScanTask.framework}")
+        for (frameworkScanTask in fullScanTasks) {
             frameworkScanTask.cancelTask()
         }
+    }
+
+    fun cancelAllScans() {
+        for (scanTask in fullScanTasks + singleFileCurrentScans.values) {
+            scanTask.cancelTask()
+        }
+        deleteCheckovTempDir()
     }
 
     private fun generateCheckovCommand(execCommand: List<String>): GeneralCommandLine {
@@ -222,8 +222,7 @@ class CheckovScanService {
 
             project.service<FullScanStateService>().totalPassedCheckovChecks += extractionResult.passedChecksSize
             project.service<FullScanStateService>().totalFailedCheckovChecks += extractionResult.failedChecks.size
-            scanTaskResult.checkovResult.delete()
-            scanTaskResult.debugOutput.delete()
+            scanTaskResult.deleteResultsFile()
 
         } catch (error: Exception) {
             LOG.warn("Error while analyzing scan results for framework $framework")
@@ -241,25 +240,20 @@ class CheckovScanService {
 
             if (extractionResult.parsingErrorsSize > 0) {
                 project.service<CheckovErrorHandlerService>().notifyAboutParsingError(filePath, ScanSourceType.FILE)
-                scanTaskResult.checkovResult.delete()
-                scanTaskResult.debugOutput.delete()
+                scanTaskResult.deleteResultsFile()
                 return
             }
 
             if (extractionResult.failedChecks.isEmpty()) {
                 LOG.info("Checkov scanning finished, no errors have been detected for file: ${filePath.replace(project.basePath!!, "")}")
-                scanTaskResult.checkovResult.delete()
-                scanTaskResult.debugOutput.delete()
+                scanTaskResult.deleteResultsFile()
                 return
             }
 
             project.service<ResultsCacheService>().addCheckovResults(extractionResult.failedChecks)
             project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished(ScanSourceType.FILE)
 
-
-            scanTaskResult.checkovResult.delete()
-            scanTaskResult.debugOutput.delete()
-
+            scanTaskResult.deleteResultsFile()
         } catch (error: Exception) {
             LOG.warn("Error while analyzing scan results for file $filePath")
             project.service<CheckovErrorHandlerService>().scanningError(scanTaskResult, filePath, error, ScanSourceType.FILE)
@@ -277,8 +271,7 @@ class CheckovScanService {
         if (scanTaskResult.errorReason.contains("missing dependencies (e.g., helm or kustomize, which require those tools to be on your system")) {
             val errorMessage = "Framework $scanningSource was not scanned since it's probably not installed: ${scanTaskResult.errorReason}"
             LOG.warn(errorMessage)
-            scanTaskResult.checkovResult.delete()
-            scanTaskResult.debugOutput.delete()
+            scanTaskResult.deleteResultsFile()
             project.service<FullScanStateService>().frameworkWasNotScanned(scanningSource)
             return false
 
@@ -295,6 +288,11 @@ class CheckovScanService {
     enum class ScanSourceType {
         FILE,
         FRAMEWORK
+    }
+
+    override fun dispose() {
+        cancelAllScans()
+        CheckovScanAction.resetActionDynamically(true)
     }
 }
 

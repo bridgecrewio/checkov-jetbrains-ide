@@ -1,9 +1,11 @@
 package com.bridgecrew.services.scan
 
 import com.bridgecrew.analytics.AnalyticsService
+import com.bridgecrew.listeners.CheckovScanListener
 import com.bridgecrew.results.BaseCheckovResult
 import com.bridgecrew.services.ResultsCacheService
 import com.bridgecrew.ui.CheckovNotificationBalloon
+import com.bridgecrew.ui.actions.CheckovScanAction
 import com.bridgecrew.utils.DESIRED_NUMBER_OF_FRAMEWORK_FOR_FULL_SCAN
 import com.bridgecrew.utils.FULL_SCAN_STATE_FILE
 import com.bridgecrew.utils.createCheckovTempFile
@@ -24,8 +26,14 @@ class FullScanStateService(val project: Project) {
             field = value
             if (value == DESIRED_NUMBER_OF_FRAMEWORK_FOR_FULL_SCAN) {
                 if(!onCancel) {
-                    displayNotificationForFullScanSummary()
-                    previousState = if (wereAllFrameworksFinishedWithErrors()) State.FAILED_SCAN else State.SUCCESSFUL_SCAN
+                    if (wereAllFrameworksFinishedWithErrors()) {
+                        project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).fullScanFailed()
+                        previousState = State.FAILED_SCAN
+                        CheckovScanAction.resetActionDynamically(true)
+                    } else {
+                        displayNotificationForFullScanSummary()
+                        previousState = State.SUCCESSFUL_SCAN
+                    }
                 } else {
                     returnToPreviousState()
                 }
@@ -51,6 +59,12 @@ class FullScanStateService(val project: Project) {
 
     fun fullScanStarted() {
         fullScanFinishedFrameworksNumber = 0
+        frameworkScansFinishedWithErrors.clear()
+        invalidFilesSize = 0
+        frameworkScansFinishedWithNoVulnerabilities.clear()
+        unscannedFrameworks.clear()
+        totalPassedCheckovChecks = 0
+        totalFailedCheckovChecks = 0
         onCancel = false
     }
 
@@ -81,8 +95,7 @@ class FullScanStateService(val project: Project) {
         }
     }
 
-    fun frameworkWasCancelled(framework: String) {
-        LOG.info("[TEST] - framework $framework is cancelled in full state")
+    fun frameworkWasCancelled() {
         fullScanFinishedFrameworksNumber++
     }
 

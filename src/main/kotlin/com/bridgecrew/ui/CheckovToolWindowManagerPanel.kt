@@ -74,15 +74,18 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                         return
                     }
 
-                    if (project.service<FullScanStateService>().wereAllFrameworksFinishedWithErrors()) {
-                        loadErrorsPanel()
-                        return
-                    }
+//                    if (project.service<FullScanStateService>().wereAllFrameworksFinishedWithErrors()) {
+//                        loadErrorsPanel()
+//                        return
+//                    }
                 }
                 if (!project.service<FullScanStateService>().onCancel) {
                     loadScanResultsPanel(panelType)
                 }
 
+            }
+            PANELTYPE.CHECKOV_REPOSITORY_SCAN_FAILED -> {
+                loadErrorsPanel()
             }
             PANELTYPE.AUTO_CHOOSE_PANEL -> {
                 loadAutoChoosePanel()
@@ -90,7 +93,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
 
         }
         revalidate()
-        if (panelType == PANELTYPE.CHECKOV_FRAMEWORK_SCAN_FINISHED) {
+        if (panelType == PANELTYPE.CHECKOV_FRAMEWORK_SCAN_FINISHED && project.service<FullScanStateService>().wereAllFrameworksFinished()) {
             project.service<AnalyticsService>().fullScanResultsWereFullyDisplayed()
         }
     }
@@ -208,11 +211,15 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                     ApplicationManager.getApplication().invokeLater {
                         if (scanSourceType == CheckovScanService.ScanSourceType.FILE) {
                             project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_FILE_SCAN_FINISHED)
-
                         } else {
                             project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_FRAMEWORK_SCAN_FINISHED)
-
                         }
+                    }
+                }
+
+                override fun fullScanFailed() {
+                    ApplicationManager.getApplication().invokeLater {
+                        project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_REPOSITORY_SCAN_FAILED)
                     }
                 }
             })
@@ -225,8 +232,5 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                 }
             })
     }
-    override fun dispose() {
-        project.service<CheckovScanService>().cancelAllScans()
-        CheckovScanAction.resetActionDynamically(true)
-    }
+    override fun dispose() = Unit
 }
