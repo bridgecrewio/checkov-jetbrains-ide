@@ -25,20 +25,7 @@ class FullScanStateService(val project: Project) {
         set(value) {
             field = value
             if (value == DESIRED_NUMBER_OF_FRAMEWORK_FOR_FULL_SCAN) {
-                if(!onCancel) {
-                    if (wereAllFrameworksFinishedWithErrors()) {
-                        project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).fullScanFailed()
-                        previousState = State.FAILED_SCAN
-                        CheckovScanAction.resetActionDynamically(true)
-                    } else {
-                        displayNotificationForFullScanSummary()
-                        previousState = State.SUCCESSFUL_SCAN
-                    }
-                } else {
-                    returnToPreviousState()
-                }
-                deletePreviousState()
-                project.service<AnalyticsService>().fullScanFinished()
+                handleFullScanFinished()
 
             }
         }
@@ -56,6 +43,24 @@ class FullScanStateService(val project: Project) {
 
     private val gson = Gson()
     private val LOG = logger<FullScanStateService>()
+
+    private fun handleFullScanFinished() {
+        if(!onCancel) {
+            if (wereAllFrameworksFinishedWithErrors()) {
+                project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).fullScanFailed()
+                previousState = State.FAILED_SCAN
+                CheckovScanAction.resetActionDynamically(true)
+            } else {
+                displayNotificationForFullScanSummary()
+                previousState = State.SUCCESSFUL_SCAN
+            }
+        } else {
+            returnToPreviousState()
+        }
+
+        deletePreviousState()
+        project.service<AnalyticsService>().fullScanFinished()
+    }
 
     fun fullScanStarted() {
         fullScanFinishedFrameworksNumber = 0

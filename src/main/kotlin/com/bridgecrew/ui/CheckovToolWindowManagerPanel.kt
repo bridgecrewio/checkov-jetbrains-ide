@@ -12,7 +12,6 @@ import com.bridgecrew.ui.topPanel.CheckovTopPanel
 import com.bridgecrew.ui.vulnerabilitiesTree.CheckovToolWindowTree
 import com.bridgecrew.utils.FULL_SCAN_EXCLUDED_PATHS
 import com.bridgecrew.utils.PANELTYPE
-import com.bridgecrew.utils.deleteCheckovTempDir
 import com.bridgecrew.utils.getGitIgnoreValues
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
@@ -73,11 +72,6 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                         loadPreviousStatePanel(panelType)
                         return
                     }
-
-//                    if (project.service<FullScanStateService>().wereAllFrameworksFinishedWithErrors()) {
-//                        loadErrorsPanel()
-//                        return
-//                    }
                 }
                 if (!project.service<FullScanStateService>().onCancel) {
                     loadScanResultsPanel(panelType)

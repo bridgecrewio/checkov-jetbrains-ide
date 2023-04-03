@@ -140,11 +140,10 @@ class CheckovScanService: Disposable {
         }
     }
 
-    fun cancelAllScans() {
+    private fun cancelAllScans() {
         for (scanTask in fullScanTasks + singleFileCurrentScans.values) {
             scanTask.cancelTask()
         }
-        deleteCheckovTempDir()
     }
 
     private fun generateCheckovCommand(execCommand: List<String>): GeneralCommandLine {
@@ -292,6 +291,7 @@ class CheckovScanService: Disposable {
 
     override fun dispose() {
         cancelAllScans()
+        deleteCheckovTempDir()
         CheckovScanAction.resetActionDynamically(true)
     }
 }
