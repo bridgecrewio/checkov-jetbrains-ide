@@ -26,7 +26,6 @@ class FullScanStateService(val project: Project) {
             field = value
             if (value == DESIRED_NUMBER_OF_FRAMEWORK_FOR_FULL_SCAN) {
                 handleFullScanFinished()
-
             }
         }
 
