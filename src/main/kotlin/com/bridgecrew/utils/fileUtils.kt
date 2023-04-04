@@ -115,7 +115,7 @@ fun deleteCheckovTempDir() {
 
         val listOfFiles = checkovTempDirPath.toFile().list()!!
         LOG.info("Checking if Checkov temp dir should be deleted, current files - ${checkovTempDirPath.toFile().list()?.map { path -> path.toString() }}")
-        if (listOfFiles.isEmpty() || listOfFiles.any { filePath -> !filePath.startsWith("error") }) {
+        if (listOfFiles.isEmpty() || listOfFiles.none { filePath -> filePath.startsWith("error") }) {
             checkovTempDirPath.toFile().deleteRecursively()
         }
     } catch (e: Exception) {
