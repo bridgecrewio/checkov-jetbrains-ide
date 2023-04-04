@@ -9,13 +9,14 @@ import com.intellij.openapi.project.Project
 
 @Service
 class ResultsCacheService(val project: Project) {
-    private var checkovResults: MutableList<BaseCheckovResult> = mutableListOf()
+    var checkovResults: MutableList<BaseCheckovResult> = mutableListOf()
     private val checkovResultsComparator: Comparator<BaseCheckovResult> = compareBy({ it.filePath }, { it.resource }, {it.severity})
     private val baseDir: String = project.basePath!!
 
     fun getAllCheckovResults(): List<BaseCheckovResult> {
         return this.checkovResults
     }
+
 
     fun getCheckovResultsFilteredBySeverityGroupedByPath(severitiesToFilterBy: List<Severity>?): Map<String, List<BaseCheckovResult>> {
         if(severitiesToFilterBy != null) {
@@ -26,7 +27,7 @@ class ResultsCacheService(val project: Project) {
             }
         }
 
-        return this.checkovResults.groupBy { it.filePath.toString() }
+        return this.checkovResults.groupBy { it.filePath }
     }
     fun addCheckovResult(checkovResult: BaseCheckovResult) {
         checkovResults.add(checkovResult)
@@ -67,7 +68,7 @@ class ResultsCacheService(val project: Project) {
                     if (result.vulnerability_details == null) {
                         throw Exception("type is vulnerability but no vulnerability_details")
                     }
-                    val vulnerabilityCheckovResult = VulnerabilityCheckovResult(checkType, Path(result.file_abs_path.replace(baseDir, "")),
+                    val vulnerabilityCheckovResult = VulnerabilityCheckovResult(checkType, result.file_abs_path.replace(baseDir, ""),
                             resource, name, result.check_id, severity, result.description,
                             result.guideline, result.file_abs_path, result.file_line_range, result.fixed_definition,
                             result.code_block,
@@ -85,7 +86,7 @@ class ResultsCacheService(val project: Project) {
                     continue
                 }
                 Category.SECRETS -> {
-                    val secretCheckovResult = SecretsCheckovResult(checkType, Path(result.file_abs_path.replace(baseDir, "")),
+                    val secretCheckovResult = SecretsCheckovResult(checkType, result.file_abs_path.replace(baseDir, ""),
                             resource, name, result.check_id, severity, result.description,
                             result.guideline, result.file_abs_path, result.file_line_range, result.fixed_definition,
                             result.code_block)
@@ -93,7 +94,7 @@ class ResultsCacheService(val project: Project) {
                     continue
                 }
                 Category.IAC -> {
-                    val iacCheckovResult = IacCheckovResult(checkType, Path(result.file_abs_path.replace(baseDir, "")),
+                    val iacCheckovResult = IacCheckovResult(checkType, result.file_abs_path.replace(baseDir, ""),
                             resource, name, result.check_id, severity, result.description,
                             result.guideline, result.file_abs_path, result.file_line_range, result.fixed_definition,
                             result.code_block)
@@ -105,7 +106,7 @@ class ResultsCacheService(val project: Project) {
                         throw Exception("type is license but no vulnerability_details")
                     }
 
-                    val licenseCheckovResult = LicenseCheckovResult(checkType, Path(result.file_abs_path.replace(baseDir, "")),
+                    val licenseCheckovResult = LicenseCheckovResult(checkType, result.file_abs_path.replace(baseDir, ""),
                             resource, name, result.check_id, severity, result.description,
                             result.guideline, result.file_abs_path, result.file_line_range, result.fixed_definition,
                             result.code_block,

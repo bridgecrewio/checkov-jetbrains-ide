@@ -4,7 +4,7 @@ import java.nio.file.Path
 
 class LicenseCheckovResult(
         checkType: CheckType,
-        filePath: Path,
+        filePath: String,
         resource: String,
         name: String,
         id: String,

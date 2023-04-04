@@ -1,13 +1,23 @@
 package com.bridgecrew.services.scan
 
 import com.bridgecrew.analytics.AnalyticsService
+import com.bridgecrew.listeners.CheckovScanListener
+import com.bridgecrew.results.BaseCheckovResult
 import com.bridgecrew.services.ResultsCacheService
 import com.bridgecrew.ui.CheckovNotificationBalloon
+import com.bridgecrew.ui.actions.CheckovScanAction
 import com.bridgecrew.utils.DESIRED_NUMBER_OF_FRAMEWORK_FOR_FULL_SCAN
+import com.bridgecrew.utils.FULL_SCAN_STATE_FILE
+import com.bridgecrew.utils.createCheckovTempFile
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
+import org.json.JSONArray
+import java.io.File
 
 @Service
 class FullScanStateService(val project: Project) {
@@ -15,10 +25,8 @@ class FullScanStateService(val project: Project) {
         set(value) {
             field = value
             if (value == DESIRED_NUMBER_OF_FRAMEWORK_FOR_FULL_SCAN) {
-                project.service<AnalyticsService>().fullScanFinished()
-                displayNotificationForFullScanSummary()
+                handleFullScanFinished()
             }
-
         }
 
     var frameworkScansFinishedWithErrors = mutableMapOf<String, ScanTaskResult>()
@@ -28,8 +36,71 @@ class FullScanStateService(val project: Project) {
     var totalPassedCheckovChecks: Int = 0
     var totalFailedCheckovChecks: Int = 0
 
+    private var stateFile: File? = null
+    var onCancel: Boolean = false
+    var previousState = if (project.service<ResultsCacheService>().checkovResults.size > 0) State.SUCCESSFUL_SCAN else State.FIRST_TIME_SCAN
+
+    private val gson = Gson()
+    private val LOG = logger<FullScanStateService>()
+
+    private fun handleFullScanFinished() {
+        if(!onCancel) {
+            if (wereAllFrameworksFinishedWithErrors()) {
+                project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).fullScanFailed()
+                previousState = State.FAILED_SCAN
+                CheckovScanAction.resetActionDynamically(true)
+            } else {
+                displayNotificationForFullScanSummary()
+                previousState = State.SUCCESSFUL_SCAN
+            }
+        } else {
+            returnToPreviousState()
+        }
+
+        deletePreviousState()
+        project.service<AnalyticsService>().fullScanFinished()
+    }
+
     fun fullScanStarted() {
         fullScanFinishedFrameworksNumber = 0
+        frameworkScansFinishedWithErrors.clear()
+        invalidFilesSize = 0
+        frameworkScansFinishedWithNoVulnerabilities.clear()
+        unscannedFrameworks.clear()
+        totalPassedCheckovChecks = 0
+        totalFailedCheckovChecks = 0
+        onCancel = false
+    }
+
+    fun saveCurrentState() {
+        val currentResults: List<BaseCheckovResult> = project.service<ResultsCacheService>().getAllCheckovResults()
+        stateFile = createCheckovTempFile(FULL_SCAN_STATE_FILE, ".json")
+
+        val resultsAsJson = JSONArray(currentResults)
+        stateFile!!.writeText(resultsAsJson.toString())
+    }
+
+    fun returnToPreviousState() {
+        try {
+            val stateContent = stateFile!!.readText()
+            val resultsListType = object : TypeToken<List<BaseCheckovResult>>() {}.type
+            val checkovResultsList: MutableList<BaseCheckovResult> = gson.fromJson(stateContent, resultsListType)
+            project.service<ResultsCacheService>().checkovResults = checkovResultsList
+        } catch (e: Exception) {
+            LOG.warn("Could not restore previous state from file, clearing the list", e)
+        }
+    }
+
+    private fun deletePreviousState() {
+        try {
+            stateFile!!.delete()
+        } catch (e: Exception) {
+            LOG.warn("Could not delete previous state file in $stateFile")
+        }
+    }
+
+    fun frameworkWasCancelled() {
+        fullScanFinishedFrameworksNumber++
     }
 
     fun frameworkScanFinishedAndDetectedIssues(framework: String, numberOfIssues: Int) {
@@ -42,7 +113,6 @@ class FullScanStateService(val project: Project) {
         frameworkScansFinishedWithNoVulnerabilities.add(framework)
         project.service<AnalyticsService>().fullScanFrameworkFinishedNoErrors(framework)
         fullScanFinishedFrameworksNumber++
-
     }
 
     fun frameworkFinishedWithErrors(framework: String, scanTaskResult: ScanTaskResult) {
@@ -83,5 +153,19 @@ class FullScanStateService(val project: Project) {
                 message,
                 NotificationType.INFORMATION)
 
+    }
+
+    fun wereAllFrameworksFinished(): Boolean {
+        return fullScanFinishedFrameworksNumber == DESIRED_NUMBER_OF_FRAMEWORK_FOR_FULL_SCAN
+    }
+
+    fun wereAllFrameworksFinishedWithErrors(): Boolean {
+        return frameworkScansFinishedWithErrors.size == DESIRED_NUMBER_OF_FRAMEWORK_FOR_FULL_SCAN
+    }
+
+    enum class State() {
+        FIRST_TIME_SCAN,
+        SUCCESSFUL_SCAN,
+        FAILED_SCAN
     }
 }

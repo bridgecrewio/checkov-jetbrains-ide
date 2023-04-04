@@ -12,4 +12,6 @@ interface CheckovScanListener {
     fun projectScanningStarted()
 
     fun scanningFinished(scanSourceType: CheckovScanService.ScanSourceType)
+
+    fun fullScanFailed()
 }

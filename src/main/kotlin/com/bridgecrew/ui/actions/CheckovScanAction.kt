@@ -27,7 +27,8 @@ object CheckovScanAction : AnAction(AllIcons.Actions.Execute), DumbAware {
             project.service<CheckovScanService>().scanProject(project)
         } else {
             isExecuteState = true
-            project?.service<CheckovScanService>()?.cancelScan()
+            presentation.isEnabled = false
+            project?.service<CheckovScanService>()?.cancelFullScan(project)
         }
         updateIcon()
         update(actionEvent)
@@ -49,6 +50,7 @@ object CheckovScanAction : AnAction(AllIcons.Actions.Execute), DumbAware {
     }
 
     fun resetActionDynamically(isExecuteState: Boolean) {
+        presentation.isEnabled = true
         CheckovScanAction.isExecuteState = isExecuteState
         updateIcon()
     }
