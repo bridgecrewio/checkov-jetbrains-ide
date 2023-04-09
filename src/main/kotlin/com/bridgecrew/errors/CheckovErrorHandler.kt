@@ -35,7 +35,7 @@ class CheckovErrorHandlerService(val project: Project) {
                     "Checkov result can be found in ${errorCheckovResultFile.path}.\n" +
                     "To report: open a issue at https://github.com/bridgecrewio/checkov-jetbrains-ide/issues\n"
 
-            LOG.error(errorMessage)
+            LOG.error(errorMessage, error)
 
             CheckovNotificationBalloon.showNotification(project,
                     errorMessage,

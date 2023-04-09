@@ -1,12 +1,7 @@
 package com.bridgecrew.analytics
 
-import com.bridgecrew.services.ResultsCacheService
 import com.bridgecrew.services.scan.FullScanStateService
 import com.bridgecrew.services.scan.ScanTaskResult
-import com.bridgecrew.ui.CheckovNotificationBalloon
-import com.bridgecrew.utils.DESIRED_NUMBER_OF_FRAMEWORK_FOR_FULL_SCAN
-import com.bridgecrew.utils.FULL_SCAN_FRAMEWORKS
-import com.intellij.notification.NotificationType
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger

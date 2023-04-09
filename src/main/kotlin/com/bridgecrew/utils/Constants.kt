@@ -1,11 +1,5 @@
 package com.bridgecrew.utils
 
-import java.io.File
-import java.nio.file.Files
-import java.nio.file.Path
-
-const val CHECKNAMEDEPTH = 4
-const val POLICYDETAILS = "Policy Details:"
 const val GUIDELINES_TITLE = "View Guidelines"
 const val CUSTOM_GUIDELINES_TITLE = "Guidelines:"
 

@@ -1,7 +1,5 @@
 package com.bridgecrew.results
 
-import java.nio.file.Path
-
 class SecretsCheckovResult(
         checkType: CheckType,
         filePath: String,

@@ -4,13 +4,13 @@ import com.bridgecrew.CheckovResult
 import com.bridgecrew.results.*
 import com.bridgecrew.utils.CheckovUtils
 import com.intellij.openapi.components.Service
-import kotlin.io.path.Path
 import com.intellij.openapi.project.Project
 
 @Service
 class ResultsCacheService(val project: Project) {
     var checkovResults: MutableList<BaseCheckovResult> = mutableListOf()
-    private val checkovResultsComparator: Comparator<BaseCheckovResult> = compareBy({ it.filePath }, { it.resource }, {it.severity})
+
+    private val checkovResultsComparator: Comparator<BaseCheckovResult> = CheckovResultsComparatorGenerator.generateCheckovResultComparator()
     private val baseDir: String = project.basePath!!
 
     fun getAllCheckovResults(): List<BaseCheckovResult> {
@@ -27,6 +27,7 @@ class ResultsCacheService(val project: Project) {
             }
         }
 
+        checkovResults.sortWith(checkovResultsComparator)
         return this.checkovResults.groupBy { it.filePath }
     }
     fun addCheckovResult(checkovResult: BaseCheckovResult) {
@@ -55,21 +56,22 @@ class ResultsCacheService(val project: Project) {
     }
     fun setCheckovResultsFromResultsList(results: List<CheckovResult>) {
         for (result in results) {
-            val category = mapCheckovCheckTypeToScanType(result.check_type, result.check_id)
-            val resource = (if (category == Category.VULNERABILITIES) result.vulnerability_details?.package_name else result.resource)
-                    ?: throw Exception("null resource, category is ${category.name}, result is $result")
-            val name = getResourceName(result, category)
+            val category: Category = mapCheckovCheckTypeToScanType(result.check_type, result.check_id)
+            val resource: String = getResource(result, category)
+            val name: String = getResourceName(result, category)
                     ?: throw Exception("null name, category is ${category.name}, result is $result")
             val checkType = CheckType.valueOf(result.check_type.uppercase())
             val severity = if (result.severity != null) Severity.valueOf(result.severity.uppercase()) else Severity.UNKNOWN
+            val description = if(!result.description.isNullOrEmpty()) result.description else result.short_description
 
             when (category) {
                 Category.VULNERABILITIES -> {
                     if (result.vulnerability_details == null) {
                         throw Exception("type is vulnerability but no vulnerability_details")
                     }
-                    val vulnerabilityCheckovResult = VulnerabilityCheckovResult(checkType, result.file_abs_path.replace(baseDir, ""),
-                            resource, name, result.check_id, severity, result.description,
+                    val vulnerabilityCheckovResult = VulnerabilityCheckovResult(
+                            checkType, result.file_abs_path.replace(baseDir, ""),
+                            resource, name, result.check_id, severity, description,
                             result.guideline, result.file_abs_path, result.file_line_range, result.fixed_definition,
                             result.code_block,
                             result.vulnerability_details.cvss,
@@ -80,25 +82,30 @@ class ResultsCacheService(val project: Project) {
                             result.vulnerability_details.vector,
                             result.vulnerability_details.id,
                             result.file_path,
-                            result.vulnerability_details.risk_factors
-                    )
-                    addToSorted(vulnerabilityCheckovResult)
+                            null, // TODO - fix after Saar's team fixes their side
+                            result.vulnerability_details.root_package_name,
+                            result.vulnerability_details.root_package_version,
+                            result.vulnerability_details.root_package_fix_version,
+
+                            )
+                    checkovResults.add(vulnerabilityCheckovResult)
+
                     continue
                 }
                 Category.SECRETS -> {
                     val secretCheckovResult = SecretsCheckovResult(checkType, result.file_abs_path.replace(baseDir, ""),
-                            resource, name, result.check_id, severity, result.description,
+                            resource, name, result.check_id, severity, description,
                             result.guideline, result.file_abs_path, result.file_line_range, result.fixed_definition,
                             result.code_block)
-                    addToSorted(secretCheckovResult)
+                    checkovResults.add(secretCheckovResult)
                     continue
                 }
                 Category.IAC -> {
                     val iacCheckovResult = IacCheckovResult(checkType, result.file_abs_path.replace(baseDir, ""),
-                            resource, name, result.check_id, severity, result.description,
+                            resource, name, result.check_id, severity, description,
                             result.guideline, result.file_abs_path, result.file_line_range, result.fixed_definition,
                             result.code_block)
-                    addToSorted(iacCheckovResult)
+                    checkovResults.add(iacCheckovResult)
                     continue
                 }
                 Category.LICENSES -> {
@@ -107,18 +114,20 @@ class ResultsCacheService(val project: Project) {
                     }
 
                     val licenseCheckovResult = LicenseCheckovResult(checkType, result.file_abs_path.replace(baseDir, ""),
-                            resource, name, result.check_id, severity, result.description,
+                            resource, name, result.check_id, severity, description,
                             result.guideline, result.file_abs_path, result.file_line_range, result.fixed_definition,
                             result.code_block,
-                            result.vulnerability_details.licenses,
+                            result.vulnerability_details.package_name,
+                            result.vulnerability_details.license,
                             result.check_id.uppercase() == "BC_LIC_1"
                     )
-                    addToSorted(licenseCheckovResult)
+                    checkovResults.add(licenseCheckovResult)
                     continue
                 }
             }
         }
     }
+
     private fun addToSorted(checkovResult: BaseCheckovResult) {
         val index = checkovResults.binarySearch(checkovResult, checkovResultsComparator)
         val insertionPoint =
@@ -155,16 +164,23 @@ class ResultsCacheService(val project: Project) {
     private fun getResourceName(result: CheckovResult, category: Category): String? {
         return when (category) {
             Category.IAC, Category.SECRETS -> {
-                result.check_name
+                "${result.check_name} (${result.file_line_range[0]} - ${result.file_line_range[1]})"
             }
 
             Category.LICENSES -> {
-                result.vulnerability_details?.licenses ?: "NOT FOUND"
+                result.vulnerability_details?.license ?: "NOT FOUND"
             }
 
             Category.VULNERABILITIES -> {
                 result.vulnerability_details?.id
             }
         }
+    }
+    private fun getResource(result: CheckovResult, category: Category) : String {
+        if (category == Category.VULNERABILITIES || category == Category.LICENSES) {
+            return result.vulnerability_details?.package_name ?: throw Exception("null resource, category is ${category.name}, result is $result")
+        }
+
+        return result.resource
     }
 }

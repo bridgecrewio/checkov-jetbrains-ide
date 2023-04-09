@@ -16,6 +16,7 @@ object CheckovScanAction : AnAction(AllIcons.Actions.Execute), DumbAware {
 
     init {
         updateIcon()
+        presentation.isEnabled = false
     }
 
     override fun actionPerformed(actionEvent: AnActionEvent) {

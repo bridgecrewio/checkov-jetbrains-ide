@@ -1,7 +1,5 @@
 package com.bridgecrew.results
 
-import java.nio.file.Path
-
 class LicenseCheckovResult(
         checkType: CheckType,
         filePath: String,
@@ -15,6 +13,7 @@ class LicenseCheckovResult(
         fileLineRange: List<Int>,
         fixDefinition: String?,
         codeBlock: List<List<Object>>,
+        val policy: String?,
         val licenseType: String?,
         val approvedSPDX: Boolean) :
         BaseCheckovResult(
