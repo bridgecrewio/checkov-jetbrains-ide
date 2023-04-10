@@ -153,7 +153,10 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
             override fun fileOpened(source: FileEditorManager, file: VirtualFile) {
                 super.fileOpened(source, file)
                 if (shouldScanFile(file)) {
-                    project.service<CheckovScanService>().scanFile(file.path, project)
+                    val hasResources = project.service<ResultsCacheService>().getCheckovResultsByPath(toVirtualFilePath(file)).isNotEmpty()
+                    if(!hasResources){
+                        project.service<CheckovScanService>().scanFile(file.path, project)
+                    }
                 }
             }
         })
@@ -179,12 +182,16 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
 
     }
 
+    fun toVirtualFilePath(virtualFile: VirtualFile): String {
+        return virtualFile.path.removePrefix(project.basePath!!).removePrefix(File.separator)
+    }
+
     fun shouldScanFile(virtualFile: VirtualFile): Boolean {
         if (!virtualFile.isValid) {
             return false
         }
 
-        val virtualFilePath: String = virtualFile.path.removePrefix(project.basePath!!).removePrefix(File.separator)
+        val virtualFilePath: String = toVirtualFilePath(virtualFile)
 
         val excludedPaths = (getGitIgnoreValues(project) + FULL_SCAN_EXCLUDED_PATHS).distinct()
 
