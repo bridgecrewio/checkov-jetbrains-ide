@@ -4,7 +4,6 @@ import com.bridgecrew.CheckovResult
 import com.bridgecrew.results.*
 import com.bridgecrew.utils.CheckovUtils
 import com.intellij.openapi.components.Service
-import kotlin.io.path.Path
 import com.intellij.openapi.project.Project
 
 @Service
@@ -12,23 +11,40 @@ class ResultsCacheService(val project: Project) {
     var checkovResults: MutableList<BaseCheckovResult> = mutableListOf()
     private val checkovResultsComparator: Comparator<BaseCheckovResult> = compareBy({ it.filePath }, { it.resource }, {it.severity})
     private val baseDir: String = project.basePath!!
+    private var selectedCategory: Category? = null
 
     fun getAllCheckovResults(): List<BaseCheckovResult> {
         return this.checkovResults
     }
 
+    fun updateCategory(category: Category?){
+        this.selectedCategory = category
+    }
 
     fun getCheckovResultsFilteredBySeverityGroupedByPath(severitiesToFilterBy: List<Severity>?): Map<String, List<BaseCheckovResult>> {
+        var filteredResults = checkovResults
         if(severitiesToFilterBy != null) {
-            checkovResults.filter {baseCheckovResult ->
+            filteredResults = filteredResults.filter { baseCheckovResult ->
                 severitiesToFilterBy.all { includedSeverity ->
                     includedSeverity == baseCheckovResult.severity
                 }
-            }
+            }.toMutableList()
+        }
+        if(selectedCategory != null) {
+            filteredResults = filteredResults.filter { baseCheckovResult ->
+                selectedCategory == baseCheckovResult.category
+            }.toMutableList()
         }
 
-        return this.checkovResults.groupBy { it.filePath }
+        return filteredResults.groupBy { it.filePath.toString() }
     }
+
+    fun getResultsByCategory(category: Category?): List<BaseCheckovResult> {
+        return if(category == null) checkovResults else checkovResults.filter { baseCheckovResult ->
+            category == baseCheckovResult.category
+        }.toMutableList()
+    }
+
     fun addCheckovResult(checkovResult: BaseCheckovResult) {
         checkovResults.add(checkovResult)
     }

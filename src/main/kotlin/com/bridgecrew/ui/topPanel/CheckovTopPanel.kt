@@ -37,7 +37,6 @@ class CheckovTopPanel(val project: Project) : SimpleToolWindowPanel(true, true),
     }
 
     private fun createActionGroupPanel(actionToolbarPanel: JPanel) {
-        CheckovActionToolbar.setComponent(this)
         actionToolbarPanel.add(CheckovActionToolbar.actionToolBar.component)
     }
 
