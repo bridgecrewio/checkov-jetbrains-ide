@@ -17,6 +17,12 @@ class ResultsCacheService(val project: Project) {
         return this.checkovResults
     }
 
+    fun getCheckovResultsByPath(filePath: String): List<BaseCheckovResult> {
+        return this.checkovResults.filter {baseCheckovResult ->
+            baseCheckovResult.filePath == "/${filePath}"
+        }
+    }
+
 
     fun getCheckovResultsFilteredBySeverityGroupedByPath(severitiesToFilterBy: List<Severity>?): Map<String, List<BaseCheckovResult>> {
         if(severitiesToFilterBy != null) {
