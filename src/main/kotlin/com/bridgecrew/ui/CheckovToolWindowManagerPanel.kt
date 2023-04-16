@@ -13,6 +13,7 @@ import com.bridgecrew.ui.vulnerabilitiesTree.CheckovToolWindowTree
 import com.bridgecrew.utils.FULL_SCAN_EXCLUDED_PATHS
 import com.bridgecrew.utils.PANELTYPE
 import com.bridgecrew.utils.getGitIgnoreValues
+import com.bridgecrew.utils.toVirtualFilePath
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
@@ -171,7 +172,10 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
             override fun fileOpened(source: FileEditorManager, file: VirtualFile) {
                 super.fileOpened(source, file)
                 if (shouldScanFile(file)) {
-                    project.service<CheckovScanService>().scanFile(file.path, project)
+                    val hasResources = project.service<ResultsCacheService>().getCheckovResultsByPath(toVirtualFilePath(project, file)).isNotEmpty()
+                    if(!hasResources){
+                        project.service<CheckovScanService>().scanFile(file.path, project)
+                    }
                 }
             }
         })
@@ -201,7 +205,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
             return false
         }
 
-        val virtualFilePath: String = virtualFile.path.removePrefix(project.basePath!!).removePrefix(File.separator)
+        val virtualFilePath: String = toVirtualFilePath(project, virtualFile)
 
         val excludedPaths = (getGitIgnoreValues(project) + FULL_SCAN_EXCLUDED_PATHS).distinct()
 
