@@ -241,7 +241,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
 
         // Subscribe to Settings Topic
         project.messageBus.connect(this)
-                .subscribe(CheckovSettingsListener.SETTINGS_TOPIC, object : CheckovSettingsListener {
+                .subscribe(CheckovSettingsListener.SETTINGS_TOPIC, object: CheckovSettingsListener {
                     override fun settingsUpdated() {
                         project.service<CheckovToolWindowManagerPanel>().loadMainPanel()
                     }
