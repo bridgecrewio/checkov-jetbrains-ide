@@ -129,6 +129,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
             setting?.apiToken.isNullOrEmpty() -> add(checkovDescription.configurationDescription())
             else -> add(checkovDescription.preScanDescription())
         }
+        CheckovScanAction.resetActionDynamically(true)
     }
 
     private fun loadErrorsPanel() {

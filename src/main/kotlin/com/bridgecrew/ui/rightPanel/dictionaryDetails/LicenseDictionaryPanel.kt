@@ -7,7 +7,10 @@ class LicenseDictionaryPanel(result: LicenseCheckovResult) : DictionaryExtraInfo
 
     override var fieldsMap: MutableMap<String, Any?> = mutableMapOf(
             "License Type" to result.licenseType,
-            "Approved SPDX" to result.approvedSPDX
+            "Approved SPDX" to result.approvedSPDX,
+            "Description" to result.description,
+            "Category" to result.category,
+            "Check Type" to result.checkType.name.lowercase(),
     )
     init {
         addCustomPolicyGuidelinesIfNeeded(result)

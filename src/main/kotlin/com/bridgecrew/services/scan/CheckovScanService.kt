@@ -224,7 +224,7 @@ class CheckovScanService: Disposable {
             scanTaskResult.deleteResultsFile()
 
         } catch (error: Exception) {
-            LOG.warn("Error while analyzing scan results for framework $framework")
+            LOG.warn("Error while analyzing scan results for framework $framework", error)
             project.service<CheckovErrorHandlerService>().scanningError(scanTaskResult, framework, error, ScanSourceType.FRAMEWORK)
         }
     }
@@ -254,7 +254,7 @@ class CheckovScanService: Disposable {
 
             scanTaskResult.deleteResultsFile()
         } catch (error: Exception) {
-            LOG.warn("Error while analyzing scan results for file $filePath")
+            LOG.warn("Error while analyzing scan results for file $filePath", error)
             project.service<CheckovErrorHandlerService>().scanningError(scanTaskResult, filePath, error, ScanSourceType.FILE)
         }
     }

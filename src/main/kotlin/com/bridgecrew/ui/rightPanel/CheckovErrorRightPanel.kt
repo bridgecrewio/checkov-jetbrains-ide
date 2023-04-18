@@ -28,7 +28,7 @@ class CheckovErrorRightPanel(var result: BaseCheckovResult): JPanel() {
         val extraInfoPanel = when(result.category) {
             Category.IAC -> IacExtraInfoPanel(result)
             Category.VULNERABILITIES -> VulnerabilitiesExtraInfoPanel(result as VulnerabilityCheckovResult)
-            Category.SECRETS -> SecretsExtraInfoPanel(result)
+            Category.SECRETS -> SecretsExtraInfoPanel(result as SecretsCheckovResult)
             Category.LICENSES -> LicenseExtraInfoPanel(result as LicenseCheckovResult)
         }
         return extraInfoPanel

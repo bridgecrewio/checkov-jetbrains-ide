@@ -10,12 +10,15 @@ data class VulnerabilityDetails(
         val package_version: String?,
         val link: String?,
         val description: String?,
-        val licenses: String?,
+        val license: String?,
         val cvss: Double?,
         val lowest_fixed_version: String?,
         val published_date: String?,
         val vector: String?,
-        val risk_factors: List<String>?
+//        val risk_factors: List<String>?, // TODO - fix after Saar's team fixes their side
+        val root_package_name: String?,
+        val root_package_version: String?,
+        val root_package_fix_version: String?
 )
 
 data class CheckovResult(

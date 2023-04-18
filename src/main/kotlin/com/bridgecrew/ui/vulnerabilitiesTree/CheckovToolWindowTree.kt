@@ -1,6 +1,7 @@
 package com.bridgecrew.ui.vulnerabilitiesTree
 
 import com.bridgecrew.results.BaseCheckovResult
+import com.bridgecrew.results.Category
 import com.bridgecrew.services.ResultsCacheService
 import com.bridgecrew.ui.CheckovToolWindowDescriptionPanel
 import com.bridgecrew.utils.navigateToFile
@@ -82,16 +83,22 @@ class CheckovToolWindowTree(val project: Project, val split: JBSplitter, private
     }
 
     private fun addErrorNodesToFileNode(fileWithErrorsNode: DefaultMutableTreeNode, resultsPerFile: List<BaseCheckovResult>) {
-        val resultsGroupedByResource = resultsPerFile.groupBy { it.resource }
+        val resultsGroupedByResource: Map<String, List<BaseCheckovResult>> = resultsPerFile.groupBy { it.resource }
         val parentIcon = (fileWithErrorsNode.userObject as CheckovFileTreeNode).getNodeIcon()
 
         resultsGroupedByResource.forEach { (resource, results) ->
             val resourceNode = DefaultMutableTreeNode(CheckovResourceTreeNode(resource, parentIcon))
             results.forEach { checkovResult ->
                 val checkName = DefaultMutableTreeNode(CheckovVulnerabilityTreeNode(checkovResult))
-                resourceNode.add(checkName)
+                if (checkovResult.category == Category.SECRETS) {
+                    fileWithErrorsNode.add(checkName)
+                } else {
+                    resourceNode.add(checkName)
+                }
             }
-            fileWithErrorsNode.add(resourceNode)
+
+            if(resourceNode.childCount > 0)
+                fileWithErrorsNode.add(resourceNode)
         }
     }
 

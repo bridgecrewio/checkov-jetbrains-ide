@@ -35,6 +35,7 @@ enum class Severity {
     HIGH,
     MEDIUM,
     LOW,
+    INFO,
     UNKNOWN
 }
 
