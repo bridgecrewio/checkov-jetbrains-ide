@@ -25,6 +25,7 @@ private val LOG = logger<InitializationService>()
 class InitializationService(private val project: Project) {
 
     private var isCheckovInstalledGlobally: Boolean = false
+    private var checkovVersion: String = "2.3.176"
 
     fun initializeProject() {
         initializeCheckovScanService()
@@ -44,6 +45,9 @@ class InitializationService(private val project: Project) {
         }
 
         setSelectedCheckovService(DockerCheckovScanCommandsService(project))
+        if(!output.lowercase().trim().contains("pulling from bridgecrew/checkov")){
+            checkIfCheckovUpdateNeeded(output.split('\n')[0])
+        }
     }
 
     private fun installCheckovIfNeededAndSetCheckovPath() {
@@ -73,7 +77,6 @@ class InitializationService(private val project: Project) {
 
         LOG.info("Checkov installed globally, will use it")
         isCheckovInstalledGlobally = true
-        updatePythonBasePath(project)
 
     }
 
@@ -85,10 +88,10 @@ class InitializationService(private val project: Project) {
             LOG.info("Checkov installed globally, will use it")
             true
         }
-        updatePythonBasePath(project)
     }
 
     private fun updatePythonBasePath(project: Project) {
+        //check docker checkov version => updated if needed
         val os = System.getProperty("os.name").lowercase()
         if (os.contains("win")) {
             val command = PipInstallerCommandService.getWinCommandsForFindingCheckovPath()
@@ -195,4 +198,22 @@ class InitializationService(private val project: Project) {
         setSelectedCheckovService(InstalledCheckovScanCommandsService(project))
     }
 
+    private fun versionIsNewer(currentVersion: String,expectedVersion: String): Boolean {
+        val currentVersionArr = currentVersion.split('.')
+        val expectedVersionArr = expectedVersion.split('.')
+        if(currentVersionArr[0].toInt() > expectedVersionArr[0].toInt()){
+            return true
+        }else if(currentVersionArr[0].toInt() == expectedVersionArr[0].toInt() && currentVersionArr[1].toInt() > expectedVersionArr[1].toInt()){
+            return true
+        }else if(currentVersionArr[0].toInt() == expectedVersionArr[0].toInt() && currentVersionArr[1].toInt() == expectedVersionArr[1].toInt() && currentVersionArr[2].toInt() >= expectedVersionArr[2].toInt()){
+            return true
+        }
+
+        return false
+    }
+
+    private fun checkIfCheckovUpdateNeeded(version: String) : Boolean{
+        LOG.info("Checkov version $version")
+        return !versionIsNewer(version,checkovVersion)
+    }
 }
