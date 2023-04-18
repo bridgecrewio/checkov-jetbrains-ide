@@ -91,7 +91,7 @@ class InitializationService(private val project: Project) {
     }
 
     private fun updatePythonBasePath(project: Project) {
-        //check docker checkov version => updated if needed
+        //check checkov version => updated if needed
         val os = System.getProperty("os.name").lowercase()
         if (os.contains("win")) {
             val command = PipInstallerCommandService.getWinCommandsForFindingCheckovPath()
