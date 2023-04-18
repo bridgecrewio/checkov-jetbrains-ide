@@ -12,7 +12,7 @@ class ResultsCacheService(val project: Project) {
     private val checkovResultsComparator: Comparator<BaseCheckovResult> = compareBy({ it.filePath }, { it.resource }, {it.severity})
     private val baseDir: String = project.basePath!!
     private var selectedCategory: Category? = null
-    private var severitiesToFilterBy: List<Severity>? = mutableListOf(Severity.LOW, Severity.MEDIUM, Severity.HIGH, Severity.CRITICAL, Severity.UNKNOWN)
+    private var severitiesToFilterBy: List<Severity>? = Severity.values().toMutableList()
 
     fun getAllCheckovResults(): List<BaseCheckovResult> {
         return this.checkovResults
