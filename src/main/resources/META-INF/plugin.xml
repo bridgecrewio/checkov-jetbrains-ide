@@ -15,7 +15,7 @@
 
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="Checkov"
+        <toolWindow id="Prisma Code Security"
                     anchor="bottom"
                     factoryClass="com.bridgecrew.ui.CheckovToolWindowFactory"
                     icon="/icons/checkov.svg"/>

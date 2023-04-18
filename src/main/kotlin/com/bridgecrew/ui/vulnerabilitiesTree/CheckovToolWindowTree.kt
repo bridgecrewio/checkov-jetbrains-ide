@@ -43,7 +43,7 @@ class CheckovToolWindowTree(val project: Project, val split: JBSplitter, private
      * @return Panel which contains a tree element
      */
     fun createTree() : JPanel {
-        val fileToResourceMap = project.service<ResultsCacheService>().getCheckovResultsFilteredBySeverityGroupedByPath(null)
+        val fileToResourceMap = project.service<ResultsCacheService>().getCheckovResultsFilteredBySeverityGroupedByPath()
 
         val rootNode = DefaultMutableTreeNode("")
 

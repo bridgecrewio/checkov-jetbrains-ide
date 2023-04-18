@@ -12,24 +12,67 @@ class ResultsCacheService(val project: Project) {
 
     private val checkovResultsComparator: Comparator<BaseCheckovResult> = CheckovResultsComparatorGenerator.generateCheckovResultComparator()
     private val baseDir: String = project.basePath!!
+    private var selectedCategory: Category? = null
+    private var severitiesToFilterBy: List<Severity>? = Severity.values().toMutableList()
 
     fun getAllCheckovResults(): List<BaseCheckovResult> {
         return this.checkovResults
     }
 
-
-    fun getCheckovResultsFilteredBySeverityGroupedByPath(severitiesToFilterBy: List<Severity>?): Map<String, List<BaseCheckovResult>> {
-        if(severitiesToFilterBy != null) {
-            checkovResults.filter {baseCheckovResult ->
-                severitiesToFilterBy.all { includedSeverity ->
-                    includedSeverity == baseCheckovResult.severity
-                }
-            }
-        }
-
-        checkovResults.sortWith(checkovResultsComparator)
-        return this.checkovResults.groupBy { it.filePath }
+    fun updateCategory(category: Category?){
+        this.selectedCategory = category
     }
+
+    fun updateSelectedSeverities(severityList: List<Severity>) {
+        this.severitiesToFilterBy = severityList
+    }
+
+    fun getCheckovResultsByPath(filePath: String): List<BaseCheckovResult> {
+        return this.checkovResults.filter {baseCheckovResult ->
+            baseCheckovResult.filePath == "/${filePath}"
+        }
+    }
+
+    fun getCheckovResultsFilteredBySeverityGroupedByPath(): Map<String, List<BaseCheckovResult>> {
+        val filteredResults = getFilteredResults(emptyList(), emptyList())
+        checkovResults.sortWith(checkovResultsComparator)
+        return filteredResults.groupBy { it.filePath }
+    }
+
+    fun getFilteredResults(categories: List<Category>?, severities: List<Severity>?): List<BaseCheckovResult> {
+        var filteredResults = checkovResults
+        filteredResults = if(!categories.isNullOrEmpty()) {
+            filteredResults.filter { baseCheckovResult ->
+                categories.contains(baseCheckovResult.category)
+            }.toMutableList()
+        } else (
+            getResultsByCategory(filteredResults, selectedCategory)
+        )
+        filteredResults = if(!severities.isNullOrEmpty()) {
+            filteredResults.filter { baseCheckovResult ->
+                severities.contains(baseCheckovResult.severity)
+            }.toMutableList()
+        } else (
+            getResultsBySeverities(filteredResults, severitiesToFilterBy)
+        )
+
+        return filteredResults
+    }
+
+    private fun getResultsByCategory(sourceList: List<BaseCheckovResult>?, category: Category?): MutableList<BaseCheckovResult> {
+        val list = if(sourceList.isNullOrEmpty()) checkovResults else sourceList
+        return if(category == null) list.toMutableList() else list.filter { baseCheckovResult ->
+            category == baseCheckovResult.category
+        }.toMutableList()
+    }
+
+    private fun getResultsBySeverities(sourceList: List<BaseCheckovResult>?, severities: List<Severity>?): MutableList<BaseCheckovResult> {
+        val list = if(sourceList.isNullOrEmpty()) checkovResults else sourceList
+        return if(severities == null) list.toMutableList() else list.filter { baseCheckovResult ->
+            severities.contains(baseCheckovResult.severity)
+        }.toMutableList()
+    }
+
     fun addCheckovResult(checkovResult: BaseCheckovResult) {
         checkovResults.add(checkovResult)
     }

@@ -2,7 +2,7 @@ package com.bridgecrew.ui.topPanel
 
 import com.bridgecrew.analytics.AnalyticsService
 import com.bridgecrew.services.scan.FullScanStateService
-import com.bridgecrew.ui.actions.SeverityFilterActions
+import com.bridgecrew.ui.buttons.SeverityFilterButton
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
@@ -37,7 +37,6 @@ class CheckovTopPanel(val project: Project) : SimpleToolWindowPanel(true, true),
     }
 
     private fun createActionGroupPanel(actionToolbarPanel: JPanel) {
-        CheckovActionToolbar.setComponent(this)
         actionToolbarPanel.add(CheckovActionToolbar.actionToolBar.component)
     }
 
@@ -80,18 +79,11 @@ class CheckovTopPanel(val project: Project) : SimpleToolWindowPanel(true, true),
     }
 
     private fun addFilterActions(actionToolbarPanel: JPanel) {
-        actionToolbarPanel.add(createButton("I"));
-        actionToolbarPanel.add(createButton("L"));
-        actionToolbarPanel.add(createButton("M"));
-        actionToolbarPanel.add(createButton("H"));
-        actionToolbarPanel.add(createButton("C"));
-    }
-
-    private fun createButton(text: String): JButton? {
-        val button = JButton(text)
-        button.preferredSize = Dimension(24, 24)
-        button.addActionListener(SeverityFilterActions())
-        return button
+        actionToolbarPanel.add(SeverityFilterButton(project, "I"));
+        actionToolbarPanel.add(SeverityFilterButton(project,"L"));
+        actionToolbarPanel.add(SeverityFilterButton(project,"M"));
+        actionToolbarPanel.add(SeverityFilterButton(project,"H"));
+        actionToolbarPanel.add(SeverityFilterButton(project,"C"));
     }
 
     override fun dispose() = Unit

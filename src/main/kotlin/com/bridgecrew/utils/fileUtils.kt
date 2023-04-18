@@ -122,3 +122,7 @@ fun deleteCheckovTempDir() {
         LOG.warn("could not delete temp directory in $checkovTempDirPath", e)
     }
 }
+
+fun toVirtualFilePath(project: Project, virtualFile: VirtualFile): String {
+    return virtualFile.path.removePrefix(project.basePath!!).removePrefix(File.separator)
+}
