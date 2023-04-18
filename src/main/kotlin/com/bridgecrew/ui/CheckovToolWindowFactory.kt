@@ -90,7 +90,8 @@ class CheckovToolWindowFactory : ToolWindowFactory {
     }
 
     private fun getTabName(project: Project, name: String, category: Category?): String {
-        val resultsCount = project.service<ResultsCacheService>().getResultsByCategory(category).size
+        val categories = if(category != null) listOf(category) else Category.values().toList()
+        val resultsCount = project.service<ResultsCacheService>().getFilteredResults(categories, emptyList()).size
         return "$name ($resultsCount)"
     }
 
