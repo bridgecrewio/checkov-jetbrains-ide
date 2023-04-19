@@ -35,11 +35,11 @@ class ResultsCacheService(val project: Project) {
 
     fun getCheckovResultsFilteredBySeverityGroupedByPath(): Map<String, List<BaseCheckovResult>> {
         val filteredResults = getFilteredResults(emptyList(), emptyList())
-        checkovResults.sortWith(checkovResultsComparator)
+        filteredResults.sortWith(checkovResultsComparator)
         return filteredResults.groupBy { it.filePath }
     }
 
-    fun getFilteredResults(categories: List<Category>?, severities: List<Severity>?): List<BaseCheckovResult> {
+    fun getFilteredResults(categories: List<Category>?, severities: List<Severity>?): MutableList<BaseCheckovResult> {
         var filteredResults = checkovResults
         filteredResults = if(!categories.isNullOrEmpty()) {
             filteredResults.filter { baseCheckovResult ->
@@ -71,6 +71,10 @@ class ResultsCacheService(val project: Project) {
         return if(severities == null) list.toMutableList() else list.filter { baseCheckovResult ->
             severities.contains(baseCheckovResult.severity)
         }.toMutableList()
+    }
+
+    fun getCurrentSeverities(): List<Severity> {
+        return checkovResults.map { checkovResult -> checkovResult.severity }.distinct()
     }
 
     fun addCheckovResult(checkovResult: BaseCheckovResult) {
@@ -118,6 +122,7 @@ class ResultsCacheService(val project: Project) {
                             result.guideline, result.file_abs_path, result.file_line_range, result.fixed_definition,
                             result.code_block,
                             result.vulnerability_details.cvss,
+                            result.vulnerability_details.package_name,
                             result.vulnerability_details.package_version,
                             result.vulnerability_details.lowest_fixed_version,
                             result.vulnerability_details.link,

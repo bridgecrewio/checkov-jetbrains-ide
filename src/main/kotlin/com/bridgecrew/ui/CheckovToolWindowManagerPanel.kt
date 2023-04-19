@@ -57,9 +57,9 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
     fun loadMainPanel(panelType: Int = PANELTYPE.AUTO_CHOOSE_PANEL, scanSourceType: CheckovScanService.ScanSourceType? = null) {
         removeAll()
         add(CheckovTopPanel(project), BorderLayout.NORTH)
+        reloadTabCounts()
         when (panelType) {
             PANELTYPE.CHECKOV_REPOSITORY_SCAN_STARTED -> {
-                reloadTabCounts()
                 add(checkovDescription.duringScanDescription("Scanning your repository..."))
             }
 
@@ -99,13 +99,13 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
     }
 
     private fun loadScanResultsPanel(panelType: Int) {
-        removeAll()
-        reloadTabCounts()
-        add(CheckovTopPanel(project), BorderLayout.NORTH)
+//        removeAll()
+//        reloadTabCounts()
+//        add(CheckovTopPanel(project), BorderLayout.NORTH)
         val checkovTree = CheckovToolWindowTree(project, mainPanelSplitter, checkovDescription)
         val filesTreePanel = checkovTree.createScroll()
-        val fullScanAnalyticsData: AnalyticsService.FullScanAnalyticsData? = project.service<AnalyticsService>().fullScanData
-        if (fullScanAnalyticsData != null) {
+//        val fullScanAnalyticsData: AnalyticsService.FullScanAnalyticsData? = project.service<AnalyticsService>().fullScanData
+//        if (fullScanAnalyticsData != null) {
             if (shouldDisplayNoErrorPanel(panelType)) {
                 add(checkovDescription.noErrorsPanel())
             } else {
@@ -114,7 +114,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                 mainPanelSplitter.secondComponent = descriptionPanel
                 add(mainPanelSplitter)
             }
-        }
+//        }
     }
 
     private fun shouldDisplayNoErrorPanel(panelType: Int): Boolean {

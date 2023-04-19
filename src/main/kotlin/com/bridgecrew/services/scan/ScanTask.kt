@@ -27,10 +27,10 @@ data class ScanTaskResult(
         val errorReason: String)
 {
     fun deleteResultsFile() {
-        if (checkovResult.exists())
-            checkovResult.delete()
-        if (debugOutput.exists())
-            debugOutput.delete()
+//        if (checkovResult.exists())
+//            checkovResult.delete()
+//        if (debugOutput.exists())
+//            debugOutput.delete()
     }
 }
 

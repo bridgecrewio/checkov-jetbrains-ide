@@ -1,6 +1,7 @@
 package com.bridgecrew.ui.topPanel
 
 import com.bridgecrew.analytics.AnalyticsService
+import com.bridgecrew.results.Severity
 import com.bridgecrew.services.scan.FullScanStateService
 import com.bridgecrew.ui.buttons.SeverityFilterButton
 import com.intellij.openapi.Disposable
@@ -79,11 +80,11 @@ class CheckovTopPanel(val project: Project) : SimpleToolWindowPanel(true, true),
     }
 
     private fun addFilterActions(actionToolbarPanel: JPanel) {
-        actionToolbarPanel.add(SeverityFilterButton(project, "I"));
-        actionToolbarPanel.add(SeverityFilterButton(project,"L"));
-        actionToolbarPanel.add(SeverityFilterButton(project,"M"));
-        actionToolbarPanel.add(SeverityFilterButton(project,"H"));
-        actionToolbarPanel.add(SeverityFilterButton(project,"C"));
+        actionToolbarPanel.add(SeverityFilterButton(project, "I", Severity.INFO));
+        actionToolbarPanel.add(SeverityFilterButton(project,"L", Severity.LOW));
+        actionToolbarPanel.add(SeverityFilterButton(project,"M", Severity.MEDIUM));
+        actionToolbarPanel.add(SeverityFilterButton(project,"H", Severity.HIGH));
+        actionToolbarPanel.add(SeverityFilterButton(project,"C", Severity.CRITICAL));
     }
 
     override fun dispose() = Unit
