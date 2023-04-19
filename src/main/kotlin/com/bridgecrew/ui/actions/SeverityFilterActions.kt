@@ -28,6 +28,8 @@ class SeverityFilterActions(val project: Project) : ActionListener {
                 "H" to Severity.HIGH,
                 "C" to Severity.CRITICAL
         )
+
+        var currentSelectedSeverities = Severity.values().toList()
     }
 
     override fun actionPerformed(e: ActionEvent?) {
@@ -35,8 +37,9 @@ class SeverityFilterActions(val project: Project) : ActionListener {
         val buttonText = source.text
         severityFilterState[buttonText] = !severityFilterState[buttonText]!!
         val selectedSeverities = severityTextToEnum.filter { (key, _) ->  severityFilterState.filterValues { v-> v }.containsKey(key) }.values.toList()
-        val severities = selectedSeverities.ifEmpty { severityTextToEnum.values }.toList()
-        project.service<ResultsCacheService>().updateSelectedSeverities(severities)
+        currentSelectedSeverities = selectedSeverities.ifEmpty { severityTextToEnum.values }.toList()
+//        val severities = selectedSeverities.ifEmpty { severityTextToEnum.values }.toList()
+//        project.service<ResultsCacheService>().updateSelectedSeverities(severities)
         project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_FILE_SCAN_FINISHED)
     }
 }

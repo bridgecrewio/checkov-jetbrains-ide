@@ -1,6 +1,7 @@
 package com.bridgecrew.ui
 
 import com.bridgecrew.results.Category
+import com.bridgecrew.services.CheckovResultsListUtils
 import com.bridgecrew.services.ResultsCacheService
 import com.bridgecrew.ui.topPanel.CheckovActionToolbar
 import com.bridgecrew.ui.CheckovTabContent
@@ -21,22 +22,23 @@ const val VULNERABILITIES_TAB_NAME = "Vulnerabilities"
 const val LICENSES_TAB_NAME = "Licenses"
 const val SECRETS_TAB_NAME = "Secrets"
 
+val tabNameToCategory: Map<String, Category?> = mapOf(
+        OVERVIEW_TAB_NAME to null,
+        IAC_TAB_NAME to Category.IAC,
+        VULNERABILITIES_TAB_NAME to Category.VULNERABILITIES,
+        LICENSES_TAB_NAME to Category.LICENSES,
+        SECRETS_TAB_NAME to Category.SECRETS
+)
+
 class CheckovToolWindowFactory : ToolWindowFactory {
 
     private val LOG = logger<CheckovToolWindowFactory>()
-
-    private val tabNameToCategory: Map<String, Category?> = mapOf(
-            OVERVIEW_TAB_NAME to null,
-            IAC_TAB_NAME to Category.IAC,
-            VULNERABILITIES_TAB_NAME to Category.VULNERABILITIES,
-            LICENSES_TAB_NAME to Category.LICENSES,
-            SECRETS_TAB_NAME to Category.SECRETS
-    )
 
     companion object {
         var internalExecution = false
         var currentlyRunning = false
         private var lastSelectedTab = ""
+        var lastSelectedCategory = if (tabNameToCategory.contains(lastSelectedTab)) tabNameToCategory[lastSelectedTab] else null
     }
 
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
@@ -73,7 +75,8 @@ class CheckovToolWindowFactory : ToolWindowFactory {
         if (tabNameToCategory.keys.contains(tabId)) {
             if (lastSelectedTab != tabId) {
                 val category = tabNameToCategory[tabId]
-                project.service<ResultsCacheService>().updateCategory(category)
+                lastSelectedCategory = category
+//                project.service<ResultsCacheService>().updateCategory(category)
                 project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_FRAMEWORK_SCAN_FINISHED, null)
             }
             lastSelectedTab = tabId
@@ -91,7 +94,8 @@ class CheckovToolWindowFactory : ToolWindowFactory {
 
     private fun getTabName(project: Project, name: String, category: Category?): String {
         val categories = if(category != null) listOf(category) else Category.values().toList()
-        val resultsCount = project.service<ResultsCacheService>().getFilteredResults(categories, emptyList()).size
+        val checkovResults = project.service<ResultsCacheService>().checkovResults
+        val resultsCount = CheckovResultsListUtils.filterResultsByCategoriesAndSeverities(checkovResults, categories).size
         return "$name ($resultsCount)"
     }
 

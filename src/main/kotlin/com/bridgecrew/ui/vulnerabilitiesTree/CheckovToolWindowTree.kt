@@ -3,6 +3,7 @@ package com.bridgecrew.ui.vulnerabilitiesTree
 import com.bridgecrew.results.BaseCheckovResult
 import com.bridgecrew.results.Category
 import com.bridgecrew.services.ResultsCacheService
+import com.bridgecrew.services.CheckovResultsListUtils
 import com.bridgecrew.ui.CheckovToolWindowDescriptionPanel
 import com.bridgecrew.utils.navigateToFile
 import com.intellij.openapi.Disposable
@@ -43,7 +44,11 @@ class CheckovToolWindowTree(val project: Project, val split: JBSplitter, private
      * @return Panel which contains a tree element
      */
     fun createTree() : JPanel {
-        val fileToResourceMap = project.service<ResultsCacheService>().getCheckovResultsFilteredBySeverityGroupedByPath()
+        var checkovResults: MutableList<BaseCheckovResult> = project.service<ResultsCacheService>().checkovResults
+        checkovResults = CheckovResultsListUtils.filterResultsByCategoriesAndSeverities(checkovResults)
+        CheckovResultsListUtils.sortResults(checkovResults)
+
+        val fileToResourceMap = checkovResults.groupBy { it.filePath }
 
         val rootNode = DefaultMutableTreeNode("")
 

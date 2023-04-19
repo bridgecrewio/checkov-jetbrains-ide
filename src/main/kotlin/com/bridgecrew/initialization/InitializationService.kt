@@ -71,14 +71,9 @@ class InitializationService(private val project: Project) {
             return
         }
 
-
-        if (output == "correct version ")
         LOG.info("Checkov installed globally, will use it")
         isCheckovInstalledGlobally = true
         updatePythonBasePath(project)
-        return
-
-        project.service<CheckovInstallerService>().install()
 
     }
 
