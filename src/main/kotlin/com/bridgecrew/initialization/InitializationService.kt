@@ -45,8 +45,8 @@ class InitializationService(private val project: Project) {
         }
 
         setSelectedCheckovService(DockerCheckovScanCommandsService(project))
-        if(!output.lowercase().trim().contains("pulling from bridgecrew/checkov")){
-            checkIfCheckovUpdateNeeded(output,true, project)
+        if (!output.lowercase().trim().contains("pulling from bridgecrew/checkov")) {
+            checkIfCheckovUpdateNeeded(output, true, project)
         }
     }
 
@@ -102,7 +102,7 @@ class InitializationService(private val project: Project) {
             project.service<CliService>().run(command, project, this::updatePathUnix)
         }
 
-        checkIfCheckovUpdateNeeded(version,false, project)
+        checkIfCheckovUpdateNeeded(version, false, project)
     }
 
     private fun updatePathUnix(output: String, exitCode: Int, project: Project) {
@@ -201,40 +201,40 @@ class InitializationService(private val project: Project) {
         setSelectedCheckovService(InstalledCheckovScanCommandsService(project))
     }
 
-    private fun versionIsNewer(currentVersion: String,expectedVersion: String): Boolean {
+    private fun versionIsNewer(currentVersion: String, expectedVersion: String): Boolean {
         val currentVersionArr = currentVersion.split('.')
         val expectedVersionArr = expectedVersion.split('.')
-        if(currentVersionArr[0].toInt() > expectedVersionArr[0].toInt()){
+        if (currentVersionArr[0].toInt() > expectedVersionArr[0].toInt()) {
             return true
-        }else if(currentVersionArr[0].toInt() == expectedVersionArr[0].toInt() && currentVersionArr[1].toInt() > expectedVersionArr[1].toInt()){
+        } else if (currentVersionArr[0].toInt() == expectedVersionArr[0].toInt() && currentVersionArr[1].toInt() > expectedVersionArr[1].toInt()) {
             return true
-        }else if(currentVersionArr[0].toInt() == expectedVersionArr[0].toInt() && currentVersionArr[1].toInt() == expectedVersionArr[1].toInt() && currentVersionArr[2].toInt() >= expectedVersionArr[2].toInt()){
+        } else if (currentVersionArr[0].toInt() == expectedVersionArr[0].toInt() && currentVersionArr[1].toInt() == expectedVersionArr[1].toInt() && currentVersionArr[2].toInt() >= expectedVersionArr[2].toInt()) {
             return true
         }
 
         return false
     }
 
-    private fun checkIfCheckovUpdateNeeded(rawVersion: String, useDocker: Boolean, project: Project) : Boolean{
+    private fun checkIfCheckovUpdateNeeded(rawVersion: String, useDocker: Boolean, project: Project): Boolean {
         val version = rawVersion.split('\n')[0]
         LOG.info("Checkov version $version")
-         if(!versionIsNewer(version,checkovVersion)){
-             if(useDocker){
-                 updateCheckovDocker(project)
-             }else{
-                 updateCheckovPip(project)
-             }
-             return true
-         }
+        if (!versionIsNewer(version, checkovVersion)) {
+            if (useDocker) {
+                updateCheckovDocker(project)
+            } else {
+                updateCheckovPip(project)
+            }
+            return true
+        }
 
         return false
     }
 
-    private fun updateCheckovPip(project: Project){
+    private fun updateCheckovPip(project: Project) {
         project.service<CheckovInstallerService>().install(project)
     }
 
-    private fun updateCheckovDocker(project: Project){
+    private fun updateCheckovDocker(project: Project) {
         val cmds = arrayListOf("docker", "pull", "bridgecrew/checkov")
         project.service<CliService>().run(cmds, project, this::onCheckovUpdate, this::onCheckovUpdate)
     }
