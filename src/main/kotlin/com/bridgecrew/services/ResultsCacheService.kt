@@ -16,16 +16,6 @@ class ResultsCacheService(val project: Project) {
         return this.checkovResults
     }
 
-//    fun getCheckovResultsByPath(filePath: String): List<BaseCheckovResult> {
-//        return this.checkovResults.filter {baseCheckovResult ->
-//            baseCheckovResult.filePath == "/${filePath}"
-//        }
-//    }
-//
-//    fun getCurrentSeverities(): List<Severity> {
-//        return checkovResults.map { checkovResult -> checkovResult.severity }.distinct()
-//    }
-
     fun addCheckovResult(checkovResult: BaseCheckovResult) {
         checkovResults.add(checkovResult)
     }
