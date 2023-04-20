@@ -22,7 +22,7 @@ class SeverityFilterActions(val project: Project) : ActionListener {
         )
 
         val severityTextToEnum = mapOf(
-                "I" to Severity.UNKNOWN,
+                "I" to Severity.INFO,
                 "L" to Severity.LOW,
                 "M" to Severity.MEDIUM,
                 "H" to Severity.HIGH,

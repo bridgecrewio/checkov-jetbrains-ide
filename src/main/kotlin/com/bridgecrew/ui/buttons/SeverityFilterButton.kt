@@ -1,10 +1,8 @@
 package com.bridgecrew.ui.buttons
 
-import com.bridgecrew.listeners.InitializationListener
 import com.bridgecrew.results.Severity
 import com.bridgecrew.services.CheckovResultsListUtils
 import com.bridgecrew.services.ResultsCacheService
-import com.bridgecrew.ui.CheckovToolWindowManagerPanel
 import com.bridgecrew.ui.actions.SeverityFilterActions
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project

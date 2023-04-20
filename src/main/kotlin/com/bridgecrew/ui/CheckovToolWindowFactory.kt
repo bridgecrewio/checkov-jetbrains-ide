@@ -22,7 +22,7 @@ const val VULNERABILITIES_TAB_NAME = "Vulnerabilities"
 const val LICENSES_TAB_NAME = "Licenses"
 const val SECRETS_TAB_NAME = "Secrets"
 
-val tabNameToCategory: Map<String, Category?> = mapOf(
+private val tabNameToCategory: Map<String, Category?> = mapOf(
         OVERVIEW_TAB_NAME to null,
         IAC_TAB_NAME to Category.IAC,
         VULNERABILITIES_TAB_NAME to Category.VULNERABILITIES,
