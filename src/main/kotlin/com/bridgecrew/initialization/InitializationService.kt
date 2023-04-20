@@ -25,7 +25,7 @@ private val LOG = logger<InitializationService>()
 class InitializationService(private val project: Project) {
 
     private var isCheckovInstalledGlobally: Boolean = false
-    private var checkovVersion: String = "2.3.176"
+    private var checkovVersion: String = "2.3.186"
 
     fun initializeProject() {
         initializeCheckovScanService()
@@ -46,7 +46,7 @@ class InitializationService(private val project: Project) {
 
         setSelectedCheckovService(DockerCheckovScanCommandsService(project))
         if(!output.lowercase().trim().contains("pulling from bridgecrew/checkov")){
-            checkIfCheckovUpdateNeeded(output.split('\n')[0])
+            checkIfCheckovUpdateNeeded(output,true, project)
         }
     }
 
@@ -77,7 +77,7 @@ class InitializationService(private val project: Project) {
 
         LOG.info("Checkov installed globally, will use it")
         isCheckovInstalledGlobally = true
-
+        updatePythonBasePath(project, output)
     }
 
     private fun checkIfCheckovCmdIsGloballyInstalled(output: String, exitCode: Int, project: Project) {
@@ -88,9 +88,10 @@ class InitializationService(private val project: Project) {
             LOG.info("Checkov installed globally, will use it")
             true
         }
+        updatePythonBasePath(project, output)
     }
 
-    private fun updatePythonBasePath(project: Project) {
+    private fun updatePythonBasePath(project: Project, version: String) {
         //check checkov version => updated if needed
         val os = System.getProperty("os.name").lowercase()
         if (os.contains("win")) {
@@ -100,6 +101,8 @@ class InitializationService(private val project: Project) {
             val command = PipInstallerCommandService.getUnixCommandsForFindingCheckovPath()
             project.service<CliService>().run(command, project, this::updatePathUnix)
         }
+
+        checkIfCheckovUpdateNeeded(version,false, project)
     }
 
     private fun updatePathUnix(output: String, exitCode: Int, project: Project) {
@@ -212,8 +215,25 @@ class InitializationService(private val project: Project) {
         return false
     }
 
-    private fun checkIfCheckovUpdateNeeded(version: String) : Boolean{
+    private fun checkIfCheckovUpdateNeeded(rawVersion: String, useDocker: Boolean, project: Project) : Boolean{
+        val version = rawVersion.split('\n')[0]
         LOG.info("Checkov version $version")
-        return !versionIsNewer(version,checkovVersion)
+         if(!versionIsNewer(version,checkovVersion)){ if(useDocker){
+                 updateCheckovDocker(project)
+             }else{
+                 updateCheckovPip(project)
+             }
+             return true
+         }
+
+        return false
+    }
+
+    private fun updateCheckovPip(project: Project){
+        project.service<CheckovInstallerService>().install(project)
+    }
+
+    private fun updateCheckovDocker(project: Project){
+        project.service<CheckovInstallerService>().install(project)
     }
 }
