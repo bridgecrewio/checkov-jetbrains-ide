@@ -3,6 +3,7 @@ package com.bridgecrew.ui.topPanel
 import com.bridgecrew.analytics.AnalyticsService
 import com.bridgecrew.results.Category
 import com.bridgecrew.results.Severity
+import com.bridgecrew.services.CheckovResultsListUtils
 import com.bridgecrew.services.ResultsCacheService
 import com.bridgecrew.services.scan.FullScanStateService
 import com.bridgecrew.ui.buttons.SeverityFilterButton
@@ -74,9 +75,9 @@ class CheckovTopPanel(val project: Project) : SimpleToolWindowPanel(true, true),
             val startedTime = if (fullScanAnalyticsData.isFullScanStarted()) fullScanAnalyticsData.scanStartedTime.toInstant() else now
             val finishedTime = if (fullScanAnalyticsData.isFullScanFinished()) fullScanAnalyticsData.scanFinishedTime.toInstant() else now
             val totalScanTimeDuration = Duration.between(startedTime, finishedTime)
-            val totalIssues = project.service<ResultsCacheService>().getFilteredResults(Category.values().toMutableList(), Severity.values().toMutableList()).size
+            val checkovResults = project.service<ResultsCacheService>().checkovResults
+            val totalIssues = CheckovResultsListUtils.filterResultsByCategoriesAndSeverities(checkovResults, Category.values().toList(), Severity.values().toList()).size
             ScanResultMetadata(totalIssues = totalIssues, totalPassed = project.service<FullScanStateService>().totalPassedCheckovChecks, scanDuration = totalScanTimeDuration.toSeconds())
-            ScanResultMetadata(totalIssues = project.service<FullScanStateService>().totalFailedCheckovChecks, totalPassed = project.service<FullScanStateService>().totalPassedCheckovChecks, scanDuration = totalScanTimeDuration.toSeconds())
         } else {
             ScanResultMetadata(totalIssues = 0, totalPassed = 0, scanDuration = 0)
         }

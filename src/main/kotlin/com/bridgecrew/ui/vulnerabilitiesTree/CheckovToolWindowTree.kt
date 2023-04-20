@@ -93,10 +93,11 @@ class CheckovToolWindowTree(val project: Project, val split: JBSplitter, private
 
         resultsGroupedByResource.forEach { (resource, results) ->
             val resourceNode = DefaultMutableTreeNode(CheckovResourceTreeNode(resource, parentIcon))
+            val secretsNodes = mutableListOf<DefaultMutableTreeNode>()
             results.forEach { checkovResult ->
                 val checkName = DefaultMutableTreeNode(CheckovVulnerabilityTreeNode(checkovResult))
                 if (checkovResult.category == Category.SECRETS) {
-                    fileWithErrorsNode.add(checkName)
+                    secretsNodes.add(checkName)
                 } else {
                     resourceNode.add(checkName)
                 }
@@ -104,6 +105,7 @@ class CheckovToolWindowTree(val project: Project, val split: JBSplitter, private
 
             if(resourceNode.childCount > 0)
                 fileWithErrorsNode.add(resourceNode)
+            secretsNodes.forEach { node -> fileWithErrorsNode.add(node) }
         }
     }
 
