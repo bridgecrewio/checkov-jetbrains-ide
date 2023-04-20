@@ -218,7 +218,8 @@ class InitializationService(private val project: Project) {
     private fun checkIfCheckovUpdateNeeded(rawVersion: String, useDocker: Boolean, project: Project) : Boolean{
         val version = rawVersion.split('\n')[0]
         LOG.info("Checkov version $version")
-         if(!versionIsNewer(version,checkovVersion)){ if(useDocker){
+         if(!versionIsNewer(version,checkovVersion)){
+             if(useDocker){
                  updateCheckovDocker(project)
              }else{
                  updateCheckovPip(project)
