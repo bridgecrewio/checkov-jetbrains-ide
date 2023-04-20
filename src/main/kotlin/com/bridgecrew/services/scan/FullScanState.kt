@@ -134,7 +134,7 @@ class FullScanStateService(val project: Project) {
     }
 
     fun displayNotificationForFullScanSummary() {
-        val totalErrors = project.service<ResultsCacheService>().getFilteredResults(Category.values().toMutableList(), Severity.values().toMutableList()).size
+        val totalErrors = project.service<ResultsCacheService>().checkovResults.size
         var message = "Checkov has detected $totalErrors configuration errors in your project.\n" +
                 "Check out the tool window to analyze your code.\n" +
                 "${DESIRED_NUMBER_OF_FRAMEWORK_FOR_FULL_SCAN} frameworks were scanned:\n" +

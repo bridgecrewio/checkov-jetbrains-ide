@@ -1,6 +1,10 @@
 package com.bridgecrew.ui.buttons
 
+import com.bridgecrew.results.Severity
+import com.bridgecrew.services.CheckovResultsListUtils
+import com.bridgecrew.services.ResultsCacheService
 import com.bridgecrew.ui.actions.SeverityFilterActions
+import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.ui.JBColor
 import java.awt.Dimension
@@ -12,7 +16,7 @@ import javax.swing.JComponent
 import javax.swing.UIManager
 import javax.swing.plaf.basic.BasicButtonUI
 
-class SeverityFilterButton(val project: Project,text: String): JButton(text) {
+class SeverityFilterButton(val project: Project,text: String, severity: Severity): JButton(text) {
 
     init {
         addActionListener(SeverityFilterActions(project))
@@ -29,6 +33,7 @@ class SeverityFilterButton(val project: Project,text: String): JButton(text) {
                 g2d.dispose()
             }
         }
+        isEnabled = CheckovResultsListUtils.getCurrentResultsSeverities(project.service<ResultsCacheService>().checkovResults).contains(severity)
     }
 
     override fun updateUI() {
