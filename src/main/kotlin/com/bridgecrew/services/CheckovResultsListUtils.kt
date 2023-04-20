@@ -10,8 +10,6 @@ class CheckovResultsListUtils {
     companion object {
         private val checkovResultsComparator: Comparator<BaseCheckovResult> = CheckovResultsComparatorGenerator.generateCheckovResultComparator()
 
-//        private var severitiesToFilterBy: List<Severity> = Severity.values().toMutableList()
-
         fun filterResultsByCategories(sourceList: List<BaseCheckovResult>, categories: List<Category>?): MutableList<BaseCheckovResult> {
             if (!categories.isNullOrEmpty()) {
                 return sourceList.filter { baseCheckovResult ->
@@ -47,6 +45,16 @@ class CheckovResultsListUtils {
         fun filterResultsByCategoriesAndSeverities(sourceList: List<BaseCheckovResult>, categories: List<Category>? = null, severities: List<Severity>? = null): MutableList<BaseCheckovResult> {
             val checkovResults = filterResultsByCategories(sourceList, categories)
             return filterResultBySeverities(checkovResults, severities)
+        }
+
+        fun getCheckovResultsByPath(sourceList: List<BaseCheckovResult>, filePath: String): List<BaseCheckovResult> {
+            return sourceList.filter {baseCheckovResult ->
+                baseCheckovResult.filePath == "/${filePath}"
+            }
+        }
+
+        fun getCurrentResultsSeverities(sourceList: List<BaseCheckovResult>): List<Severity> {
+            return sourceList.map { checkovResult -> checkovResult.severity }.distinct()
         }
 
     }

@@ -5,7 +5,6 @@ import com.bridgecrew.listeners.CheckovScanListener
 import com.bridgecrew.results.BaseCheckovResult
 import com.bridgecrew.results.Category
 import com.bridgecrew.results.Severity
-import com.bridgecrew.services.CheckovResultsListUtils
 import com.bridgecrew.services.ResultsCacheService
 import com.bridgecrew.ui.CheckovNotificationBalloon
 import com.bridgecrew.ui.actions.CheckovScanAction
@@ -135,8 +134,7 @@ class FullScanStateService(val project: Project) {
     }
 
     fun displayNotificationForFullScanSummary() {
-        val totalErrors = CheckovResultsListUtils.filterResultsByCategoriesAndSeverities(
-                project.service<ResultsCacheService>().checkovResults, Category.values().toList(), Severity.values().toList()).size
+        val totalErrors = project.service<ResultsCacheService>().checkovResults.size
         var message = "Checkov has detected $totalErrors configuration errors in your project.\n" +
                 "Check out the tool window to analyze your code.\n" +
                 "${DESIRED_NUMBER_OF_FRAMEWORK_FOR_FULL_SCAN} frameworks were scanned:\n" +

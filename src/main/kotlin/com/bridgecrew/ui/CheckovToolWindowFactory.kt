@@ -76,7 +76,6 @@ class CheckovToolWindowFactory : ToolWindowFactory {
             if (lastSelectedTab != tabId) {
                 val category = tabNameToCategory[tabId]
                 lastSelectedCategory = category
-//                project.service<ResultsCacheService>().updateCategory(category)
                 project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_FRAMEWORK_SCAN_FINISHED, null)
             }
             lastSelectedTab = tabId

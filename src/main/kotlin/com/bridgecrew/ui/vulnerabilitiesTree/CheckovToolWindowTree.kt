@@ -2,6 +2,7 @@ package com.bridgecrew.ui.vulnerabilitiesTree
 
 import com.bridgecrew.results.BaseCheckovResult
 import com.bridgecrew.results.Category
+//import com.bridgecrew.services.CheckovResultsList
 import com.bridgecrew.services.ResultsCacheService
 import com.bridgecrew.services.CheckovResultsListUtils
 import com.bridgecrew.ui.CheckovToolWindowDescriptionPanel

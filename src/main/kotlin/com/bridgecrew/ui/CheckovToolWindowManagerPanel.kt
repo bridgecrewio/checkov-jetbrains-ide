@@ -3,6 +3,7 @@ package com.bridgecrew.ui
 import com.bridgecrew.analytics.AnalyticsService
 import com.bridgecrew.listeners.CheckovScanListener
 import com.bridgecrew.listeners.CheckovSettingsListener
+import com.bridgecrew.services.CheckovResultsListUtils
 import com.bridgecrew.services.ResultsCacheService
 import com.bridgecrew.services.scan.CheckovScanService
 import com.bridgecrew.services.scan.FullScanStateService
@@ -99,22 +100,16 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
     }
 
     private fun loadScanResultsPanel(panelType: Int) {
-//        removeAll()
-//        reloadTabCounts()
-//        add(CheckovTopPanel(project), BorderLayout.NORTH)
         val checkovTree = CheckovToolWindowTree(project, mainPanelSplitter, checkovDescription)
         val filesTreePanel = checkovTree.createScroll()
-//        val fullScanAnalyticsData: AnalyticsService.FullScanAnalyticsData? = project.service<AnalyticsService>().fullScanData
-//        if (fullScanAnalyticsData != null) {
-            if (shouldDisplayNoErrorPanel(panelType)) {
-                add(checkovDescription.noErrorsPanel())
-            } else {
-                val descriptionPanel = checkovDescription.emptyDescription()
-                mainPanelSplitter.firstComponent = filesTreePanel
-                mainPanelSplitter.secondComponent = descriptionPanel
-                add(mainPanelSplitter)
-            }
-//        }
+        if (shouldDisplayNoErrorPanel(panelType)) {
+            add(checkovDescription.noErrorsPanel())
+        } else {
+            val descriptionPanel = checkovDescription.emptyDescription()
+            mainPanelSplitter.firstComponent = filesTreePanel
+            mainPanelSplitter.secondComponent = descriptionPanel
+            add(mainPanelSplitter)
+        }
     }
 
     private fun shouldDisplayNoErrorPanel(panelType: Int): Boolean {
@@ -173,7 +168,8 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
             override fun fileOpened(source: FileEditorManager, file: VirtualFile) {
                 super.fileOpened(source, file)
                 if (shouldScanFile(file)) {
-                    val hasResources = project.service<ResultsCacheService>().getCheckovResultsByPath(toVirtualFilePath(project, file)).isNotEmpty()
+                    val checkovResults = project.service<ResultsCacheService>().checkovResults
+                    val hasResources = CheckovResultsListUtils.getCheckovResultsByPath(checkovResults, toVirtualFilePath(project, file)).isNotEmpty()
                     if(!hasResources){
                         project.service<CheckovScanService>().scanFile(file.path, project)
                     }

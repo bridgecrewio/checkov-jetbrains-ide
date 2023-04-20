@@ -38,8 +38,6 @@ class SeverityFilterActions(val project: Project) : ActionListener {
         severityFilterState[buttonText] = !severityFilterState[buttonText]!!
         val selectedSeverities = severityTextToEnum.filter { (key, _) ->  severityFilterState.filterValues { v-> v }.containsKey(key) }.values.toList()
         currentSelectedSeverities = selectedSeverities.ifEmpty { severityTextToEnum.values }.toList()
-//        val severities = selectedSeverities.ifEmpty { severityTextToEnum.values }.toList()
-//        project.service<ResultsCacheService>().updateSelectedSeverities(severities)
         project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_FILE_SCAN_FINISHED)
     }
 }

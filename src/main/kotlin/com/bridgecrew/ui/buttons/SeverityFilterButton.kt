@@ -2,6 +2,7 @@ package com.bridgecrew.ui.buttons
 
 import com.bridgecrew.listeners.InitializationListener
 import com.bridgecrew.results.Severity
+import com.bridgecrew.services.CheckovResultsListUtils
 import com.bridgecrew.services.ResultsCacheService
 import com.bridgecrew.ui.CheckovToolWindowManagerPanel
 import com.bridgecrew.ui.actions.SeverityFilterActions
@@ -34,7 +35,7 @@ class SeverityFilterButton(val project: Project,text: String, severity: Severity
                 g2d.dispose()
             }
         }
-        isEnabled = project.service<ResultsCacheService>().getCurrentSeverities().contains(severity)
+        isEnabled = CheckovResultsListUtils.getCurrentResultsSeverities(project.service<ResultsCacheService>().checkovResults).contains(severity)
     }
 
     override fun updateUI() {
