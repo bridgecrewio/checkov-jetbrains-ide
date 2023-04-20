@@ -44,9 +44,14 @@ class InitializationService(private val project: Project) {
             return
         }
 
-        setSelectedCheckovService(DockerCheckovScanCommandsService(project))
         if (!output.lowercase().trim().contains("pulling from bridgecrew/checkov")) {
-            checkIfCheckovUpdateNeeded(output, true, project)
+            if(!checkIfCheckovUpdateNeeded(output)){
+                setSelectedCheckovService(DockerCheckovScanCommandsService(project))
+            }else{
+                updateCheckovDocker(project)
+            }
+        }else{
+            setSelectedCheckovService(DockerCheckovScanCommandsService(project))
         }
     }
 
@@ -92,7 +97,10 @@ class InitializationService(private val project: Project) {
     }
 
     private fun updatePythonBasePath(project: Project, version: String) {
-        //check checkov version => updated if needed
+        if(checkIfCheckovUpdateNeeded(version)){
+            updateCheckovPip(project)
+        }
+
         val os = System.getProperty("os.name").lowercase()
         if (os.contains("win")) {
             val command = PipInstallerCommandService.getWinCommandsForFindingCheckovPath()
@@ -102,7 +110,7 @@ class InitializationService(private val project: Project) {
             project.service<CliService>().run(command, project, this::updatePathUnix)
         }
 
-        checkIfCheckovUpdateNeeded(version, false, project)
+
     }
 
     private fun updatePathUnix(output: String, exitCode: Int, project: Project) {
@@ -215,19 +223,11 @@ class InitializationService(private val project: Project) {
         return false
     }
 
-    private fun checkIfCheckovUpdateNeeded(rawVersion: String, useDocker: Boolean, project: Project): Boolean {
+    private fun checkIfCheckovUpdateNeeded(rawVersion: String): Boolean {
         val version = rawVersion.split('\n')[0]
         LOG.info("Checkov version $version")
-        if (!versionIsNewer(version, checkovVersion)) {
-            if (useDocker) {
-                updateCheckovDocker(project)
-            } else {
-                updateCheckovPip(project)
-            }
-            return true
-        }
 
-        return false
+        return !versionIsNewer(version, checkovVersion)
     }
 
     private fun updateCheckovPip(project: Project) {
@@ -242,8 +242,10 @@ class InitializationService(private val project: Project) {
     private fun onCheckovUpdate(output: String, exitCode: Int, project: Project) {
         if (exitCode != 0) {
             LOG.warn("Failed to pull Checkov image")
+            installCheckovIfNeededAndSetCheckovPath()
             return
         }
+        setSelectedCheckovService(DockerCheckovScanCommandsService(project))
         LOG.info("Checkov Docker updated")
     }
 }
