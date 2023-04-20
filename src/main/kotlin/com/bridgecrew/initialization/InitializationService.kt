@@ -234,6 +234,15 @@ class InitializationService(private val project: Project) {
     }
 
     private fun updateCheckovDocker(project: Project){
-        project.service<CheckovInstallerService>().install(project)
+        val cmds = arrayListOf("docker", "pull", "bridgecrew/checkov")
+        project.service<CliService>().run(cmds, project, this::onCheckovUpdate, this::onCheckovUpdate)
+    }
+
+    private fun onCheckovUpdate(output: String, exitCode: Int, project: Project) {
+        if (exitCode != 0) {
+            LOG.warn("Failed to pull Checkov image")
+            return
+        }
+        LOG.info("Checkov Docker updated")
     }
 }
