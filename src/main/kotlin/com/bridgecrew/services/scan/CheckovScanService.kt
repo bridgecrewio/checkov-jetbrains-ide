@@ -157,7 +157,12 @@ class CheckovScanService: Disposable {
         generalCommandLine.environment["BC_SOURCE_VERSION"] = pluginVersion
         generalCommandLine.environment["BC_SOURCE"] = "jetbrains"
         generalCommandLine.environment["LOG_LEVEL"] = "DEBUG"
-        generalCommandLine.environment["SSL_CERT_FILE"] = certPath
+
+        if (certPath?.isNotEmpty() == true) {
+            generalCommandLine.environment["SSL_CERT_FILE"] = certPath
+            generalCommandLine.environment["REQUESTS_CA_BUNDLE"] = certPath
+        }
+
         if (!prismaUrl.isNullOrEmpty()) {
             generalCommandLine.environment["PRISMA_API_URL"] = prismaUrl
         }
