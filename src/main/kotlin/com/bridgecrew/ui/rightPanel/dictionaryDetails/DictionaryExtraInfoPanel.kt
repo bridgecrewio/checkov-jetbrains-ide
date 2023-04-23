@@ -46,7 +46,10 @@ abstract class DictionaryExtraInfoPanel : JPanel() {
         val boldFont = Font(font.name, Font.BOLD, font.size)
 
         for ((key, value) in fieldsMap) {
-            var valueAsString = if (value == null || value.toString().isEmpty()) "---" else value.toString()
+            val isEmptyVal = (value == null || value.toString().isEmpty())
+            if (key.lowercase() == "description" && isEmptyVal)
+                continue
+            val valueAsString = if (isEmptyVal) "---" else value.toString()
             val keyLabel = JLabel(key)
             keyLabel.font = boldFont
             keyLabel.preferredSize = Dimension(maxKeyWidth + 50, keyLabel.preferredSize.height)

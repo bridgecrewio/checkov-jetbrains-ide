@@ -9,8 +9,8 @@ class IacDictionaryPanel(result: BaseCheckovResult) : DictionaryExtraInfoPanel()
             "Severity" to result.severity,
             "Policy Name" to result.name,
             "Description" to result.description,
-            "Category" to result.category,
-            "Check Type" to result.checkType.name.lowercase(),
+            "Category" to result.category, // TODO - remove before release
+            "Check Type" to result.checkType.name.lowercase(), // TODO - remove before release
     )
     init {
         addCustomPolicyGuidelinesIfNeeded(result)
