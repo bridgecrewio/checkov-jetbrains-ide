@@ -25,7 +25,7 @@ private val LOG = logger<InitializationService>()
 class InitializationService(private val project: Project) {
 
     private var isCheckovInstalledGlobally: Boolean = false
-    private var checkovVersion: String = "2.3.191"
+    private var checkovVersion: String = "2.3.193"
 
     fun initializeProject() {
         initializeCheckovScanService()
