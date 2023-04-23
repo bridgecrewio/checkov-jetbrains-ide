@@ -18,8 +18,8 @@ const val GIT_DEFAULT_REPOSITORY_NAME = "jetbrains/extension"
 
 const val DOCKER_MOUNT_DIR = "/checkovScan"
 
-val FULL_SCAN_FRAMEWORKS = arrayListOf("ansible", "arm", "bicep", "cloudformation", "dockerfile", "helm", "json",
-        "yaml", "kubernetes", "kustomize", "openapi", "sca_package", "sca_image", "secrets", "serverless", "terraform", "terraform_plan")
+val FULL_SCAN_FRAMEWORKS = arrayListOf( "sca_package")//"ansible", "arm", "bicep", "cloudformation", "dockerfile", "helm", "json",
+        //"yaml", "kubernetes", "kustomize", "openapi", "sca_package", "sca_image", "secrets", "serverless", "terraform", "terraform_plan")
 val FULL_SCAN_EXCLUDED_PATHS = arrayListOf("node_modules")
 const val FULL_SCAN_STATE_FILE = "full_scan_state"
 

@@ -3,6 +3,7 @@ package com.bridgecrew.ui.vulnerabilitiesTree
 import com.bridgecrew.results.BaseCheckovResult
 import com.bridgecrew.results.Category
 import com.bridgecrew.services.ResultsCacheService
+import com.bridgecrew.services.CheckovResultsListUtils
 import com.bridgecrew.ui.CheckovToolWindowDescriptionPanel
 import com.bridgecrew.utils.navigateToFile
 import com.intellij.openapi.Disposable
@@ -43,7 +44,11 @@ class CheckovToolWindowTree(val project: Project, val split: JBSplitter, private
      * @return Panel which contains a tree element
      */
     fun createTree() : JPanel {
-        val fileToResourceMap = project.service<ResultsCacheService>().getCheckovResultsFilteredBySeverityGroupedByPath()
+        var checkovResults: MutableList<BaseCheckovResult> = project.service<ResultsCacheService>().checkovResults
+        checkovResults = CheckovResultsListUtils.filterResultsByCategoriesAndSeverities(checkovResults)
+        CheckovResultsListUtils.sortResults(checkovResults)
+
+        val fileToResourceMap = checkovResults.groupBy { it.filePath }
 
         val rootNode = DefaultMutableTreeNode("")
 
@@ -88,10 +93,11 @@ class CheckovToolWindowTree(val project: Project, val split: JBSplitter, private
 
         resultsGroupedByResource.forEach { (resource, results) ->
             val resourceNode = DefaultMutableTreeNode(CheckovResourceTreeNode(resource, parentIcon))
+            val secretsNodes = mutableListOf<DefaultMutableTreeNode>()
             results.forEach { checkovResult ->
                 val checkName = DefaultMutableTreeNode(CheckovVulnerabilityTreeNode(checkovResult))
                 if (checkovResult.category == Category.SECRETS) {
-                    fileWithErrorsNode.add(checkName)
+                    secretsNodes.add(checkName)
                 } else {
                     resourceNode.add(checkName)
                 }
@@ -99,6 +105,7 @@ class CheckovToolWindowTree(val project: Project, val split: JBSplitter, private
 
             if(resourceNode.childCount > 0)
                 fileWithErrorsNode.add(resourceNode)
+            secretsNodes.forEach { node -> fileWithErrorsNode.add(node) }
         }
     }
 
