@@ -3,7 +3,6 @@ package com.bridgecrew.ui.actions
 import com.bridgecrew.results.Severity
 import com.bridgecrew.ui.CheckovToolWindowManagerPanel
 import com.bridgecrew.utils.PANELTYPE
-import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import java.awt.event.ActionEvent

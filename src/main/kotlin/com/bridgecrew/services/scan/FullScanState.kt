@@ -23,7 +23,7 @@ import java.io.File
 
 @Service
 class FullScanStateService(val project: Project) {
-    var fullScanFinishedFrameworksNumber: Int = 0
+    private var fullScanFinishedFrameworksNumber: Int = 0
         set(value) {
             field = value
             if (value == DESIRED_NUMBER_OF_FRAMEWORK_FOR_FULL_SCAN) {

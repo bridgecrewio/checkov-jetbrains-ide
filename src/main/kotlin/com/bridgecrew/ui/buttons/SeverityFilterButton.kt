@@ -1,12 +1,10 @@
 package com.bridgecrew.ui.buttons
 
-import com.bridgecrew.results.Category
 import com.bridgecrew.results.Severity
 import com.bridgecrew.services.CheckovResultsListUtils
 import com.bridgecrew.services.ResultsCacheService
 import com.bridgecrew.services.scan.FullScanStateService
 import com.bridgecrew.ui.actions.SeverityFilterActions
-import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.ui.JBColor
@@ -39,7 +37,6 @@ class SeverityFilterButton(val project: Project,text: String, severity: Severity
 
         isEnabled = CheckovResultsListUtils.filterResultsByCategoriesAndSeverities(project.service<ResultsCacheService>().checkovResults, null, listOf(severity)).isNotEmpty() ||
                 (project.service<FullScanStateService>().isFullScanRunning && !project.service<FullScanStateService>().isFrameworkResultsWereDisplayed)
-//        isEnabled = CheckovResultsListUtils.getCurrentResultsSeverities(project.service<ResultsCacheService>().checkovResults).contains(severity)
     }
 
     override fun updateUI() {

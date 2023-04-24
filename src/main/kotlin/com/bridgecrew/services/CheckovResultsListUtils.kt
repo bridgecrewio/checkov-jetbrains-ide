@@ -53,13 +53,5 @@ class CheckovResultsListUtils {
             }
         }
 
-        fun getCurrentResultsSeverities(sourceList: List<BaseCheckovResult>): List<Severity> {
-            return sourceList.map { checkovResult -> checkovResult.severity }.distinct()
-        }
-
-        fun getCurrentResultsCategories(sourceList: List<BaseCheckovResult>): List<Category> {
-            return sourceList.map { checkovResult -> checkovResult.category }.distinct()
-        }
-
     }
 }

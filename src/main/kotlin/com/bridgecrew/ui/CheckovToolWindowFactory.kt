@@ -14,6 +14,7 @@ import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.openapi.wm.ex.ToolWindowManagerListener
+import com.intellij.util.messages.MessageBusConnection
 
 const val PRISMA_CODE_SECUTIRY_TOOL_WINDOW_ID = "Prisma Code Security"
 const val OVERVIEW_TAB_NAME = "Overview"
@@ -48,40 +49,43 @@ class CheckovToolWindowFactory : ToolWindowFactory {
 
         Disposer.register(project, checkovToolWindowPanel)
 
-        val connection = project.messageBus.connect()
+        val connection: MessageBusConnection = project.messageBus.connect()
         connection.subscribe(InitializationListener.INITIALIZATION_TOPIC, object : InitializationListener {
             override fun initializationCompleted() {
-                connection.subscribe(ToolWindowManagerListener.TOPIC, object : ToolWindowManagerListener {
-                    override fun stateChanged(toolWindowManager: ToolWindowManager) {
-                        try {
-                            if (!currentlyRunning && (internalExecution || toolWindowManager.activeToolWindowId == PRISMA_CODE_SECUTIRY_TOOL_WINDOW_ID)) {
-                                internalExecution = false
-                                currentlyRunning = true
-                                val selectedContent = toolWindowManager.getToolWindow(PRISMA_CODE_SECUTIRY_TOOL_WINDOW_ID)?.contentManager?.selectedContent
-
-                                if (selectedContent == null) {
-                                    return
-                                }
-
-                                refreshCounts(toolWindowManager, project)
-
-                                val checkovTabContent = selectedContent as CheckovTabContent
-                                reloadContents(project, checkovTabContent.id)
-                            }
-                        } catch (e: Exception) {
-                            LOG.error("Error while creating tool window: $e.message")
-                        } finally {
-                            currentlyRunning = false
-                        }
-                    }
-                })
+                subscribeToTollWindowManagerEvents(connection, project)
             }
 
         })
     }
 
+    private fun subscribeToTollWindowManagerEvents(connection: MessageBusConnection, project: Project) {
+        connection.subscribe(ToolWindowManagerListener.TOPIC, object : ToolWindowManagerListener {
+            override fun stateChanged(toolWindowManager: ToolWindowManager) {
+                try {
+                    if (!currentlyRunning && (internalExecution || toolWindowManager.activeToolWindowId == PRISMA_CODE_SECUTIRY_TOOL_WINDOW_ID)) {
+                        internalExecution = false
+                        currentlyRunning = true
+                        val selectedContent = toolWindowManager.getToolWindow(PRISMA_CODE_SECUTIRY_TOOL_WINDOW_ID)?.contentManager?.selectedContent
+
+                        if (selectedContent == null) {
+                            return
+                        }
+
+                        refreshCounts(toolWindowManager, project)
+
+                        val checkovTabContent = selectedContent as CheckovTabContent
+                        reloadContents(project, checkovTabContent.id)
+                    }
+                } catch (e: Exception) {
+                    LOG.error("Error while creating tool window: $e.message")
+                } finally {
+                    currentlyRunning = false
+                }
+            }
+        })
+    }
+
     private fun reloadContents(project: Project, tabId: String) {
-        LOG.info("State changed - new - $tabId last = $lastSelectedCategory")
         if (tabNameToCategory.keys.contains(tabId)) {
             if (lastSelectedTab != tabId) {
                 LOG.info("State changed - new - $tabId last = $lastSelectedCategory - loading content")

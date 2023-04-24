@@ -160,8 +160,6 @@ class CheckovScanService: Disposable {
         if (!prismaUrl.isNullOrEmpty()) {
             generalCommandLine.environment["PRISMA_API_URL"] = prismaUrl
         }
-        generalCommandLine.environment["SSL_CERT_FILE"] = "/Users/mshavit/palo_alto.cert.pem"
-        generalCommandLine.environment["REQUESTS_CA_BUNDLE"] = "/Users/mshavit/palo_alto.cert.pem"
 
         return generalCommandLine
     }
