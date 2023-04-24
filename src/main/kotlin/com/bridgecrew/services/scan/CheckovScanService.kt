@@ -220,7 +220,7 @@ class CheckovScanService: Disposable {
             if (extractionResult.failedChecks.isEmpty()) {
                 project.service<FullScanStateService>().frameworkFinishedWithNoErrors(framework)
             } else {
-                project.service<ResultsCacheService>().addCheckovResults(extractionResult.failedChecks)
+                project.service<ResultsCacheService>().addCheckovResults(extractionResult.failedChecks, ScanSourceType.FRAMEWORK)
                 project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished(ScanSourceType.FRAMEWORK)
 
                 project.service<FullScanStateService>().frameworkScanFinishedAndDetectedIssues(framework, extractionResult.failedChecks.size)
@@ -256,7 +256,7 @@ class CheckovScanService: Disposable {
                 return
             }
 
-            project.service<ResultsCacheService>().addCheckovResults(extractionResult.failedChecks)
+            project.service<ResultsCacheService>().addCheckovResults(extractionResult.failedChecks, ScanSourceType.FILE)
             project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished(ScanSourceType.FILE)
 
             scanTaskResult.deleteResultsFile()
