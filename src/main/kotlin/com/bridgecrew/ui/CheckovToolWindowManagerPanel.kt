@@ -279,6 +279,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                 .subscribe(CheckovScanListener.SCAN_TOPIC, object : CheckovScanListener {
 
                     override fun projectScanningStarted() {
+                        SeverityFilterActions.restartState()
                         project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_REPOSITORY_SCAN_STARTED)
                     }
 
@@ -309,6 +310,6 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
     }
 
     override fun dispose() {
-        SeverityFilterActions.dispose()
+        SeverityFilterActions.restartState()
     }
 }

@@ -18,8 +18,8 @@ class AnalyticsService(val project: Project) {
     var fullScanData: FullScanAnalyticsData? = null
     private var fullScanNumber = 0
 
-    private var wereFullScanResultsDisplayed = false
-    private var wereSingleFileScanResultsDisplayed = false
+    var wereFullScanResultsDisplayed = false
+    var wereSingleFileScanResultsDisplayed = false
     val wereResultsDisplayed
         get() = (wereSingleFileScanResultsDisplayed || wereFullScanResultsDisplayed)
 

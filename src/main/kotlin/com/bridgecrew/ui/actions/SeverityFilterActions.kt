@@ -12,7 +12,7 @@ import javax.swing.JButton
 
 class SeverityFilterActions(val project: Project) : ActionListener {
 
-    companion object: Disposable {
+    companion object {
         var severityFilterState = mutableMapOf(
                 "I" to false,
                 "L" to false,
@@ -30,7 +30,7 @@ class SeverityFilterActions(val project: Project) : ActionListener {
         )
 
         var currentSelectedSeverities = Severity.values().toList()
-        override fun dispose() {
+        fun restartState() {
             severityFilterState = mutableMapOf(
                     "I" to false,
                     "L" to false,
@@ -38,6 +38,7 @@ class SeverityFilterActions(val project: Project) : ActionListener {
                     "H" to false,
                     "C" to false
             )
+            currentSelectedSeverities = Severity.values().toList()
         }
     }
 

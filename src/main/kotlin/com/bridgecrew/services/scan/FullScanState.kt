@@ -75,7 +75,8 @@ class FullScanStateService(val project: Project) {
         totalPassedCheckovChecks = 0
         totalFailedCheckovChecks = 0
         onCancel = false
-        previousState = if (previousState == State.FIRST_TIME_SCAN && project.service<AnalyticsService>().wereResultsDisplayed) State.SUCCESSFUL_SCAN else State.FIRST_TIME_SCAN
+        if (project.service<AnalyticsService>().wereSingleFileScanResultsDisplayed && !project.service<AnalyticsService>().wereFullScanResultsDisplayed)
+            previousState = State.SUCCESSFUL_SCAN
         isFullScanRunning = true
         isFrameworkResultsWereDisplayed = false
     }
