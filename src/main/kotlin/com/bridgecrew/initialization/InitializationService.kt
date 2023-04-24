@@ -44,15 +44,13 @@ class InitializationService(private val project: Project) {
             return
         }
 
-        if (!output.lowercase().trim().contains("pulling from bridgecrew/checkov")) {
-            if(!checkIfCheckovUpdateNeeded(output)){
-                setSelectedCheckovService(DockerCheckovScanCommandsService(project))
-            }else{
-                updateCheckovDocker(project)
-            }
-        }else{
+
+        if (output.lowercase().trim().contains("pulling from bridgecrew/checkov") || !checkIfCheckovUpdateNeeded(output)) {
             setSelectedCheckovService(DockerCheckovScanCommandsService(project))
+            return
         }
+
+        updateCheckovDocker(project)
     }
 
     private fun installCheckovIfNeededAndSetCheckovPath() {
@@ -245,6 +243,7 @@ class InitializationService(private val project: Project) {
             installCheckovIfNeededAndSetCheckovPath()
             return
         }
+
         setSelectedCheckovService(DockerCheckovScanCommandsService(project))
         LOG.info("Checkov Docker updated")
     }

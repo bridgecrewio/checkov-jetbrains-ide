@@ -1,10 +1,10 @@
 package com.bridgecrew.ui
 
+import com.bridgecrew.listeners.InitializationListener
 import com.bridgecrew.results.Category
 import com.bridgecrew.services.CheckovResultsListUtils
 import com.bridgecrew.services.ResultsCacheService
 import com.bridgecrew.ui.topPanel.CheckovActionToolbar
-import com.bridgecrew.ui.CheckovTabContent
 import com.bridgecrew.utils.PANELTYPE
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
@@ -49,34 +49,45 @@ class CheckovToolWindowFactory : ToolWindowFactory {
         Disposer.register(project, checkovToolWindowPanel)
 
         val connection = project.messageBus.connect()
-        connection.subscribe(ToolWindowManagerListener.TOPIC, object : ToolWindowManagerListener {
-            override fun stateChanged(toolWindowManager: ToolWindowManager) {
-                try {
-                    if (!currentlyRunning && (internalExecution || toolWindowManager.activeToolWindowId == PRISMA_CODE_SECUTIRY_TOOL_WINDOW_ID)) {
-                        internalExecution = false
-                        currentlyRunning = true
-                        val selectedContent = toolWindowManager.getToolWindow(PRISMA_CODE_SECUTIRY_TOOL_WINDOW_ID)?.contentManager?.selectedContent
-                        if (selectedContent != null) {
-                            val checkovTabContent = selectedContent as CheckovTabContent
-                            refreshCounts(toolWindowManager, project)
-                            reloadContents(project, checkovTabContent.id)
+        connection.subscribe(InitializationListener.INITIALIZATION_TOPIC, object : InitializationListener {
+            override fun initializationCompleted() {
+                connection.subscribe(ToolWindowManagerListener.TOPIC, object : ToolWindowManagerListener {
+                    override fun stateChanged(toolWindowManager: ToolWindowManager) {
+                        try {
+                            if (!currentlyRunning && (internalExecution || toolWindowManager.activeToolWindowId == PRISMA_CODE_SECUTIRY_TOOL_WINDOW_ID)) {
+                                internalExecution = false
+                                currentlyRunning = true
+                                val selectedContent = toolWindowManager.getToolWindow(PRISMA_CODE_SECUTIRY_TOOL_WINDOW_ID)?.contentManager?.selectedContent
+
+                                if (selectedContent == null) {
+                                    return
+                                }
+
+                                refreshCounts(toolWindowManager, project)
+
+                                val checkovTabContent = selectedContent as CheckovTabContent
+                                reloadContents(project, checkovTabContent.id)
+                            }
+                        } catch (e: Exception) {
+                            LOG.error("Error while creating tool window: $e.message")
+                        } finally {
+                            currentlyRunning = false
                         }
                     }
-                } catch (e: Exception) {
-                    LOG.error("Error while creating tool window: $e.message")
-                } finally {
-                    currentlyRunning = false
-                }
+                })
             }
+
         })
     }
 
     private fun reloadContents(project: Project, tabId: String) {
+        LOG.info("State changed - new - $tabId last = $lastSelectedCategory")
         if (tabNameToCategory.keys.contains(tabId)) {
             if (lastSelectedTab != tabId) {
+                LOG.info("State changed - new - $tabId last = $lastSelectedCategory - loading content")
                 val category = tabNameToCategory[tabId]
                 lastSelectedCategory = category
-                project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_FRAMEWORK_SCAN_FINISHED, null)
+                project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_LOAD_TABS_CONTENT)
             }
             lastSelectedTab = tabId
         }

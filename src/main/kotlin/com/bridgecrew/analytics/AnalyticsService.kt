@@ -18,6 +18,11 @@ class AnalyticsService(val project: Project) {
     var fullScanData: FullScanAnalyticsData? = null
     private var fullScanNumber = 0
 
+    private var wereFullScanResultsDisplayed = false
+    private var wereSingleFileScanResultsDisplayed = false
+    val wereResultsDisplayed
+        get() = (wereSingleFileScanResultsDisplayed || wereFullScanResultsDisplayed)
+
     fun fullScanButtonWasPressed() {
         val fullScanButtonWasPressedDate = Date()
         fullScanNumber += 1
@@ -56,7 +61,12 @@ class AnalyticsService(val project: Project) {
             fullScanData!!.resultsWereFullyDisplayedTime = Date()
             LOG.info("Prisma Plugin Analytics - scan #${fullScanNumber} - full scan results are fully displayed")
             logFullScanAnalytics()
+            wereFullScanResultsDisplayed = true
         }
+    }
+
+    fun singleFileScanResultsWereFullyDisplayed() {
+        wereSingleFileScanResultsDisplayed = true
     }
 
     fun fullScanFrameworkError(framework: String) {

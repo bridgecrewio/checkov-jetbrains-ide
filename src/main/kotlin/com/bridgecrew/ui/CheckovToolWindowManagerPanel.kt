@@ -9,6 +9,7 @@ import com.bridgecrew.services.scan.CheckovScanService
 import com.bridgecrew.services.scan.FullScanStateService
 import com.bridgecrew.settings.CheckovSettingsState
 import com.bridgecrew.ui.actions.CheckovScanAction
+import com.bridgecrew.ui.actions.SeverityFilterActions
 import com.bridgecrew.ui.topPanel.CheckovTopPanel
 import com.bridgecrew.ui.vulnerabilitiesTree.CheckovToolWindowTree
 import com.bridgecrew.utils.FULL_SCAN_EXCLUDED_PATHS
@@ -55,11 +56,65 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
         const val PANEL_SPLITTER_KEY = "CHECKOV_PANEL_SPLITTER_KEY"
     }
 
-    fun loadMainPanel(panelType: Int = PANELTYPE.AUTO_CHOOSE_PANEL, scanSourceType: CheckovScanService.ScanSourceType? = null) {
+    fun loadMainPanel(panelType: Int = PANELTYPE.AUTO_CHOOSE_PANEL) {
         removeAll()
         add(CheckovTopPanel(project), BorderLayout.NORTH)
         reloadTabCounts()
         when (panelType) {
+            PANELTYPE.CHECKOV_LOAD_TABS_CONTENT -> {
+                // load content if we're in scan or results were displayed
+//                if (project.service<FullScanStateService>().wereAllFrameworksFinished()) {
+//                    CheckovScanAction.resetActionDynamically(true)
+//                    if (project.service<FullScanStateService>().onCancel) {
+//                        loadPreviousStatePanel(panelType)
+//                        return
+//                    }
+//                }
+
+
+                LOG.info("State changed - last = ${CheckovToolWindowFactory.lastSelectedCategory}, panel type - $panelType")
+                if (project.service<FullScanStateService>().isFullScanRunning) {
+                    LOG.info("State changed - last = ${CheckovToolWindowFactory.lastSelectedCategory}, panel type - $panelType - full scan running")
+
+                    if (project.service<FullScanStateService>().onCancel) {
+                        LOG.info("State changed - last = ${CheckovToolWindowFactory.lastSelectedCategory}, panel type - $panelType - on Cancel, previous state - ${project.service<FullScanStateService>().previousState}")
+                        loadPreviousStatePanel(panelType)
+                        return
+                    }
+
+                    if(!project.service<FullScanStateService>().isFrameworkResultsWereDisplayed) {
+                        LOG.info("State changed - last = ${CheckovToolWindowFactory.lastSelectedCategory}, panel type - $panelType - on scanning...")
+                        add(checkovDescription.duringScanDescription("Scanning your repository..."))
+                        revalidate()
+                        return
+                    }
+                }
+
+                if (project.service<FullScanStateService>().isFrameworkResultsWereDisplayed || project.service<AnalyticsService>().wereResultsDisplayed) {
+                    LOG.info("State changed - last = ${CheckovToolWindowFactory.lastSelectedCategory}, panel type - $panelType - loading results, " +
+                            "isFrameworkResultsWereDisplayed - ${project.service<FullScanStateService>().isFrameworkResultsWereDisplayed} " +
+                            "wereResultsDisplayed ${project.service<AnalyticsService>().wereResultsDisplayed}")
+                    loadScanResultsPanel(panelType)
+                    revalidate()
+                    return
+                }
+
+                LOG.info("State changed - last = ${CheckovToolWindowFactory.lastSelectedCategory}, panel type - $panelType - load auto choose")
+
+                loadAutoChoosePanel()
+
+
+//
+//
+//                if (project.service<AnalyticsService>().wereResultsDisplayed ||
+//                        (!project.service<FullScanStateService>().onCancel &&
+//                        project.service<FullScanStateService>().fullScanFinishedFrameworksNumber > 0)) {
+//                    loadScanResultsPanel(panelType)
+//                } else {
+//                    loadAutoChoosePanel()
+//                }
+            }
+
             PANELTYPE.CHECKOV_REPOSITORY_SCAN_STARTED -> {
                 add(checkovDescription.duringScanDescription("Scanning your repository..."))
             }
@@ -70,6 +125,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
 
             PANELTYPE.CHECKOV_FILE_SCAN_FINISHED -> {
                 loadScanResultsPanel(panelType)
+                project.service<AnalyticsService>().singleFileScanResultsWereFullyDisplayed()
             }
 
             PANELTYPE.CHECKOV_FRAMEWORK_SCAN_FINISHED -> {
@@ -80,7 +136,9 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                         return
                     }
                 }
+
                 if (!project.service<FullScanStateService>().onCancel) {
+                    project.service<FullScanStateService>().isFrameworkResultsWereDisplayed = true
                     loadScanResultsPanel(panelType)
                 }
             }
@@ -91,6 +149,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
 
             PANELTYPE.AUTO_CHOOSE_PANEL -> {
                 loadAutoChoosePanel()
+                CheckovScanAction.resetActionDynamically(true)
             }
         }
         revalidate()
@@ -124,7 +183,6 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
             setting?.apiToken.isNullOrEmpty() -> add(checkovDescription.configurationDescription())
             else -> add(checkovDescription.preScanDescription())
         }
-        CheckovScanAction.resetActionDynamically(true)
     }
 
     private fun loadErrorsPanel() {
@@ -132,6 +190,9 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
     }
 
     private fun loadPreviousStatePanel(panelType: Int) {
+        LOG.info("State changed - last = ${CheckovToolWindowFactory.lastSelectedCategory}, panel type - $panelType," +
+                "previous state - ${project.service<FullScanStateService>().previousState}")
+
         when (project.service<FullScanStateService>().previousState) {
             FullScanStateService.State.FIRST_TIME_SCAN -> {
                 loadAutoChoosePanel()
@@ -145,6 +206,8 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                 loadErrorsPanel()
             }
         }
+
+        revalidate()
     }
 
     private fun reloadTabCounts() {
@@ -245,5 +308,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                 })
     }
 
-    override fun dispose() = Unit
+    override fun dispose() {
+        SeverityFilterActions.dispose()
+    }
 }

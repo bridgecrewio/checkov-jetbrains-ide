@@ -1,9 +1,9 @@
 package com.bridgecrew.ui.actions
 
 import com.bridgecrew.results.Severity
-import com.bridgecrew.services.ResultsCacheService
 import com.bridgecrew.ui.CheckovToolWindowManagerPanel
 import com.bridgecrew.utils.PANELTYPE
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import java.awt.event.ActionEvent
@@ -12,8 +12,8 @@ import javax.swing.JButton
 
 class SeverityFilterActions(val project: Project) : ActionListener {
 
-    companion object {
-        val severityFilterState = mutableMapOf(
+    companion object: Disposable {
+        var severityFilterState = mutableMapOf(
                 "I" to false,
                 "L" to false,
                 "M" to false,
@@ -30,6 +30,15 @@ class SeverityFilterActions(val project: Project) : ActionListener {
         )
 
         var currentSelectedSeverities = Severity.values().toList()
+        override fun dispose() {
+            severityFilterState = mutableMapOf(
+                    "I" to false,
+                    "L" to false,
+                    "M" to false,
+                    "H" to false,
+                    "C" to false
+            )
+        }
     }
 
     override fun actionPerformed(e: ActionEvent?) {
@@ -38,6 +47,6 @@ class SeverityFilterActions(val project: Project) : ActionListener {
         severityFilterState[buttonText] = !severityFilterState[buttonText]!!
         val selectedSeverities = severityTextToEnum.filter { (key, _) ->  severityFilterState.filterValues { v-> v }.containsKey(key) }.values.toList()
         currentSelectedSeverities = selectedSeverities.ifEmpty { severityTextToEnum.values }.toList()
-        project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_FILE_SCAN_FINISHED)
+        project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_LOAD_TABS_CONTENT)
     }
 }

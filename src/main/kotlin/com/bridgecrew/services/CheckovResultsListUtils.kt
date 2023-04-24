@@ -57,5 +57,9 @@ class CheckovResultsListUtils {
             return sourceList.map { checkovResult -> checkovResult.severity }.distinct()
         }
 
+        fun getCurrentResultsCategories(sourceList: List<BaseCheckovResult>): List<Category> {
+            return sourceList.map { checkovResult -> checkovResult.category }.distinct()
+        }
+
     }
 }

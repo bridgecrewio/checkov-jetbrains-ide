@@ -23,7 +23,7 @@ import java.io.File
 
 @Service
 class FullScanStateService(val project: Project) {
-    private var fullScanFinishedFrameworksNumber: Int = 0
+    var fullScanFinishedFrameworksNumber: Int = 0
         set(value) {
             field = value
             if (value == DESIRED_NUMBER_OF_FRAMEWORK_FOR_FULL_SCAN) {
@@ -40,11 +40,13 @@ class FullScanStateService(val project: Project) {
 
     private var stateFile: File? = null
     var onCancel: Boolean = false
-    var previousState = if (project.service<ResultsCacheService>().checkovResults.size > 0) State.SUCCESSFUL_SCAN else State.FIRST_TIME_SCAN
+    var previousState = State.FIRST_TIME_SCAN
 
     private val gson = Gson()
     private val LOG = logger<FullScanStateService>()
 
+    var isFullScanRunning = false
+    var isFrameworkResultsWereDisplayed = false
     private fun handleFullScanFinished() {
         if(!onCancel) {
             if (wereAllFrameworksFinishedWithErrors()) {
@@ -60,6 +62,7 @@ class FullScanStateService(val project: Project) {
         }
 
         deletePreviousState()
+        isFullScanRunning = false
         project.service<AnalyticsService>().fullScanFinished()
     }
 
@@ -72,6 +75,9 @@ class FullScanStateService(val project: Project) {
         totalPassedCheckovChecks = 0
         totalFailedCheckovChecks = 0
         onCancel = false
+        previousState = if (previousState == State.FIRST_TIME_SCAN && project.service<AnalyticsService>().wereResultsDisplayed) State.SUCCESSFUL_SCAN else State.FIRST_TIME_SCAN
+        isFullScanRunning = true
+        isFrameworkResultsWereDisplayed = false
     }
 
     fun saveCurrentState() {
