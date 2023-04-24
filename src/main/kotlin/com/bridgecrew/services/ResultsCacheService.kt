@@ -2,6 +2,7 @@ package com.bridgecrew.services
 
 import com.bridgecrew.CheckovResult
 import com.bridgecrew.results.*
+import com.bridgecrew.services.scan.CheckovScanService
 import com.bridgecrew.utils.CheckovUtils
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
@@ -20,11 +21,13 @@ class ResultsCacheService(val project: Project) {
         checkovResults.add(checkovResult)
     }
 
-    fun addCheckovResults(newCheckovResults: List<CheckovResult>) {
-        newCheckovResults.forEach { newCheckovResult ->
-            run {
-                checkovResults.removeIf { savedCheckovResult -> savedCheckovResult.absoluteFilePath == newCheckovResult.file_abs_path }
+    fun addCheckovResults(newCheckovResults: List<CheckovResult>, scanSourceType: CheckovScanService.ScanSourceType) {
+        if (scanSourceType == CheckovScanService.ScanSourceType.FILE) {
+            newCheckovResults.forEach { newCheckovResult ->
+                run {
+                    checkovResults.removeIf { savedCheckovResult -> savedCheckovResult.absoluteFilePath == newCheckovResult.file_abs_path }
 
+                }
             }
         }
 
