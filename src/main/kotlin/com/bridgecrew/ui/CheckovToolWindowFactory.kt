@@ -4,6 +4,7 @@ import com.bridgecrew.listeners.InitializationListener
 import com.bridgecrew.results.Category
 import com.bridgecrew.services.CheckovResultsListUtils
 import com.bridgecrew.services.ResultsCacheService
+import com.bridgecrew.ui.actions.SeverityFilterActions
 import com.bridgecrew.ui.topPanel.CheckovActionToolbar
 import com.bridgecrew.utils.PANELTYPE
 import com.intellij.openapi.components.service
@@ -91,6 +92,7 @@ class CheckovToolWindowFactory : ToolWindowFactory {
                 LOG.info("State changed - new - $tabId last = $lastSelectedCategory - loading content")
                 val category = tabNameToCategory[tabId]
                 lastSelectedCategory = category
+                SeverityFilterActions.onChangeCategory(category, project)
                 project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_LOAD_TABS_CONTENT)
             }
             lastSelectedTab = tabId

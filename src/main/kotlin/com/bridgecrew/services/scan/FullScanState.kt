@@ -8,6 +8,7 @@ import com.bridgecrew.results.Severity
 import com.bridgecrew.services.ResultsCacheService
 import com.bridgecrew.ui.CheckovNotificationBalloon
 import com.bridgecrew.ui.actions.CheckovScanAction
+import com.bridgecrew.ui.actions.SeverityFilterActions
 import com.bridgecrew.utils.DESIRED_NUMBER_OF_FRAMEWORK_FOR_FULL_SCAN
 import com.bridgecrew.utils.FULL_SCAN_STATE_FILE
 import com.bridgecrew.utils.createCheckovTempFile
@@ -95,6 +96,7 @@ class FullScanStateService(val project: Project) {
             val resultsListType = object : TypeToken<List<BaseCheckovResult>>() {}.type
             val checkovResultsList: MutableList<BaseCheckovResult> = gson.fromJson(stateContent, resultsListType)
             project.service<ResultsCacheService>().checkovResults = checkovResultsList
+            SeverityFilterActions.restartState()
         } catch (e: Exception) {
             LOG.warn("Could not restore previous state from file, clearing the list", e)
         }
