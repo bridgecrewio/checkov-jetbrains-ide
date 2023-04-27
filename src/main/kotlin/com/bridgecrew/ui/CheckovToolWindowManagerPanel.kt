@@ -257,6 +257,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                     override fun scanningFinished(scanSourceType: CheckovScanService.ScanSourceType) {
                         ApplicationManager.getApplication().invokeLater {
                             if (scanSourceType == CheckovScanService.ScanSourceType.FILE) {
+                                SeverityFilterActions.onSingleFileScanFinished(project)
                                 project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_FILE_SCAN_FINISHED)
                             } else {
                                 project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_FRAMEWORK_SCAN_FINISHED)

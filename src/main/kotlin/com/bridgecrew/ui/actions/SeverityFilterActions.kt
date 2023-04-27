@@ -36,19 +36,24 @@ class SeverityFilterActions(val project: Project) : ActionListener {
 
         var currentSelectedSeverities = Severity.values().toList()
 
-        var currentCategory = CheckovToolWindowFactory.lastSelectedCategory
-
         fun onChangeCategory(category: Category?, project: Project) {
-            val categoryAsList = if (category == null) null else listOf(category)
+            updateEnabledSeverities(category, project)
+        }
 
+        fun onSingleFileScanFinished(project: Project) {
+            updateEnabledSeverities(CheckovToolWindowFactory.lastSelectedCategory, project)
+        }
+
+        private fun updateEnabledSeverities(category: Category?, project: Project) {
+            val categoryAsList = if (category == null) null else listOf(category)
             val categorySeverities = CheckovResultsListUtils.filterResultsByCategoriesAndSeverities(project.service<ResultsCacheService>().checkovResults, categoryAsList, Severity.values().toList()).map{ result -> result.severity}
-            // no pressed category
+            // no pressed category - display the category's severities
             if (currentSelectedSeverities.size == Severity.values().toList().size) {
                 enabledSeverities = categorySeverities
                 return
             }
 
-            // there is a pressed category - check if it is included in the category severity - if so - display it
+            // there is a pressed category - check if it is included in the category severities - if so - display it, else - severities shouldn't be displayed
             if (currentSelectedSeverities.any { severity -> categorySeverities.contains(severity) }) {
                 enabledSeverities = categorySeverities
                 return
@@ -56,6 +61,7 @@ class SeverityFilterActions(val project: Project) : ActionListener {
 
             enabledSeverities = listOf()
         }
+
         fun restartState() {
             severityFilterState = mutableMapOf(
                     "I" to false,
@@ -66,7 +72,6 @@ class SeverityFilterActions(val project: Project) : ActionListener {
             )
             currentSelectedSeverities = Severity.values().toList()
             enabledSeverities = Severity.values().toList()
-            currentCategory = CheckovToolWindowFactory.lastSelectedCategory
         }
     }
 
@@ -76,11 +81,6 @@ class SeverityFilterActions(val project: Project) : ActionListener {
         severityFilterState[buttonText] = !severityFilterState[buttonText]!!
         val selectedSeverities = severityTextToEnum.filter { (key, _) ->  severityFilterState.filterValues { v-> v }.containsKey(key) }.values.toList()
         currentSelectedSeverities = selectedSeverities.ifEmpty { severityTextToEnum.values }.toList()
-//        if (currentCategory != CheckovToolWindowFactory.lastSelectedCategory) {
-//            currentCategory = CheckovToolWindowFactory.lastSelectedCategory
-//            val currentCategoryAsList = currentCategory?.let { listOf(it) }
-//            enabledSeverities = CheckovResultsListUtils.filterResultsByCategoriesAndSeverities(project.service<ResultsCacheService>().checkovResults, currentCategoryAsList, null).map{ result -> result.severity}
-//        }
         project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_LOAD_TABS_CONTENT)
     }
 }
