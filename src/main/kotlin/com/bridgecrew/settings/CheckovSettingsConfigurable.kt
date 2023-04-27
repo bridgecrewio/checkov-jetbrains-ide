@@ -19,26 +19,32 @@ class CheckovSettingsConfigurable(val project: Project) : Configurable {
 
     override fun isModified(): Boolean {
         val settings = CheckovSettingsState().getInstance()
-        return !checkovSettingsComponent.apiTokenField.text.equals(settings?.apiToken) ||
+        return !checkovSettingsComponent.accessKeyField.text.equals(settings?.accessKey) ||
+                !checkovSettingsComponent.secretKeyField.text.equals(settings?.secretKey) ||
                 !checkovSettingsComponent.certificateField.text.equals(settings?.certificate) ||
                 !checkovSettingsComponent.prismaURLField.text.equals(settings?.prismaURL)
     }
 
     override fun apply() {
         val settings = CheckovSettingsState().getInstance()
-        val apiTokenModified = !checkovSettingsComponent.apiTokenField.text.equals(settings?.apiToken)
-        settings?.apiToken = checkovSettingsComponent.apiTokenField.text.trim()
+
+        val secretKeyModified = !checkovSettingsComponent.accessKeyField.text.equals(settings?.accessKey)
+        val accessKeyModified = !checkovSettingsComponent.secretKeyField.text.equals(settings?.secretKey)
+
+        settings?.secretKey = checkovSettingsComponent.secretKeyField.text.trim()
+        settings?.accessKey = checkovSettingsComponent.accessKeyField.text.trim()
         settings?.certificate = checkovSettingsComponent.certificateField.text.trim()
         settings?.prismaURL = checkovSettingsComponent.prismaURLField.text.trim()
-        if (apiTokenModified){
+
+        if (accessKeyModified || secretKeyModified){
             project.messageBus.syncPublisher(CheckovSettingsListener.SETTINGS_TOPIC).settingsUpdated()
         }
-
     }
 
     override fun reset() {
         val setting = CheckovSettingsState().getInstance()
-        checkovSettingsComponent.apiTokenField.text = setting?.apiToken
+        checkovSettingsComponent.accessKeyField.text = setting?.accessKey
+        checkovSettingsComponent.secretKeyField.text = setting?.secretKey
         checkovSettingsComponent.certificateField.text = setting?.certificate
         checkovSettingsComponent.prismaURLField.text = setting?.prismaURL
 

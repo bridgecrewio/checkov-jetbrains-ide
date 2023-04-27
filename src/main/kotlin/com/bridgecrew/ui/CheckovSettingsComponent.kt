@@ -10,7 +10,8 @@ import javax.swing.JTextField
 
 class CheckovSettingsComponent () {
     private var rootPanel: JPanel = JPanel()
-    val apiTokenField: JTextField = JTextField()
+    val secretKeyField: JTextField = JTextField()
+    val accessKeyField: JTextField = JTextField()
     val certificateField: JTextField = JTextField()
     val prismaURLField: JTextField = JTextField()
 
@@ -18,10 +19,15 @@ class CheckovSettingsComponent () {
         rootPanel.layout = GridLayoutManager(1, 2, Insets(0, 0, 0, 0), -1, -1)
         val settingsPanel = JPanel(GridLayoutManager(3, 2, Insets(0, 0, 0, 0), -1, -1))
 
-        val apiTokenLabel = JLabel("Token (Required)")
-        apiTokenLabel.labelFor = apiTokenField
-        settingsPanel.add(apiTokenLabel, createGridRowCol(0,0,GridConstraints.ANCHOR_WEST))
-        settingsPanel.add(apiTokenField, createGridRowCol(0,1,GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL))
+        val accessKeyLabel = JLabel("Access Key (Required)")
+        accessKeyLabel.labelFor = accessKeyField
+        settingsPanel.add(accessKeyLabel, createGridRowCol(0,0,GridConstraints.ANCHOR_WEST))
+        settingsPanel.add(accessKeyField, createGridRowCol(0,1,GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL))
+
+        val secretKeyLabel = JLabel("Secret Key (Required)")
+        secretKeyLabel.labelFor = secretKeyField
+        settingsPanel.add(secretKeyLabel, createGridRowCol(0,0,GridConstraints.ANCHOR_WEST))
+        settingsPanel.add(secretKeyField, createGridRowCol(0,1,GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL))
 
         val prismaURLLabel = JLabel("Prisma URL ( Required if using Prisma Cloud Access Token)")
         prismaURLLabel.labelFor = prismaURLField
