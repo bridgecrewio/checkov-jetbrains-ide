@@ -34,7 +34,6 @@ class CheckovTopPanel(val project: Project) : SimpleToolWindowPanel(true, true),
         createSeparator(actionToolbarPanel)
         addSeverityLabel(actionToolbarPanel)
         addFilterActions(actionToolbarPanel)
-        addScanStatusLabel(actionToolbarPanel)
 
         add(actionToolbarPanel, BorderLayout.NORTH)
         toolbar = actionToolbarPanel
@@ -55,17 +54,6 @@ class CheckovTopPanel(val project: Project) : SimpleToolWindowPanel(true, true),
         separator.preferredSize = Dimension(5, 24)
         actionToolbarPanel.add(separator)
         actionToolbarPanel.add(Box.createRigidArea(Dimension(5, 24)))
-    }
-
-    private fun addScanStatusLabel(actionToolbarPanel: JPanel) {
-        val metadata = getScanResultMetadata()
-        createSeparator(actionToolbarPanel)
-        if (metadata.scanDuration > 0) {
-            val labelText = "Total issues: ${metadata.totalIssues}, passed: ${metadata.totalPassed} of ${metadata.totalIssues.plus(metadata.totalPassed)} tests - ${metadata.scanDuration}s"
-            val scanStatusBar = JLabel(labelText)
-            scanStatusBar.icon = CheckovIcons.ErrorIcon
-            actionToolbarPanel.add(scanStatusBar)
-        }
     }
 
     private fun getScanResultMetadata(): ScanResultMetadata {
