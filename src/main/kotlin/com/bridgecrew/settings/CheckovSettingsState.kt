@@ -14,9 +14,18 @@ import com.intellij.util.xmlb.XmlSerializerUtil
 )
 class CheckovSettingsState() : PersistentStateComponent<CheckovSettingsState> {
 
-    var apiToken: String = ""
+    var accessKey: String = ""
+    var secretKey: String = ""
     var certificate: String = ""
     var prismaURL: String = ""
+
+    fun getApiKey(): String {
+        if(accessKey.isNotEmpty() && secretKey.isNotEmpty()){
+            return "$accessKey::$secretKey"
+        }
+
+        return ""
+    }
 
     fun getInstance(): CheckovSettingsState? {
         return ApplicationManager.getApplication().getService(CheckovSettingsState::class.java)

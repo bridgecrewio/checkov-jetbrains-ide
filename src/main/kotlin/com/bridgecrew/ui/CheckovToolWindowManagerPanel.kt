@@ -119,7 +119,8 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
     private fun loadAutoChoosePanel() {
         val setting = CheckovSettingsState().getInstance()
         when {
-            setting?.apiToken.isNullOrEmpty() -> add(checkovDescription.configurationDescription())
+            setting?.accessKey.isNullOrEmpty() -> add(checkovDescription.configurationDescription())
+            setting?.secretKey.isNullOrEmpty() -> add(checkovDescription.configurationDescription())
             else -> add(checkovDescription.preScanDescription())
         }
     }

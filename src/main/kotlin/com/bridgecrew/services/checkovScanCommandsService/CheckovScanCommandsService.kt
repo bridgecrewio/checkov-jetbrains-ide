@@ -40,7 +40,7 @@ abstract class CheckovScanCommandsService(val project: Project) {
     }
 
     private fun getCheckovCliArgsForExecCommand(outputFilePath: String): ArrayList<String> {
-        val apiToken = settings?.apiToken
+        val apiToken = settings?.getApiKey()
         if (apiToken.isNullOrEmpty()) {
             project.messageBus.syncPublisher(CheckovSettingsListener.SETTINGS_TOPIC).settingsUpdated()
             throw Exception("Wasn't able to get api token\n" +
