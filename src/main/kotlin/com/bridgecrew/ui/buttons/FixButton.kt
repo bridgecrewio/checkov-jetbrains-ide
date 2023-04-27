@@ -48,15 +48,13 @@ class FixButton(val result: BaseCheckovResult) : JButton(), ActionListener {
             val project = dataContext.getData("project") as Project
 
             WriteCommandAction.runWriteCommandAction(project) {
-                navigateToFile(project, virtualFile, startOffset)
-
                 document.replaceString(startOffset, endOffset, result.fixDefinition!!)
                 FileDocumentManager.getInstance().saveDocument(document)
+                navigateToFile(project, virtualFile, result.codeDiffFirstLine)
             }
         } catch (e: Exception) {
             LOG.warn("error while trying to apply fix", e)
             this.isEnabled = true
         }
-
     }
 }

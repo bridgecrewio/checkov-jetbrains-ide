@@ -1,5 +1,7 @@
 package com.bridgecrew.utils
-import com.intellij.ide.util.PsiNavigationSupport
+import com.intellij.openapi.editor.Document
+import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
@@ -11,28 +13,40 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 var checkovTempDirPath: Path = Files.createTempDirectory("checkov")
-fun navigateToFile(project: Project, virtualFile: VirtualFile, startOffset: Int = 0) {
-    val offset = calculateOffset(startOffset, virtualFile.length.toInt())
-    PsiNavigationSupport.getInstance().createNavigatable(
-            project,
-            virtualFile,
-            offset
-    ).navigate(false)
+fun navigateToFile(project: Project, virtualFile: VirtualFile, startLine: Int = 0, startColumn: Int = 0) {
+    val line = calculateLineOffset(startLine - 1, virtualFile)
+    val column = calculateColumnOffset(startColumn, virtualFile, line)
+    val fileDescriptor = OpenFileDescriptor(project, virtualFile, line, column)
+    fileDescriptor.navigate(false)
 }
 
-fun navigateToFile(project: Project, filePath: String, startOffset: Int = 0) {
+fun navigateToFile(project: Project, filePath: String, startLine: Int = 0, startColumn: Int = 0) {
     val virtualFile: VirtualFile = LocalFileSystem.getInstance().findFileByPath(filePath)
             ?: return
-    navigateToFile(project, virtualFile, startOffset)
+    navigateToFile(project, virtualFile, startLine, startColumn)
 }
-fun calculateOffset(startOffset: Int, fileSize: Int): Int {
-    if (startOffset < 0)
+fun calculateLineOffset(start: Int, virtualFile: VirtualFile): Int {
+    if (start <= 0)
         return 0
 
-    if (startOffset > fileSize)
-        return fileSize
+    val document: Document? = FileDocumentManager.getInstance().getDocument(virtualFile)
 
-    return startOffset
+    if (start > document!!.lineCount)
+        return start
+
+    return start
+}
+
+fun calculateColumnOffset(start: Int, virtualFile: VirtualFile, line: Int): Int {
+    if (start <= 0)
+        return 0
+
+    val document: Document? = FileDocumentManager.getInstance().getDocument(virtualFile)
+
+    if (start > document!!.getLineEndOffset(line))
+        return start
+
+    return start
 }
 /**
  * Helper function that validates url string.

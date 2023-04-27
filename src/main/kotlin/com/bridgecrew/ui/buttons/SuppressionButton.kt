@@ -91,10 +91,10 @@ class SuppressionButton(private var result: BaseCheckovResult): CheckovLinkButto
             val dataContext = DataManager.getInstance().dataContext
             val project = dataContext.getData("project") as Project
 
-            navigateToFile(project, result.absoluteFilePath, insertionOffset + newLineText.length)
-
             document.insertString(insertionOffset, newLineText)
             editor.caretModel.moveToOffset(insertionOffset + newLineText.length)
+            navigateToFile(project, result.absoluteFilePath, lineNumber + 1)
+
         }
 
         FileDocumentManager.getInstance().saveDocument(document)
