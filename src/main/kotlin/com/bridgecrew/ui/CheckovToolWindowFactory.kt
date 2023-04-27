@@ -89,7 +89,6 @@ class CheckovToolWindowFactory : ToolWindowFactory {
     private fun reloadContents(project: Project, tabId: String) {
         if (tabNameToCategory.keys.contains(tabId)) {
             if (lastSelectedTab != tabId) {
-                LOG.info("State changed - new - $tabId last = $lastSelectedCategory - loading content")
                 val category = tabNameToCategory[tabId]
                 lastSelectedCategory = category
                 SeverityFilterActions.onChangeCategory(category, project)

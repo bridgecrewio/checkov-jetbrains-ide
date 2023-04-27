@@ -129,9 +129,6 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
     }
 
     private fun loadPreviousStatePanel(panelType: Int) {
-        LOG.info("State changed - last = ${CheckovToolWindowFactory.lastSelectedCategory}, panel type - $panelType," +
-                "previous state - ${project.service<FullScanStateService>().previousState}")
-
         when (project.service<FullScanStateService>().previousState) {
             FullScanStateService.State.FIRST_TIME_SCAN -> {
                 loadAutoChoosePanel()

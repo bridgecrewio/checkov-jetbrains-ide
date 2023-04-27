@@ -42,16 +42,19 @@ class SeverityFilterActions(val project: Project) : ActionListener {
             val categoryAsList = if (category == null) null else listOf(category)
 
             val categorySeverities = CheckovResultsListUtils.filterResultsByCategoriesAndSeverities(project.service<ResultsCacheService>().checkovResults, categoryAsList, Severity.values().toList()).map{ result -> result.severity}
-            // theres a category from before
-            if (currentSelectedSeverities.size < Severity.values().toList().size) {
-                if (currentSelectedSeverities.any { severity -> categorySeverities.contains(severity) }) {
-                    enabledSeverities = categorySeverities
-                } else {
-                    enabledSeverities = listOf()
-                }
-            } else {
+            // no pressed category
+            if (currentSelectedSeverities.size == Severity.values().toList().size) {
                 enabledSeverities = categorySeverities
+                return
             }
+
+            // there is a pressed category - check if it is included in the category severity - if so - display it
+            if (currentSelectedSeverities.any { severity -> categorySeverities.contains(severity) }) {
+                enabledSeverities = categorySeverities
+                return
+            }
+
+            enabledSeverities = listOf()
         }
         fun restartState() {
             severityFilterState = mutableMapOf(
@@ -70,16 +73,14 @@ class SeverityFilterActions(val project: Project) : ActionListener {
     override fun actionPerformed(e: ActionEvent?) {
         val source = e?.source as JButton
         val buttonText = source.text
-//        val severity: Severity? = severityTextToEnum[buttonText]
-        severityFilterState[buttonText] = !severityFilterState[buttonText]!! //&&
-//                severity != null && CheckovResultsListUtils.filterResultsByCategoriesAndSeverities(project.service<ResultsCacheService>().checkovResults, null, listOf(severity)).isNotEmpty()
+        severityFilterState[buttonText] = !severityFilterState[buttonText]!!
         val selectedSeverities = severityTextToEnum.filter { (key, _) ->  severityFilterState.filterValues { v-> v }.containsKey(key) }.values.toList()
         currentSelectedSeverities = selectedSeverities.ifEmpty { severityTextToEnum.values }.toList()
-        if (currentCategory != CheckovToolWindowFactory.lastSelectedCategory) {
-            currentCategory = CheckovToolWindowFactory.lastSelectedCategory
-            val currentCategoryAsList = currentCategory?.let { listOf(it) }
-            enabledSeverities = CheckovResultsListUtils.filterResultsByCategoriesAndSeverities(project.service<ResultsCacheService>().checkovResults, currentCategoryAsList, null).map{ result -> result.severity}
-        }
+//        if (currentCategory != CheckovToolWindowFactory.lastSelectedCategory) {
+//            currentCategory = CheckovToolWindowFactory.lastSelectedCategory
+//            val currentCategoryAsList = currentCategory?.let { listOf(it) }
+//            enabledSeverities = CheckovResultsListUtils.filterResultsByCategoriesAndSeverities(project.service<ResultsCacheService>().checkovResults, currentCategoryAsList, null).map{ result -> result.severity}
+//        }
         project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_LOAD_TABS_CONTENT)
     }
 }
