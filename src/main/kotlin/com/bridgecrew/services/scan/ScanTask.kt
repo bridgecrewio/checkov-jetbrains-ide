@@ -164,7 +164,7 @@ abstract class ScanTask(project: Project, title: String, private val sourceName:
 
                 this.indicator = indicator
                 indicator.checkCanceled()
-                LOG.info("Going to scan for framework $filePath")
+                LOG.info("Going to scan for file $filePath")
                 indicator.isIndeterminate = false
 
                 val scanTaskResult: ScanTaskResult = getScanOutputs()

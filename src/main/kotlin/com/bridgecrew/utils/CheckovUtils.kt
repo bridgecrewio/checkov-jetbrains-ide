@@ -2,6 +2,7 @@ package com.bridgecrew.utils
 
 import com.bridgecrew.*
 import com.bridgecrew.results.BaseCheckovResult
+import com.bridgecrew.results.Category
 import com.google.gson.reflect.TypeToken
 import com.intellij.openapi.diagnostic.logger
 import org.json.JSONArray
@@ -18,7 +19,7 @@ class CheckovUtils {
     companion object {
         private val LOG = logger<CheckovUtils>()
         fun isCustomPolicy(result: BaseCheckovResult): Boolean {
-            return !result.id.startsWith("CKV")
+            return (result.category == Category.IAC || result.category == Category.SECRETS) && !result.id.startsWith("CKV")
         }
 
         fun extractFailedChecksAndParsingErrorsFromCheckovResult(rawResult: String, scanningSource: String): CheckovResultExtractionData {

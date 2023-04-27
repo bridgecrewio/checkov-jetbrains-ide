@@ -84,10 +84,11 @@ class CheckovScanService: Disposable {
             }
 
             LOG.info("Trying to scan the project $selectedCheckovScanner")
-            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).projectScanningStarted()
 
             project.service<FullScanStateService>().saveCurrentState()
             project.service<ResultsCacheService>().deleteAllCheckovResults()
+
+            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).projectScanningStarted()
 
             project.service<FullScanStateService>().fullScanStarted()
             project.service<AnalyticsService>().fullScanStarted()
@@ -178,7 +179,7 @@ class CheckovScanService: Disposable {
 
 
         val maskedCommand = replaceApiToken(execCommand.joinToString(" "))
-        LOG.info("Running command: $maskedCommand")
+        LOG.info("Running command with service ${selectedCheckovScanner!!.javaClass}: $maskedCommand")
 
         return execCommand
     }

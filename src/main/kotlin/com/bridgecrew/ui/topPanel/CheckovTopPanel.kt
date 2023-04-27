@@ -70,7 +70,7 @@ class CheckovTopPanel(val project: Project) : SimpleToolWindowPanel(true, true),
 
     private fun getScanResultMetadata(): ScanResultMetadata {
         val fullScanAnalyticsData: AnalyticsService.FullScanAnalyticsData? = project.service<AnalyticsService>().fullScanData
-        val scanResultMetadata: ScanResultMetadata = if (fullScanAnalyticsData != null) {
+        val scanResultMetadata: ScanResultMetadata = if (fullScanAnalyticsData != null && !project.service<FullScanStateService>().onCancel) {
             val now = Instant.now()
             val startedTime = if (fullScanAnalyticsData.isFullScanStarted()) fullScanAnalyticsData.scanStartedTime.toInstant() else now
             val finishedTime = if (fullScanAnalyticsData.isFullScanFinished()) fullScanAnalyticsData.scanFinishedTime.toInstant() else now

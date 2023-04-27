@@ -7,8 +7,8 @@ class SecretsDictionaryPanel(result: SecretsCheckovResult): DictionaryExtraInfoP
             "Severity" to result.severity,
             "Description" to result.description,
             "Code" to extractCode(result),
-            "Category" to result.category,
-            "Check Type" to result.checkType.name,
+            "Category" to result.category, // TODO - remove before release
+            "Check Type" to result.checkType.name, // TODO - remove before release
     )
     init {
         addCustomPolicyGuidelinesIfNeeded(result)

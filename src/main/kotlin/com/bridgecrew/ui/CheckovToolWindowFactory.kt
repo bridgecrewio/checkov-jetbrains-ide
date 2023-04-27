@@ -1,10 +1,11 @@
 package com.bridgecrew.ui
 
+import com.bridgecrew.listeners.InitializationListener
 import com.bridgecrew.results.Category
 import com.bridgecrew.services.CheckovResultsListUtils
 import com.bridgecrew.services.ResultsCacheService
+import com.bridgecrew.ui.actions.SeverityFilterActions
 import com.bridgecrew.ui.topPanel.CheckovActionToolbar
-import com.bridgecrew.ui.CheckovTabContent
 import com.bridgecrew.utils.PANELTYPE
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
@@ -14,6 +15,7 @@ import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.openapi.wm.ex.ToolWindowManagerListener
+import com.intellij.util.messages.MessageBusConnection
 
 const val PRISMA_CODE_SECUTIRY_TOOL_WINDOW_ID = "Prisma Code Security"
 const val OVERVIEW_TAB_NAME = "Overview"
@@ -48,7 +50,16 @@ class CheckovToolWindowFactory : ToolWindowFactory {
 
         Disposer.register(project, checkovToolWindowPanel)
 
-        val connection = project.messageBus.connect()
+        val connection: MessageBusConnection = project.messageBus.connect()
+        connection.subscribe(InitializationListener.INITIALIZATION_TOPIC, object : InitializationListener {
+            override fun initializationCompleted() {
+                subscribeToTollWindowManagerEvents(connection, project)
+            }
+
+        })
+    }
+
+    private fun subscribeToTollWindowManagerEvents(connection: MessageBusConnection, project: Project) {
         connection.subscribe(ToolWindowManagerListener.TOPIC, object : ToolWindowManagerListener {
             override fun stateChanged(toolWindowManager: ToolWindowManager) {
                 try {
@@ -56,11 +67,15 @@ class CheckovToolWindowFactory : ToolWindowFactory {
                         internalExecution = false
                         currentlyRunning = true
                         val selectedContent = toolWindowManager.getToolWindow(PRISMA_CODE_SECUTIRY_TOOL_WINDOW_ID)?.contentManager?.selectedContent
-                        if (selectedContent != null) {
-                            val checkovTabContent = selectedContent as CheckovTabContent
-                            refreshCounts(toolWindowManager, project)
-                            reloadContents(project, checkovTabContent.id)
+
+                        if (selectedContent == null) {
+                            return
                         }
+
+                        refreshCounts(toolWindowManager, project)
+
+                        val checkovTabContent = selectedContent as CheckovTabContent
+                        reloadContents(project, checkovTabContent.id)
                     }
                 } catch (e: Exception) {
                     LOG.error("Error while creating tool window: $e.message")
@@ -76,7 +91,8 @@ class CheckovToolWindowFactory : ToolWindowFactory {
             if (lastSelectedTab != tabId) {
                 val category = tabNameToCategory[tabId]
                 lastSelectedCategory = category
-                project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_FRAMEWORK_SCAN_FINISHED, null)
+                SeverityFilterActions.onChangeCategory(category, project)
+                project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_LOAD_TABS_CONTENT)
             }
             lastSelectedTab = tabId
         }

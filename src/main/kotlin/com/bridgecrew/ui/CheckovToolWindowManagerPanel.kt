@@ -9,6 +9,7 @@ import com.bridgecrew.services.scan.CheckovScanService
 import com.bridgecrew.services.scan.FullScanStateService
 import com.bridgecrew.settings.CheckovSettingsState
 import com.bridgecrew.ui.actions.CheckovScanAction
+import com.bridgecrew.ui.actions.SeverityFilterActions
 import com.bridgecrew.ui.topPanel.CheckovTopPanel
 import com.bridgecrew.ui.vulnerabilitiesTree.CheckovToolWindowTree
 import com.bridgecrew.utils.FULL_SCAN_EXCLUDED_PATHS
@@ -55,11 +56,15 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
         const val PANEL_SPLITTER_KEY = "CHECKOV_PANEL_SPLITTER_KEY"
     }
 
-    fun loadMainPanel(panelType: Int = PANELTYPE.AUTO_CHOOSE_PANEL, scanSourceType: CheckovScanService.ScanSourceType? = null) {
+    fun loadMainPanel(panelType: Int = PANELTYPE.AUTO_CHOOSE_PANEL) {
         removeAll()
         add(CheckovTopPanel(project), BorderLayout.NORTH)
         reloadTabCounts()
         when (panelType) {
+            PANELTYPE.CHECKOV_LOAD_TABS_CONTENT -> {
+                loadTabsContent(panelType)
+            }
+
             PANELTYPE.CHECKOV_REPOSITORY_SCAN_STARTED -> {
                 add(checkovDescription.duringScanDescription("Scanning your repository..."))
             }
@@ -70,19 +75,11 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
 
             PANELTYPE.CHECKOV_FILE_SCAN_FINISHED -> {
                 loadScanResultsPanel(panelType)
+                project.service<AnalyticsService>().singleFileScanResultsWereFullyDisplayed()
             }
 
             PANELTYPE.CHECKOV_FRAMEWORK_SCAN_FINISHED -> {
-                if (project.service<FullScanStateService>().wereAllFrameworksFinished()) {
-                    CheckovScanAction.resetActionDynamically(true)
-                    if (project.service<FullScanStateService>().onCancel) {
-                        loadPreviousStatePanel(panelType)
-                        return
-                    }
-                }
-                if (!project.service<FullScanStateService>().onCancel) {
-                    loadScanResultsPanel(panelType)
-                }
+                loadFrameworkScanFinished(panelType)
             }
 
             PANELTYPE.CHECKOV_REPOSITORY_SCAN_FAILED -> {
@@ -91,6 +88,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
 
             PANELTYPE.AUTO_CHOOSE_PANEL -> {
                 loadAutoChoosePanel()
+                CheckovScanAction.resetActionDynamically(true)
             }
         }
         revalidate()
@@ -124,7 +122,6 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
             setting?.apiToken.isNullOrEmpty() -> add(checkovDescription.configurationDescription())
             else -> add(checkovDescription.preScanDescription())
         }
-        CheckovScanAction.resetActionDynamically(true)
     }
 
     private fun loadErrorsPanel() {
@@ -145,6 +142,43 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                 loadErrorsPanel()
             }
         }
+    }
+
+    private fun loadFrameworkScanFinished(panelType: Int) {
+        if (project.service<FullScanStateService>().wereAllFrameworksFinished()) {
+            CheckovScanAction.resetActionDynamically(true)
+            if (project.service<FullScanStateService>().onCancel) {
+                loadPreviousStatePanel(panelType)
+                return
+            }
+        }
+
+        if (!project.service<FullScanStateService>().onCancel) {
+            project.service<FullScanStateService>().isFrameworkResultsWereDisplayed = true
+            loadScanResultsPanel(panelType)
+        }
+    }
+
+    private fun loadTabsContent(panelType: Int) {
+        if (project.service<FullScanStateService>().isFullScanRunning) {
+
+            if (project.service<FullScanStateService>().onCancel) {
+                loadPreviousStatePanel(panelType)
+                return
+            }
+
+            if(!project.service<FullScanStateService>().isFrameworkResultsWereDisplayed) {
+                add(checkovDescription.duringScanDescription("Scanning your repository..."))
+                return
+            }
+        }
+
+        if (project.service<FullScanStateService>().isFrameworkResultsWereDisplayed || project.service<AnalyticsService>().wereResultsDisplayed) {
+            loadScanResultsPanel(panelType)
+            return
+        }
+
+        loadAutoChoosePanel()
     }
 
     private fun reloadTabCounts() {
@@ -216,12 +250,14 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                 .subscribe(CheckovScanListener.SCAN_TOPIC, object : CheckovScanListener {
 
                     override fun projectScanningStarted() {
+                        SeverityFilterActions.restartState()
                         project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_REPOSITORY_SCAN_STARTED)
                     }
 
                     override fun scanningFinished(scanSourceType: CheckovScanService.ScanSourceType) {
                         ApplicationManager.getApplication().invokeLater {
                             if (scanSourceType == CheckovScanService.ScanSourceType.FILE) {
+                                SeverityFilterActions.onSingleFileScanFinished(project)
                                 project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_FILE_SCAN_FINISHED)
                             } else {
                                 project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_FRAMEWORK_SCAN_FINISHED)
@@ -245,5 +281,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                 })
     }
 
-    override fun dispose() = Unit
+    override fun dispose() {
+        SeverityFilterActions.restartState()
+    }
 }

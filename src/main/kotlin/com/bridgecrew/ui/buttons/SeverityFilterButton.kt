@@ -3,6 +3,7 @@ package com.bridgecrew.ui.buttons
 import com.bridgecrew.results.Severity
 import com.bridgecrew.services.CheckovResultsListUtils
 import com.bridgecrew.services.ResultsCacheService
+import com.bridgecrew.services.scan.FullScanStateService
 import com.bridgecrew.ui.actions.SeverityFilterActions
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
@@ -16,7 +17,7 @@ import javax.swing.JComponent
 import javax.swing.UIManager
 import javax.swing.plaf.basic.BasicButtonUI
 
-class SeverityFilterButton(val project: Project,text: String, severity: Severity): JButton(text) {
+class SeverityFilterButton(project: Project, text: String, severity: Severity): JButton(text) {
 
     init {
         addActionListener(SeverityFilterActions(project))
@@ -33,17 +34,32 @@ class SeverityFilterButton(val project: Project,text: String, severity: Severity
                 g2d.dispose()
             }
         }
-        isEnabled = CheckovResultsListUtils.getCurrentResultsSeverities(project.service<ResultsCacheService>().checkovResults).contains(severity)
-    }
 
-    override fun updateUI() {
-        super.updateUI()
-        val isClicked = SeverityFilterActions.severityFilterState[text]
+        isEnabled = shouldBeEnabled(severity, project)
         val defaultBG = UIManager.getColor("Button.background")
-        background = if(isClicked == true) JBColor.GRAY else defaultBG
+        background = if(isClicked() && isEnabled) JBColor.GRAY else defaultBG
     }
 
-    override fun doClick() {
-        super.doClick()
+    private fun isClicked(): Boolean {
+        return SeverityFilterActions.severityFilterState[text] == true
     }
+
+    private fun shouldBeEnabled(severity: Severity, project: Project): Boolean {
+        if (project.service<FullScanStateService>().isFullScanRunning && !project.service<FullScanStateService>().isFrameworkResultsWereDisplayed)
+            return false
+
+        val filteredResults = CheckovResultsListUtils.filterResultsByCategoriesAndSeverities(project.service<ResultsCacheService>().checkovResults, null, listOf(severity))
+
+        if (filteredResults.isEmpty()) {
+            return false
+        }
+
+
+        if (!SeverityFilterActions.enabledSeverities.contains(severity)) {
+            return false
+        }
+
+        return true
+    }
+
 }

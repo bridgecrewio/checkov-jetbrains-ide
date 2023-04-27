@@ -8,6 +8,7 @@ import com.bridgecrew.results.Severity
 import com.bridgecrew.services.ResultsCacheService
 import com.bridgecrew.ui.CheckovNotificationBalloon
 import com.bridgecrew.ui.actions.CheckovScanAction
+import com.bridgecrew.ui.actions.SeverityFilterActions
 import com.bridgecrew.utils.DESIRED_NUMBER_OF_FRAMEWORK_FOR_FULL_SCAN
 import com.bridgecrew.utils.FULL_SCAN_STATE_FILE
 import com.bridgecrew.utils.createCheckovTempFile
@@ -40,11 +41,13 @@ class FullScanStateService(val project: Project) {
 
     private var stateFile: File? = null
     var onCancel: Boolean = false
-    var previousState = if (project.service<ResultsCacheService>().checkovResults.size > 0) State.SUCCESSFUL_SCAN else State.FIRST_TIME_SCAN
+    var previousState = State.FIRST_TIME_SCAN
 
     private val gson = Gson()
     private val LOG = logger<FullScanStateService>()
 
+    var isFullScanRunning = false
+    var isFrameworkResultsWereDisplayed = false
     private fun handleFullScanFinished() {
         if(!onCancel) {
             if (wereAllFrameworksFinishedWithErrors()) {
@@ -60,6 +63,7 @@ class FullScanStateService(val project: Project) {
         }
 
         deletePreviousState()
+        isFullScanRunning = false
         project.service<AnalyticsService>().fullScanFinished()
     }
 
@@ -72,6 +76,10 @@ class FullScanStateService(val project: Project) {
         totalPassedCheckovChecks = 0
         totalFailedCheckovChecks = 0
         onCancel = false
+        if (project.service<AnalyticsService>().wereSingleFileScanResultsDisplayed && !project.service<AnalyticsService>().wereFullScanResultsDisplayed)
+            previousState = State.SUCCESSFUL_SCAN
+        isFullScanRunning = true
+        isFrameworkResultsWereDisplayed = false
     }
 
     fun saveCurrentState() {
@@ -88,6 +96,7 @@ class FullScanStateService(val project: Project) {
             val resultsListType = object : TypeToken<List<BaseCheckovResult>>() {}.type
             val checkovResultsList: MutableList<BaseCheckovResult> = gson.fromJson(stateContent, resultsListType)
             project.service<ResultsCacheService>().checkovResults = checkovResultsList
+            SeverityFilterActions.restartState()
         } catch (e: Exception) {
             LOG.warn("Could not restore previous state from file, clearing the list", e)
         }

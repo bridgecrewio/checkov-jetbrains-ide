@@ -1,7 +1,10 @@
 package com.bridgecrew.ui.actions
 
+import com.bridgecrew.results.Category
 import com.bridgecrew.results.Severity
+import com.bridgecrew.services.CheckovResultsListUtils
 import com.bridgecrew.services.ResultsCacheService
+import com.bridgecrew.ui.CheckovToolWindowFactory
 import com.bridgecrew.ui.CheckovToolWindowManagerPanel
 import com.bridgecrew.utils.PANELTYPE
 import com.intellij.openapi.components.service
@@ -13,7 +16,7 @@ import javax.swing.JButton
 class SeverityFilterActions(val project: Project) : ActionListener {
 
     companion object {
-        val severityFilterState = mutableMapOf(
+        var severityFilterState = mutableMapOf(
                 "I" to false,
                 "L" to false,
                 "M" to false,
@@ -29,7 +32,47 @@ class SeverityFilterActions(val project: Project) : ActionListener {
                 "C" to Severity.CRITICAL
         )
 
+        var enabledSeverities = Severity.values().toList()
+
         var currentSelectedSeverities = Severity.values().toList()
+
+        fun onChangeCategory(category: Category?, project: Project) {
+            updateEnabledSeverities(category, project)
+        }
+
+        fun onSingleFileScanFinished(project: Project) {
+            updateEnabledSeverities(CheckovToolWindowFactory.lastSelectedCategory, project)
+        }
+
+        private fun updateEnabledSeverities(category: Category?, project: Project) {
+            val categoryAsList = if (category == null) null else listOf(category)
+            val categorySeverities = CheckovResultsListUtils.filterResultsByCategoriesAndSeverities(project.service<ResultsCacheService>().checkovResults, categoryAsList, Severity.values().toList()).map{ result -> result.severity}
+            // no pressed category - display the category's severities
+            if (currentSelectedSeverities.size == Severity.values().toList().size) {
+                enabledSeverities = categorySeverities
+                return
+            }
+
+            // there is a pressed category - check if it is included in the category severities - if so - display it, else - severities shouldn't be displayed
+            if (currentSelectedSeverities.any { severity -> categorySeverities.contains(severity) }) {
+                enabledSeverities = categorySeverities
+                return
+            }
+
+            enabledSeverities = listOf()
+        }
+
+        fun restartState() {
+            severityFilterState = mutableMapOf(
+                    "I" to false,
+                    "L" to false,
+                    "M" to false,
+                    "H" to false,
+                    "C" to false
+            )
+            currentSelectedSeverities = Severity.values().toList()
+            enabledSeverities = Severity.values().toList()
+        }
     }
 
     override fun actionPerformed(e: ActionEvent?) {
@@ -38,6 +81,6 @@ class SeverityFilterActions(val project: Project) : ActionListener {
         severityFilterState[buttonText] = !severityFilterState[buttonText]!!
         val selectedSeverities = severityTextToEnum.filter { (key, _) ->  severityFilterState.filterValues { v-> v }.containsKey(key) }.values.toList()
         currentSelectedSeverities = selectedSeverities.ifEmpty { severityTextToEnum.values }.toList()
-        project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_FILE_SCAN_FINISHED)
+        project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_LOAD_TABS_CONTENT)
     }
 }
