@@ -151,12 +151,19 @@ class CheckovScanService: Disposable {
         val pluginVersion = PluginManagerCore.getPlugin(PluginId.getId("com.github.bridgecrewio.checkov"))?.version
                 ?: "UNKNOWN"
         val prismaUrl = settings?.prismaURL
+        val certPath = settings?.certificate
 
         val generalCommandLine = GeneralCommandLine(execCommand)
         generalCommandLine.charset = Charset.forName("UTF-8")
         generalCommandLine.environment["BC_SOURCE_VERSION"] = pluginVersion
         generalCommandLine.environment["BC_SOURCE"] = "jetbrains"
         generalCommandLine.environment["LOG_LEVEL"] = "DEBUG"
+
+        if (certPath?.isNotEmpty() == true) {
+            generalCommandLine.environment["SSL_CERT_FILE"] = certPath
+            generalCommandLine.environment["REQUESTS_CA_BUNDLE"] = certPath
+        }
+
         if (!prismaUrl.isNullOrEmpty()) {
             generalCommandLine.environment["PRISMA_API_URL"] = prismaUrl
         }
@@ -214,7 +221,7 @@ class CheckovScanService: Disposable {
             if (extractionResult.failedChecks.isEmpty()) {
                 project.service<FullScanStateService>().frameworkFinishedWithNoErrors(framework)
             } else {
-                project.service<ResultsCacheService>().addCheckovResults(extractionResult.failedChecks)
+                project.service<ResultsCacheService>().addCheckovResults(extractionResult.failedChecks, ScanSourceType.FRAMEWORK)
                 project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished(ScanSourceType.FRAMEWORK)
 
                 project.service<FullScanStateService>().frameworkScanFinishedAndDetectedIssues(framework, extractionResult.failedChecks.size)
@@ -250,7 +257,7 @@ class CheckovScanService: Disposable {
                 return
             }
 
-            project.service<ResultsCacheService>().addCheckovResults(extractionResult.failedChecks)
+            project.service<ResultsCacheService>().addCheckovResults(extractionResult.failedChecks, ScanSourceType.FILE)
             project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).scanningFinished(ScanSourceType.FILE)
 
             scanTaskResult.deleteResultsFile()
