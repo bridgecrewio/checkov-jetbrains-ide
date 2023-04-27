@@ -2,14 +2,13 @@ package com.bridgecrew.ui.rightPanel.topPanel
 
 import com.bridgecrew.results.BaseCheckovResult
 import com.bridgecrew.results.Severity
-import com.bridgecrew.utils.CheckovUtils
-import com.bridgecrew.utils.getSeverityIconBySeverity
-import com.bridgecrew.utils.isUrl
+import com.bridgecrew.ui.buttons.SuppressionButton
+import com.bridgecrew.utils.*
 import java.awt.BorderLayout
 import java.awt.Dimension
 import javax.swing.*
 
-open class CheckovDescriptionPanelTop : JPanel() {
+open class CheckovDescriptionPanelTop(val result: BaseCheckovResult) : JPanel() {
 
     init {
         layout = BorderLayout()
@@ -37,5 +36,12 @@ open class CheckovDescriptionPanelTop : JPanel() {
 
     fun isShowDocumentationButton(result: BaseCheckovResult): Boolean {
         return !CheckovUtils.isCustomPolicy(result) && result.guideline != null && isUrl(result.guideline)
+    }
+
+    fun createSuppressionButton(panel: JPanel) {
+        val fileType: FileType = getFileType(result.filePath)
+        if (SUPPRESSION_BUTTON_ALLOWED_FILE_TYPES.contains(fileType)) {
+            panel.add(SuppressionButton(result))
+        }
     }
 }

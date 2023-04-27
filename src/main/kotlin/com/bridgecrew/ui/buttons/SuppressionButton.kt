@@ -28,18 +28,9 @@ class SuppressionButton(private var result: BaseCheckovResult): CheckovLinkButto
         isOpenDialog = true
     }
 
-    private val allowedFileType: Set<FileType> = setOf(
-            FileType.DOCKERFILE,
-            FileType.YAML,
-            FileType.TERRAFORM
-    )
 
     override fun actionPerformed(e: ActionEvent?) {
         val fileType = getFileType(result.filePath)
-        if(!allowedFileType.contains(fileType)) {
-            Messages.showInfoMessage("File type $fileType cannot be suppressed inline", "Prisma Cloud")
-            return
-        }
 
         val dialog = SuppressionDialog()
         if(isOpenDialog) {

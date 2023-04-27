@@ -1,11 +1,10 @@
 package com.bridgecrew.ui.rightPanel.topPanel
 
 import com.bridgecrew.results.BaseCheckovResult
-import com.bridgecrew.ui.buttons.SuppressionButton
 import java.awt.BorderLayout
 import javax.swing.JPanel
 
-class LicensePanelTop(val result: BaseCheckovResult): CheckovDescriptionPanelTop() {
+class LicensePanelTop(result: BaseCheckovResult): CheckovDescriptionPanelTop(result) {
 
     init {
         add(createTitleAndIcon(result.name, result.severity), BorderLayout.WEST)
@@ -14,7 +13,7 @@ class LicensePanelTop(val result: BaseCheckovResult): CheckovDescriptionPanelTop
 
     private fun createDescriptionPanelTitleActions(): JPanel {
         val panel = createActionsPanel()
-        panel.add(SuppressionButton(result))
+        createSuppressionButton(panel)
         return panel
     }
 }
