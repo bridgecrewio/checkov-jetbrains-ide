@@ -40,7 +40,7 @@ class SeverityFilterActions(val project: Project) : ActionListener {
             updateEnabledSeverities(category, project)
         }
 
-        fun onSingleFileScanFinished(project: Project) {
+        fun onScanFinishedForDisplayingResults(project: Project) {
             updateEnabledSeverities(CheckovToolWindowFactory.lastSelectedCategory, project)
         }
 

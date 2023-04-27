@@ -3,11 +3,10 @@ package com.bridgecrew.ui.rightPanel.topPanel
 import com.bridgecrew.results.BaseCheckovResult
 import com.bridgecrew.ui.buttons.DocumentationButton
 import com.bridgecrew.ui.buttons.FixButton
-import com.bridgecrew.ui.buttons.SuppressionButton
 import java.awt.BorderLayout
 import javax.swing.JPanel
 
-class IacPanelTop(val result: BaseCheckovResult): CheckovDescriptionPanelTop() {
+class IacPanelTop(result: BaseCheckovResult): CheckovDescriptionPanelTop(result) {
 
     init {
         add(createTitleAndIcon(getTitle(result), result.severity), BorderLayout.WEST)
@@ -16,10 +15,12 @@ class IacPanelTop(val result: BaseCheckovResult): CheckovDescriptionPanelTop() {
 
     private fun createDescriptionPanelTitleActions(): JPanel {
         val panel = createActionsPanel()
-        if(isShowDocumentationButton(result)){
+        if (isShowDocumentationButton(result)) {
             panel.add(result.guideline?.let { DocumentationButton(it) })
         }
-        panel.add(SuppressionButton(result))
+
+        createSuppressionButton(panel)
+
         if(result.fixDefinition != null){
             panel.add(FixButton(result))
         }

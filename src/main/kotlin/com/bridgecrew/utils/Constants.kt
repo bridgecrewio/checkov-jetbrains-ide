@@ -42,3 +42,8 @@ enum class FileType {
     UNKNOWN
 }
 
+val SUPPRESSION_BUTTON_ALLOWED_FILE_TYPES: Set<FileType> = setOf(
+        FileType.DOCKERFILE,
+        FileType.YAML,
+        FileType.TERRAFORM
+)
