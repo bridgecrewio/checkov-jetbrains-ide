@@ -83,10 +83,8 @@ class CodeDiffPanel(val result: BaseCheckovResult): JPanel() {
         var currentLine = (result.codeBlock[0][0] as Double).toInt()
         var fixWithRowNumber = arrayListOf<String>()
         result.fixDefinition?.split("\n")?.forEach { codeRow ->
-//            if (codeRow.isNotBlank()) {
-                fixWithRowNumber += "$currentLine\t$codeRow".replace("\n","")
-                currentLine++
-//            }
+            fixWithRowNumber += "$currentLine\t$codeRow".replace("\n","")
+            currentLine++
         }
         return fixWithRowNumber
     }
