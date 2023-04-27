@@ -20,7 +20,11 @@ class CheckovSettingsState() : PersistentStateComponent<CheckovSettingsState> {
     var prismaURL: String = ""
 
     fun getApiKey(): String {
-        return "$accessKey::$secretKey"
+        if(accessKey.isNotEmpty() && secretKey.isNotEmpty()){
+            return "$accessKey::$secretKey"
+        }
+
+        return ""
     }
 
     fun getInstance(): CheckovSettingsState? {
