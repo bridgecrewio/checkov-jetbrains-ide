@@ -19,7 +19,6 @@ class SecretsPanelTop(result: BaseCheckovResult): CheckovDescriptionPanelTop(res
         val panel = createActionsPanel()
         if (shouldEnableSuppressionButton()) {
             createSuppressionButton(panel)
-//            panel.add(SuppressionButton(result))
         }
         if (result.fixDefinition != null) {
             panel.add(FixButton(result))
