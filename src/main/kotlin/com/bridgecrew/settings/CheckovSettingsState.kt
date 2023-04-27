@@ -19,6 +19,10 @@ class CheckovSettingsState() : PersistentStateComponent<CheckovSettingsState> {
     var certificate: String = ""
     var prismaURL: String = ""
 
+    fun getApiKey(): String {
+        return "$accessKey::$secretKey"
+    }
+
     fun getInstance(): CheckovSettingsState? {
         return ApplicationManager.getApplication().getService(CheckovSettingsState::class.java)
     }
