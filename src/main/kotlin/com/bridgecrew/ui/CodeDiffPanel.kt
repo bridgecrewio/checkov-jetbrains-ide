@@ -3,6 +3,7 @@ package com.bridgecrew.ui
 import com.bridgecrew.results.BaseCheckovResult
 import com.github.difflib.text.DiffRow
 import com.github.difflib.text.DiffRowGenerator
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.util.ui.JBUI
 import java.awt.Color
 import java.awt.Dimension
@@ -12,6 +13,7 @@ import javax.swing.text.StyleConstants
 
 class CodeDiffPanel(val result: BaseCheckovResult): JPanel() {
 
+    private val LOG = logger<CodeDiffPanel>()
     init {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
         border = BorderFactory.createEmptyBorder(0, 10, 0, 10)
@@ -23,6 +25,9 @@ class CodeDiffPanel(val result: BaseCheckovResult): JPanel() {
                 .build()
 
         val rows = generator.generateDiffRows(buildVulnerableLines(), buildFixLines())
+        val firstDiffRow = rows.find { it.tag != DiffRow.Tag.EQUAL &&
+            it.newLine.trim().isNotEmpty() && it.newLine.trim().toDoubleOrNull() == null }
+        updateFirstDiffLine(firstDiffRow)
         rows.filter { it.tag != DiffRow.Tag.EQUAL }.forEach { row ->
             if(row.oldLine.trim().isNotEmpty()){
                 val vulBlock = createCodeBlock(row.oldLine.trim())
@@ -37,6 +42,18 @@ class CodeDiffPanel(val result: BaseCheckovResult): JPanel() {
         }
         fixHolder.add(Box.createVerticalGlue())
         add(fixHolder)
+    }
+
+    private fun updateFirstDiffLine(diffRow: DiffRow?) {
+        if (diffRow == null) {
+            return
+        }
+
+        try {
+            result.codeDiffFirstLine = diffRow.newLine.split(" ")[0].toInt()
+        } catch (e: Exception) {
+            LOG.debug("Could not update first diff line from new line \"${diffRow.newLine}\"", e)
+        }
     }
 
     private fun createCodeBlock(innerText: String): JTextPane {
@@ -66,8 +83,10 @@ class CodeDiffPanel(val result: BaseCheckovResult): JPanel() {
         var currentLine = (result.codeBlock[0][0] as Double).toInt()
         var fixWithRowNumber = arrayListOf<String>()
         result.fixDefinition?.split("\n")?.forEach { codeRow ->
-            fixWithRowNumber += "$currentLine\t$codeRow".replace("\n","")
-            currentLine++
+//            if (codeRow.isNotBlank()) {
+                fixWithRowNumber += "$currentLine\t$codeRow".replace("\n","")
+                currentLine++
+//            }
         }
         return fixWithRowNumber
     }

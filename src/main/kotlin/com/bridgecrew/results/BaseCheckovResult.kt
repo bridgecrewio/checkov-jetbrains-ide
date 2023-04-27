@@ -52,5 +52,6 @@ open class BaseCheckovResult(
         val absoluteFilePath: String,
         val fileLineRange: List<Int>,
         val fixDefinition: String?,
-        val codeBlock: List<List<Object>>
+        val codeBlock: List<List<Object>>,
+        var codeDiffFirstLine: Int = fileLineRange[0]
 )
