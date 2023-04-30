@@ -37,7 +37,7 @@
         <group id="com.bridgecrew.checkovScanActions">
             <action id="com.bridgecrew.ui.actions.CheckovScanAction"
                     class="com.bridgecrew.ui.actions.CheckovScanAction"
-                    text="Run Checkov Scan"/>
+                    text="Run Prisma Cloud Scan"/>
         </group>
     </actions>
 
