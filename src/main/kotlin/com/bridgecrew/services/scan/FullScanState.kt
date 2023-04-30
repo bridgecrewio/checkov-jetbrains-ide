@@ -146,14 +146,10 @@ class FullScanStateService(val project: Project) {
         val totalErrors = project.service<ResultsCacheService>().checkovResults.size
         var message = "Checkov has detected $totalErrors configuration errors in your project.\n" +
                 "Check out the tool window to analyze your code.\n" +
-                "${DESIRED_NUMBER_OF_FRAMEWORK_FOR_FULL_SCAN} frameworks were scanned:\n" +
-                "Scans for frameworks ${frameworkScansFinishedWithErrors.keys} were finished with errors.\n" +
-                "Please check the log files in:\n" +
-                "[${frameworkScansFinishedWithErrors.map { (framework, scanResults) -> "$framework:\n" +
-                        "log file - ${scanResults.debugOutput.path}\n" +
-                        "checkov result - ${scanResults.checkovResult.path}\n" }}]\n" +
-                "${invalidFilesSize}} files were detected as invalid:\n" +
-                "No errors have been detected for frameworks $frameworkScansFinishedWithNoVulnerabilities :)\n"
+                "${DESIRED_NUMBER_OF_FRAMEWORK_FOR_FULL_SCAN} frameworks were scanned.\n" +
+                generateErrorMessageForFullScanSummary() +
+                generateInvalidFileSizeMessageForFullScanSummary() +
+                generateNoErrorsMessageForFullScanSummary()
 
         if (unscannedFrameworks.isNotEmpty()) {
             message += "Frameworks $unscannedFrameworks were not scanned because they are probably not installed.\n"
@@ -163,7 +159,34 @@ class FullScanStateService(val project: Project) {
         CheckovNotificationBalloon.showNotification(project,
                 message,
                 NotificationType.INFORMATION)
+    }
 
+    private fun generateErrorMessageForFullScanSummary(): String {
+        if (frameworkScansFinishedWithErrors.isEmpty()) {
+            return ""
+        }
+
+        return "Scans for frameworks ${frameworkScansFinishedWithErrors.keys} were finished with errors.\n" +
+                "Please check the log files in:\n" +
+                "[${frameworkScansFinishedWithErrors.map { (framework, scanResults) -> "$framework:\n" +
+                        "log file - ${scanResults.debugOutput.path}\n" +
+                        "checkov result - ${scanResults.checkovResult.path}\n" }}]\n"
+    }
+
+    private fun generateInvalidFileSizeMessageForFullScanSummary(): String {
+        if (invalidFilesSize == 0) {
+            return ""
+        }
+
+        return "${invalidFilesSize}} files were detected as invalid\n"
+    }
+
+    private fun generateNoErrorsMessageForFullScanSummary(): String {
+        if (frameworkScansFinishedWithNoVulnerabilities.isEmpty()) {
+            return ""
+        }
+
+        return "No errors have been detected for frameworks $frameworkScansFinishedWithNoVulnerabilities :)\n"
     }
 
     fun wereAllFrameworksFinished(): Boolean {

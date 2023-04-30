@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import org.apache.commons.io.FilenameUtils
 
 class InstalledCheckovScanCommandsService(project: Project) : CheckovScanCommandsService(project) {
-    override fun getCheckovRunningCommandByServiceType(): ArrayList<String> {
+    override fun getCheckovRunningCommandByServiceType(outputFilePath: String): ArrayList<String> {
         return arrayListOf(project.service<CliService>().checkovPath)
     }
 
@@ -16,5 +16,9 @@ class InstalledCheckovScanCommandsService(project: Project) : CheckovScanCommand
 
     override fun getFilePath(originalFilePath: String): String {
         return FilenameUtils.separatorsToSystem(originalFilePath)
+    }
+
+    override fun getCertPath(): String {
+        return settings?.certificate!!
     }
 }

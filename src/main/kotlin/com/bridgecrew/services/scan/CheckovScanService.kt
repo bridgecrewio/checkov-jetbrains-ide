@@ -56,7 +56,7 @@ class CheckovScanService: Disposable {
             val generalCommandLine = generateCheckovCommand(execCommand)
 
             val processHandler: ProcessHandler = OSProcessHandler.Silent(generalCommandLine)
-            val scanTask = ScanTask.FileScanTask(project, "Checkov scanning file $filePath", filePath, processHandler, checkovResultFile)
+            val scanTask = ScanTask.FileScanTask(project, "Prisma Cloud is scanning your file $filePath", filePath, processHandler, checkovResultFile)
             singleFileCurrentScans[filePath] = scanTask
 
             ApplicationManager.getApplication().executeOnPooledThread {
@@ -102,7 +102,7 @@ class CheckovScanService: Disposable {
                     val processHandler: ProcessHandler = OSProcessHandler.Silent(generateCheckovCommand(execCommand))
 
 
-                    val scanTask = ScanTask.FrameworkScanTask(project, "Checkov scanning repository by framework $framework", framework, processHandler, checkovResultFile)
+                    val scanTask = ScanTask.FrameworkScanTask(project, "Prisma Cloud is scanning your repository by framework $framework", framework, processHandler, checkovResultFile)
                     fullScanTasks.add(scanTask)
                     project.service<AnalyticsService>().fullScanByFrameworkStarted(framework)
 
@@ -151,18 +151,12 @@ class CheckovScanService: Disposable {
         val pluginVersion = PluginManagerCore.getPlugin(PluginId.getId("com.github.bridgecrewio.checkov"))?.version
                 ?: "UNKNOWN"
         val prismaUrl = settings?.prismaURL
-        val certPath = settings?.certificate
 
         val generalCommandLine = GeneralCommandLine(execCommand)
         generalCommandLine.charset = Charset.forName("UTF-8")
         generalCommandLine.environment["BC_SOURCE_VERSION"] = pluginVersion
         generalCommandLine.environment["BC_SOURCE"] = "jetbrains"
         generalCommandLine.environment["LOG_LEVEL"] = "DEBUG"
-
-        if (certPath?.isNotEmpty() == true) {
-            generalCommandLine.environment["SSL_CERT_FILE"] = certPath
-            generalCommandLine.environment["REQUESTS_CA_BUNDLE"] = certPath
-        }
 
         if (!prismaUrl.isNullOrEmpty()) {
             generalCommandLine.environment["PRISMA_API_URL"] = prismaUrl
@@ -175,24 +169,11 @@ class CheckovScanService: Disposable {
         val execCommand = if(scanSourceType == ScanSourceType.FILE)
             selectedCheckovScanner!!.getExecCommandForSingleFile(scanningSource, checkovResultFilePath) else
                 selectedCheckovScanner!!.getExecCommandsForRepositoryByFramework(scanningSource, checkovResultFilePath)
-        execCommand.addAll(getCertParams())
-
 
         val maskedCommand = replaceApiToken(execCommand.joinToString(" "))
         LOG.info("Running command with service ${selectedCheckovScanner!!.javaClass}: $maskedCommand")
 
         return execCommand
-    }
-
-    private fun getCertParams(): ArrayList<String> {
-        val cmds = ArrayList<String>()
-        val certPath = settings?.certificate
-        if (!certPath.isNullOrEmpty()) {
-            cmds.add("-ca")
-            cmds.add(certPath)
-            return cmds
-        }
-        return cmds
     }
 
     private fun replaceApiToken(command: String): String {
