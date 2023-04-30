@@ -48,7 +48,7 @@ class CheckovToolWindowTree(val project: Project, val split: JBSplitter, private
         checkovResults = CheckovResultsListUtils.filterResultsByCategoriesAndSeverities(checkovResults).toMutableList()
         CheckovResultsListUtils.sortResults(checkovResults)
 
-        val fileToResourceMap = checkovResults.groupBy { it.filePath }
+        val fileToResourceMap: Map<String, List<BaseCheckovResult>> = checkovResults.groupBy { it.filePath }
 
         val rootNode = DefaultMutableTreeNode("")
 
@@ -110,13 +110,13 @@ class CheckovToolWindowTree(val project: Project, val split: JBSplitter, private
         secretsNodes.forEach { node -> fileWithErrorsNode.add(node) }
     }
 
-    private fun buildFilePath(currentTree: DefaultMutableTreeNode, fileName: String): DefaultMutableTreeNode{
+    private fun buildFilePath(currentTree: DefaultMutableTreeNode, fileName: String): DefaultMutableTreeNode {
         val paths = fileName.split("/").toTypedArray().filter { it.isNotEmpty() }
         var currentNode = currentTree
         for(i in paths.indices){
             val newNode = if(i == paths.size - 1) CheckovFileTreeNode(paths[i]) else CheckovFolderTreeNode(paths[i])
             val existingChildNode = findExistingFilePathNodeInLevel(currentNode, newNode)
-            currentNode = if(existingChildNode == null){
+            currentNode = if(existingChildNode == null) {
                 // need to add child
                 val pathPartNode = DefaultMutableTreeNode(newNode)
                 currentNode.add(pathPartNode)
