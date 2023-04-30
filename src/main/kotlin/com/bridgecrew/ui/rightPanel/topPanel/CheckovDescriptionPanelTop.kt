@@ -22,7 +22,7 @@ open class CheckovDescriptionPanelTop(val result: BaseCheckovResult) : JPanel() 
 
     fun getTitle(result: BaseCheckovResult): String {
         return if (CheckovUtils.isCustomPolicy(result)){
-            "(custom policy) ${result.name}"
+            result.name
         } else {
             result.id
         }

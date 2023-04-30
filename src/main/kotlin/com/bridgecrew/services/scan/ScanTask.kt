@@ -2,9 +2,7 @@ package com.bridgecrew.services.scan
 
 import com.bridgecrew.analytics.AnalyticsService
 import com.bridgecrew.listeners.CheckovScanListener
-import com.bridgecrew.utils.DEFAULT_TIMEOUT
-import com.bridgecrew.utils.createCheckovTempFile
-import com.bridgecrew.utils.extractFileNameFromPath
+import com.bridgecrew.utils.*
 import com.intellij.execution.ExecutionException
 import com.intellij.execution.process.ProcessAdapter
 import com.intellij.execution.process.ProcessEvent
@@ -44,7 +42,7 @@ abstract class ScanTask(project: Project, title: String, private val sourceName:
 
     protected var indicator: ProgressIndicator? = null
 
-    protected fun getScanOutputs(): ScanTaskResult {
+    protected fun getScanOutputs(timeout: Long): ScanTaskResult {
         LOG.assertTrue(!processHandler.isStartNotified)
 
         processHandler.addProcessListener(object : ProcessAdapter() {
@@ -79,8 +77,8 @@ abstract class ScanTask(project: Project, title: String, private val sourceName:
         })
 
         processHandler.startNotify()
-        if (!processHandler.waitFor(DEFAULT_TIMEOUT)) {
-            throw ExecutionException("Script execution took more than ${(DEFAULT_TIMEOUT / 1000)} seconds")
+        if (!processHandler.waitFor(timeout)) {
+            throw ExecutionException("Script execution took more than ${(timeout / 1000)} seconds")
         }
 
         return ScanTaskResult(checkovResultFile, debugOutputFile, errorReason)
@@ -126,7 +124,7 @@ abstract class ScanTask(project: Project, title: String, private val sourceName:
                 LOG.info("Going to scan for framework $framework")
                 indicator.isIndeterminate = false
 
-                val scanTaskResult: ScanTaskResult = getScanOutputs()
+                val scanTaskResult: ScanTaskResult = getScanOutputs(DEFAULT_FRAMEWORK_TIMEOUT)
                 indicator.checkCanceled()
 
                 LOG.info("Checkov scan task finished successfully for framework $framework")
@@ -167,7 +165,7 @@ abstract class ScanTask(project: Project, title: String, private val sourceName:
                 LOG.info("Going to scan for file $filePath")
                 indicator.isIndeterminate = false
 
-                val scanTaskResult: ScanTaskResult = getScanOutputs()
+                val scanTaskResult: ScanTaskResult = getScanOutputs(DEFAULT_FILE_TIMEOUT)
                 indicator.checkCanceled()
 
                 LOG.info("Checkov scan task finished successfully for file $filePath")

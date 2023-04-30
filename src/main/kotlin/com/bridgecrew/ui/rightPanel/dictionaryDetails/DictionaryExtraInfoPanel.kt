@@ -47,9 +47,9 @@ abstract class DictionaryExtraInfoPanel : JPanel() {
 
         for ((key, value) in fieldsMap) {
             val isEmptyVal = (value == null || value.toString().isEmpty())
-            if (key.lowercase() == "description" && isEmptyVal)
+            if ((key.lowercase() == "description" || key.lowercase() == "custom policy") && isEmptyVal) // TODO - remove Custom Policy part before release
                 continue
-            val valueAsString = if (isEmptyVal) "---" else value.toString()
+            val valueAsString = if (isEmptyVal) "---" else value.toString().trim()
             val keyLabel = JLabel(key)
             keyLabel.font = boldFont
             keyLabel.preferredSize = Dimension(maxKeyWidth + 50, keyLabel.preferredSize.height)
