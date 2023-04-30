@@ -23,19 +23,12 @@ class CheckovResultsComparatorGenerator {
 
         fun generateResourceComparator(): Comparator<BaseCheckovResult> {
             return Comparator { result1, result2 ->
-                if (result1.category == Category.SECRETS && result2.category != Category.SECRETS) {
-                    return@Comparator -1
+
+                if (result1.category != Category.SECRETS && result2.category != Category.SECRETS) {
+                    return@Comparator compareResultsByName(CheckovResultProperty.RESOURCE, result1, result2)
                 }
 
-                if (result1.category != Category.SECRETS && result2.category == Category.SECRETS) {
-                    return@Comparator 1
-                }
-
-                if (result1.category == Category.SECRETS && result2.category == Category.SECRETS) {
-                    return@Comparator 0
-                }
-
-                return@Comparator compareResultsByName(CheckovResultProperty.RESOURCE, result1, result2)
+                return@Comparator result1.category.compareTo(result2.category)
             }
         }
 
