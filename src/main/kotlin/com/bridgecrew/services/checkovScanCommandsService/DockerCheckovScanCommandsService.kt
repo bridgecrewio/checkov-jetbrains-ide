@@ -8,8 +8,9 @@ import org.apache.commons.io.FilenameUtils
 class DockerCheckovScanCommandsService(project: Project) : CheckovScanCommandsService(project) {
 
     private val image = "bridgecrew/checkov"
-    private val volumeDirectory = "checkovScan"
-    override fun getCheckovRunningCommandByServiceType(): ArrayList<String> {
+    private val volumeDirectory = FilenameUtils.separatorsToUnix(project.basePath)
+    private val volumeCertPath = "/usr/lib/ssl/cert.pem"
+    override fun getCheckovRunningCommandByServiceType(outputFilePath: String): ArrayList<String> {
         val pluginVersion =
                 PluginManagerCore.getPlugin(PluginId.getId("com.github.bridgecrewio.checkov"))?.version ?: "UNKNOWN"
 
@@ -20,11 +21,14 @@ class DockerCheckovScanCommandsService(project: Project) : CheckovScanCommandsSe
             dockerCommand.addAll(arrayListOf("--env", "PRISMA_API_URL=${prismaUrl}"))
         }
 
-        if (certPath?.isNotEmpty() == true) {
-            var volumeCaFile = "$certPath:/usr/lib/ssl/cert.pem"
-            dockerCommand.addAll(arrayListOf("--volume", volumeCaFile, "--env", "SSL_CERT_FILE=/usr/lib/ssl/cert.pem", "--env", "REQUESTS_CA_BUNDLE=/usr/lib/ssl/cert.pem"))
+        if (!certPath.isNullOrEmpty()) {
+            var volumeCaFile = "$certPath:$volumeCertPath"
+            dockerCommand.addAll(arrayListOf("--volume", volumeCaFile))
         }
-        val volumeDir = "${FilenameUtils.separatorsToUnix(project.basePath!!)}:/${volumeDirectory}"
+
+        dockerCommand.addAll(arrayListOf("--volume", "$outputFilePath:$outputFilePath"))
+
+        val volumeDir = "${FilenameUtils.separatorsToUnix(project.basePath)}:/${volumeDirectory}"
         dockerCommand.addAll(arrayListOf("--volume", volumeDir, image))
         return dockerCommand
 
@@ -36,5 +40,9 @@ class DockerCheckovScanCommandsService(project: Project) : CheckovScanCommandsSe
 
     override fun getFilePath(originalFilePath: String): String {
         return originalFilePath.replace(project.basePath!!, volumeDirectory)
+    }
+
+    override fun getCertPath(): String {
+        return volumeCertPath
     }
 }
