@@ -42,7 +42,7 @@ enum class Severity {
 open class BaseCheckovResult(
         val category: Category,
         val checkType: CheckType,
-        val filePath: String,
+        var filePath: String,
         val resource: String,
         val name: String,
         val id: String,

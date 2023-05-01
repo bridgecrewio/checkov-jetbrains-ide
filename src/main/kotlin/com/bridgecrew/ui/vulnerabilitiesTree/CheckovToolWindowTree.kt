@@ -2,10 +2,13 @@ package com.bridgecrew.ui.vulnerabilitiesTree
 
 import com.bridgecrew.results.BaseCheckovResult
 import com.bridgecrew.results.Category
+import com.bridgecrew.results.CheckType
+import com.bridgecrew.results.VulnerabilityCheckovResult
 import com.bridgecrew.services.ResultsCacheService
 import com.bridgecrew.services.CheckovResultsListUtils
 import com.bridgecrew.ui.CheckovToolWindowDescriptionPanel
 import com.bridgecrew.utils.navigateToFile
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.WriteCommandAction
@@ -15,7 +18,10 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.ui.JBSplitter
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.treeStructure.Tree
+import icons.CheckovIcons
 import java.awt.BorderLayout
+import java.io.File
+import java.nio.file.Paths
 import javax.swing.JPanel
 import javax.swing.JScrollPane
 import javax.swing.ScrollPaneConstants
@@ -44,8 +50,30 @@ class CheckovToolWindowTree(val project: Project, val split: JBSplitter, private
      * @return Panel which contains a tree element
      */
     fun createTree() : JPanel {
-        var checkovResults: List<BaseCheckovResult> = project.service<ResultsCacheService>().checkovResults
-        checkovResults = CheckovResultsListUtils.filterResultsByCategoriesAndSeverities(checkovResults).toMutableList()
+//        var checkovResults: List<BaseCheckovResult> = project.service<ResultsCacheService>().checkovResults
+        val checkovResults: MutableList<BaseCheckovResult> = CheckovResultsListUtils.filterResultsByCategoriesAndSeverities(project.service<ResultsCacheService>().checkovResults).toMutableList()
+
+
+        checkovResults.forEach { result ->
+            run {
+                result.filePath = updateFilePath(result)
+//                if (result.category == Category.VULNERABILITIES) {
+//                    val vulnerabilityResult = result as VulnerabilityCheckovResult
+//                    if (vulnerabilityResult.checkType == CheckType.SCA_IMAGE) {
+//                        if (!vulnerabilityResult.filePath.endsWith(vulnerabilityResult.imageName!!)) {
+//                            result.filePath = Paths.get(result.filePath, File.separator, vulnerabilityResult.imageName).toString()
+//                        }
+//                    }
+//
+//                    if (vulnerabilityResult.checkType == CheckType.SCA_PACKAGE) {
+//                        if (!vulnerabilityResult.filePath.endsWith(vulnerabilityResult.rootPackageName!!)) {
+//                            result.filePath = Paths.get(result.filePath, File.separator, vulnerabilityResult.rootPackageName).toString()
+//                        }
+//                    }
+//                }
+            }
+        }
+
         CheckovResultsListUtils.sortResults(checkovResults)
 
         val fileToResourceMap: Map<String, List<BaseCheckovResult>> = checkovResults.groupBy { it.filePath }
@@ -81,9 +109,34 @@ class CheckovToolWindowTree(val project: Project, val split: JBSplitter, private
         isTreeEmpty = tree.isEmpty
         return resultsPanel
     }
+    private fun updateFilePath(result: BaseCheckovResult): String {
+        if (result.category != Category.VULNERABILITIES) {
+            return result.filePath
+        }
+
+        val vulnerabilityResult = result as VulnerabilityCheckovResult
+        if (vulnerabilityResult.checkType == CheckType.SCA_IMAGE && !vulnerabilityResult.filePath.endsWith(vulnerabilityResult.imageName!!)) {
+
+            return Paths.get(result.filePath, File.separator, vulnerabilityResult.imageName).toString()
+//            if (!vulnerabilityResult.filePath.endsWith(vulnerabilityResult.imageName!!)) {
+//                result.filePath = Paths.get(result.filePath, File.separator, vulnerabilityResult.imageName).toString()
+//            }
+        }
+
+        if (vulnerabilityResult.checkType == CheckType.SCA_PACKAGE && !vulnerabilityResult.filePath.endsWith(vulnerabilityResult.rootPackageName!!)) {
+            return Paths.get(result.filePath, File.separator, vulnerabilityResult.rootPackageName).toString()
+//            if (!vulnerabilityResult.filePath.endsWith(vulnerabilityResult.rootPackageName!!)) {
+//                result.filePath = Paths.get(result.filePath, File.separator, vulnerabilityResult.rootPackageName).toString()
+//            }
+        }
+
+        return result.filePath
+    }
 
     private fun createFolderTree(currentTree: DefaultMutableTreeNode, resultsPerFile: List<BaseCheckovResult>, fileName: String) {
-        val fileWithErrorsNode = buildFilePath(currentTree, fileName)
+        val images: List<String?> = resultsPerFile.filter { it.category == Category.VULNERABILITIES && it.checkType == CheckType.SCA_IMAGE}.distinctBy { result -> (result as VulnerabilityCheckovResult).imageName }.map { (it as VulnerabilityCheckovResult).imageName }.filter { !it.isNullOrBlank() }
+        val rootPackages: List<String?> = resultsPerFile.filter { it.category == Category.VULNERABILITIES && it.checkType == CheckType.SCA_PACKAGE}.map { (it as VulnerabilityCheckovResult).imageName }.distinct().filter { !it.isNullOrBlank() }
+        val fileWithErrorsNode = buildFilePath(currentTree, fileName, images, rootPackages)
         addErrorNodesToFileNode(fileWithErrorsNode, resultsPerFile)
     }
 
@@ -91,6 +144,9 @@ class CheckovToolWindowTree(val project: Project, val split: JBSplitter, private
         val resultsGroupedByResource: Map<String, List<BaseCheckovResult>> = resultsPerFile.groupBy { it.resource }
         val parentIcon = (fileWithErrorsNode.userObject as CheckovFileTreeNode).getNodeIcon()
         val secretsNodes = mutableListOf<DefaultMutableTreeNode>()
+
+//        val vulnerabilitiesImage: List<BaseCheckovResult> = resultsPerFile.filter { result -> result.category == Category.VULNERABILITIES && result.checkType == CheckType.SCA_IMAGE }
+//        val vulnerabilitiesPackage: List<BaseCheckovResult> = resultsPerFile.filter { result -> result.category == Category.VULNERABILITIES && result.checkType == CheckType.SCA_PACKAGE }
 
         resultsGroupedByResource.forEach { (resource, results) ->
             val resourceNode = DefaultMutableTreeNode(CheckovResourceTreeNode(resource, parentIcon))
@@ -110,8 +166,22 @@ class CheckovToolWindowTree(val project: Project, val split: JBSplitter, private
         secretsNodes.forEach { node -> fileWithErrorsNode.add(node) }
     }
 
-    private fun buildFilePath(currentTree: DefaultMutableTreeNode, fileName: String): DefaultMutableTreeNode {
-        val paths = fileName.split("/").toTypedArray().filter { it.isNotEmpty() }
+    private fun buildFilePath(currentTree: DefaultMutableTreeNode, fileName: String, images: List<String?>, rootPackages: List<String?>): DefaultMutableTreeNode {
+        val filePathImage = images.find { image -> !image.isNullOrBlank() && fileName.endsWith(image) }
+        val filePathRootPackage = rootPackages.find { rootPackage -> !rootPackage.isNullOrBlank() && fileName.endsWith(rootPackage) }
+
+        var sanitizedFilePath = fileName
+
+        if (!filePathImage.isNullOrBlank()) {
+            sanitizedFilePath = fileName.replace(filePathImage, "")
+        }
+
+        if (!filePathRootPackage.isNullOrBlank()) {
+            sanitizedFilePath = fileName.replace(filePathRootPackage, "")
+        }
+
+
+        val paths = sanitizedFilePath.split("/").toTypedArray().filter { it.isNotEmpty() }
         var currentNode = currentTree
         for(i in paths.indices){
             val newNode = if(i == paths.size - 1) CheckovFileTreeNode(paths[i]) else CheckovFolderTreeNode(paths[i])
@@ -126,6 +196,19 @@ class CheckovToolWindowTree(val project: Project, val split: JBSplitter, private
                 existingChildNode
             }
         }
+
+        if (!filePathImage.isNullOrBlank()) {
+            val pathPartNode = DefaultMutableTreeNode(CheckovResourceTreeNode(filePathImage, AllIcons.Vcs.Branch))
+            currentNode.add(pathPartNode)
+            currentNode = pathPartNode
+        }
+
+        if (!filePathRootPackage.isNullOrBlank()) {
+            val pathPartNode = DefaultMutableTreeNode(CheckovResourceTreeNode(filePathRootPackage, AllIcons.Vcs.BranchNode))
+            currentNode.add(pathPartNode)
+            currentNode = pathPartNode
+        }
+
         return currentNode
     }
 

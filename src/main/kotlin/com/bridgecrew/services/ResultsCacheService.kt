@@ -6,6 +6,9 @@ import com.bridgecrew.services.scan.CheckovScanService
 import com.bridgecrew.utils.CheckovUtils
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
+import org.jetbrains.rpc.LOG
+import java.io.File
+import java.nio.file.Paths
 
 @Service
 class ResultsCacheService(val project: Project) {
@@ -52,16 +55,22 @@ class ResultsCacheService(val project: Project) {
             val checkType = CheckType.valueOf(result.check_type.uppercase())
             val severity = if (result.severity != null) Severity.valueOf(result.severity.uppercase()) else Severity.UNKNOWN
             val description = if(!result.description.isNullOrEmpty()) result.description else result.short_description
+            val filePath = result.file_abs_path.replace(baseDir, "")
+            val fileAbsPath = if (!result.file_abs_path.contains(baseDir)) Paths.get(baseDir, File.separator, result.file_abs_path).toString() else result.file_abs_path
 
             when (category) {
                 Category.VULNERABILITIES -> {
                     if (result.vulnerability_details == null) {
                         throw Exception("type is vulnerability but no vulnerability_details")
                     }
+
+                    // deployment.yaml (alpine:3.10 lines:11-29 (sha256:e7b300aee9)).openssl
+                    val vulnerabilityRootPackageData = result.resource
+//                    val imageName = getVulnerabilityImage(result)
                     val vulnerabilityCheckovResult = VulnerabilityCheckovResult(
-                            checkType, result.file_abs_path.replace(baseDir, ""),
+                            checkType, filePath,
                             resource, name, result.check_id, severity, description,
-                            result.guideline, result.file_abs_path, result.file_line_range, result.fixed_definition,
+                            result.guideline, fileAbsPath, result.file_line_range, result.fixed_definition,
                             result.code_block,
                             result.vulnerability_details.cvss,
                             result.vulnerability_details.package_name,
@@ -76,24 +85,24 @@ class ResultsCacheService(val project: Project) {
                             result.vulnerability_details.root_package_name,
                             result.vulnerability_details.root_package_version,
                             result.vulnerability_details.root_package_fix_version,
-
+                            getVulnerabilityImage(result)
                             )
                     checkovResults.add(vulnerabilityCheckovResult)
 
                     continue
                 }
                 Category.SECRETS -> {
-                    val secretCheckovResult = SecretsCheckovResult(checkType, result.file_abs_path.replace(baseDir, ""),
+                    val secretCheckovResult = SecretsCheckovResult(checkType, filePath,
                             resource, name, result.check_id, severity, description,
-                            result.guideline, result.file_abs_path, result.file_line_range, result.fixed_definition,
+                            result.guideline, fileAbsPath, result.file_line_range, result.fixed_definition,
                             result.code_block)
                     checkovResults.add(secretCheckovResult)
                     continue
                 }
                 Category.IAC -> {
-                    val iacCheckovResult = IacCheckovResult(checkType, result.file_abs_path.replace(baseDir, ""),
+                    val iacCheckovResult = IacCheckovResult(checkType, filePath,
                             resource, name, result.check_id, severity, description,
-                            result.guideline, result.file_abs_path, result.file_line_range, result.fixed_definition,
+                            result.guideline, fileAbsPath, result.file_line_range, result.fixed_definition,
                             result.code_block)
                     checkovResults.add(iacCheckovResult)
                     continue
@@ -103,9 +112,9 @@ class ResultsCacheService(val project: Project) {
                         throw Exception("type is license but no vulnerability_details")
                     }
 
-                    val licenseCheckovResult = LicenseCheckovResult(checkType, result.file_abs_path.replace(baseDir, ""),
+                    val licenseCheckovResult = LicenseCheckovResult(checkType, filePath,
                             resource, name, result.check_id, severity, description,
-                            result.guideline, result.file_abs_path, result.file_line_range, result.fixed_definition,
+                            result.guideline, fileAbsPath, result.file_line_range, result.fixed_definition,
                             result.code_block,
                             result.vulnerability_details.package_name,
                             result.vulnerability_details.license,
@@ -118,6 +127,56 @@ class ResultsCacheService(val project: Project) {
         }
     }
 
+
+    //{
+    //          "check_id": "BC_LIC_2",
+    //          "bc_check_id": "BC_LIC_2",
+    //          "check_name": "SCA license",
+    //          "check_result": {
+    //            "result": "FAILED"
+    //          },
+    //          "code_block": [
+    //            [
+    //              0,
+    //              "pam: 1.4.0-9+deb11u1"
+    //            ]
+    //          ],
+    //          "file_path": "/features/image-referncer/IaC/ecs.tf (nginx lines:1-31 (sha256:6efc10a051))",
+    //          "file_abs_path": "/Users/mshavit/source/testing-resources/features/image-referncer/IaC/ecs.tf",
+    //          "repo_file_path": "/source/testing-resources/features/image-referncer/IaC/ecs.tf",
+    //          "file_line_range": [
+    //            0,
+    //            0
+    //          ],
+    //          "resource": "features/image-referncer/IaC/ecs.tf (nginx lines:1-31 (sha256:6efc10a051)).pam",
+    //          "evaluations": null,
+    //          "check_class": "checkov.common.bridgecrew.vulnerability_scanning.image_scanner.ImageScanner",
+    //          "fixed_definition": null,
+    //          "entity_tags": null,
+    //          "caller_file_path": null,
+    //          "caller_file_line_range": null,
+    //          "resource_address": null,
+    //          "severity": "LOW",
+    //          "bc_category": null,
+    //          "benchmarks": null,
+    //          "description": null,
+    //          "short_description": "License GPL - pam: 1.4.0-9+deb11u1",
+    //          "vulnerability_details": {
+    //            "package_name": "pam",
+    //            "package_version": "1.4.0-9+deb11u1",
+    //            "package_registry": "",
+    //            "is_private_registry": false,
+    //            "license": "GPL",
+    //            "status": "FAILED",
+    //            "policy": "BC_LIC_2",
+    //            "package_type": "os"
+    //          },
+    //          "connected_node": null,
+    //          "guideline": "https://docs.bridgecrew.io/docs/open-source-package-unknown-license",
+    //          "details": [],
+    //          "check_len": null,
+    //          "definition_context_file_path": null
+    //        }
     private fun mapCheckovCheckTypeToScanType(checkType: String, checkId: String): Category {
         when (checkType) {
             "ansible", "arm", "bicep", "cloudformation", "dockerfile", "helm", "json",
@@ -162,5 +221,17 @@ class ResultsCacheService(val project: Project) {
         }
 
         return result.resource
+    }
+
+    private fun getVulnerabilityImage(result: CheckovResult): String {
+        //"resource": "features/image-referncer/IaC/ecs.tf (nginx lines:1-31 (sha256:6efc10a051)).curl",
+
+        try {
+            val image = result.resource.split(" ").find { token -> token.startsWith("(") }
+            return image!!.replace("(", "")
+        } catch (error: Error) {
+            LOG.warn("Could not find image name from result resource ${result.resource}", error)
+            return ""
+        }
     }
 }

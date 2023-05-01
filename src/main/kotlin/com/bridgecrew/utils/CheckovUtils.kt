@@ -32,7 +32,7 @@ class CheckovUtils {
 
             return when (checkovResult[0]) {
                 '{' -> {
-                    return extractFailedChecksAndParsingErrorsFromObj(JSONObject(checkovResult))
+                    return extractFailedChecksAndParsingErrorsFromObj(JSONObject(checkovResult), scanningSource)
                 }
 
                 '[' -> {
@@ -43,7 +43,7 @@ class CheckovUtils {
                     var passedChecks = 0
 
                     for (resultItem in resultsArray) {
-                        val extractionResult = extractFailedChecksAndParsingErrorsFromObj(resultItem as JSONObject)
+                        val extractionResult = extractFailedChecksAndParsingErrorsFromObj(resultItem as JSONObject, scanningSource)
                         failedChecks.addAll(extractionResult.failedChecks)
                         parsingErrors += extractionResult.parsingErrorsSize
                         passedChecks += extractionResult.passedChecksSize
@@ -55,7 +55,7 @@ class CheckovUtils {
             }
         }
 
-        private fun extractFailedChecksAndParsingErrorsFromObj(outputObj: JSONObject): CheckovResultExtractionData {
+        private fun extractFailedChecksAndParsingErrorsFromObj(outputObj: JSONObject, scanningSource: String): CheckovResultExtractionData {
             if (outputObj.has("failed") && outputObj.get("failed") == 0) {
                 return CheckovResultExtractionData()
             }
@@ -63,14 +63,14 @@ class CheckovUtils {
             val summary = outputObj.getJSONObject("summary")
             val results = outputObj.getJSONObject("results")
 
-            val failedChecks: List<CheckovResult> = extractFailedChecks(summary, results, outputObj)
+            val failedChecks: List<CheckovResult> = extractFailedChecks(summary, results, outputObj, scanningSource)
             val parsingErrors: Int = extractParsingErrors(summary)
             val passedChecks: Int = summary.getInt("passed")
 
             return CheckovResultExtractionData(failedChecks, parsingErrors, passedChecks)
         }
 
-        private fun extractFailedChecks(summary: JSONObject, results: JSONObject, outputObj: JSONObject): List<CheckovResult> {
+        private fun extractFailedChecks(summary: JSONObject, results: JSONObject, outputObj: JSONObject, scanningSource: String): List<CheckovResult> {
             val failedSummary = summary.get("failed")
 
             if (failedSummary == 0) {
@@ -79,6 +79,8 @@ class CheckovUtils {
             val failedChecks = results.getJSONArray("failed_checks")
             val resultsList = object : TypeToken<List<CheckovResult>>() {}.type
             val checkType = outputObj.getString("check_type")
+
+            LOG.info("Message for scanning - $scanningSource got $checkType check type")
 
             val checkovResults: ArrayList<CheckovResult> = gson.fromJson(failedChecks.toString(), resultsList)
             checkovResults.forEach { result -> result.check_type = checkType }
