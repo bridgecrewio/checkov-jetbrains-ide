@@ -6,6 +6,7 @@ import com.bridgecrew.services.scan.CheckovScanService
 import com.bridgecrew.utils.CheckovUtils
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
+import org.jetbrains.rpc.LOG
 
 @Service
 class ResultsCacheService(val project: Project) {
@@ -46,9 +47,16 @@ class ResultsCacheService(val project: Project) {
     fun setCheckovResultsFromResultsList(results: List<CheckovResult>) {
         for (result in results) {
             val category: Category = mapCheckovCheckTypeToScanType(result.check_type, result.check_id)
-            val resource: String = getResource(result, category)
             val name: String = getResourceName(result, category)
                     ?: throw Exception("null name, category is ${category.name}, result is $result")
+
+            if (CheckovUtils.isCustomPolicy(category, result.check_id) && CheckovUtils.shouldIgnoreCustomPolicy(result.check_name)) {
+                LOG.debug("Custom policy $name should be ignored")
+                continue
+            }
+
+
+            val resource: String = getResource(result, category)
             val checkType = CheckType.valueOf(result.check_type.uppercase())
             val severity = if (result.severity != null) Severity.valueOf(result.severity.uppercase()) else Severity.UNKNOWN
             val description = if(!result.description.isNullOrEmpty()) result.description else result.short_description

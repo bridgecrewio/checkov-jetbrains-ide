@@ -46,3 +46,5 @@ val SUPPRESSION_BUTTON_ALLOWED_FILE_TYPES: Set<FileType> = setOf(
         FileType.YAML,
         FileType.TERRAFORM
 )
+
+val CUSTOM_POLICIES_TO_BE_IGNORED = listOf<String>("yaml policy  secrets", "alapaka", "Copy of S3 bucket MFA Delete is not enabled")

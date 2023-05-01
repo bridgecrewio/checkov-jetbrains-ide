@@ -19,7 +19,15 @@ class CheckovUtils {
     companion object {
         private val LOG = logger<CheckovUtils>()
         fun isCustomPolicy(result: BaseCheckovResult): Boolean {
-            return (result.category == Category.IAC || result.category == Category.SECRETS) && !result.id.startsWith("CKV")
+            return isCustomPolicy(result.category, result.id)
+        }
+
+        fun isCustomPolicy(category: Category, id: String): Boolean {
+            return (category == Category.IAC || category == Category.SECRETS) && !id.startsWith("CKV")
+        }
+
+        fun shouldIgnoreCustomPolicy(policyName: String): Boolean {
+            return CUSTOM_POLICIES_TO_BE_IGNORED.contains(policyName.lowercase())
         }
 
         fun extractFailedChecksAndParsingErrorsFromCheckovResult(rawResult: String, scanningSource: String): CheckovResultExtractionData {
