@@ -8,7 +8,6 @@ import com.bridgecrew.services.ResultsCacheService
 import com.bridgecrew.services.CheckovResultsListUtils
 import com.bridgecrew.ui.CheckovToolWindowDescriptionPanel
 import com.bridgecrew.utils.navigateToFile
-import com.intellij.icons.AllIcons
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.WriteCommandAction
@@ -18,7 +17,6 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.ui.JBSplitter
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.treeStructure.Tree
-import icons.CheckovIcons
 import java.awt.BorderLayout
 import java.io.File
 import java.nio.file.Paths
@@ -198,13 +196,13 @@ class CheckovToolWindowTree(val project: Project, val split: JBSplitter, private
         }
 
         if (!filePathImage.isNullOrBlank()) {
-            val pathPartNode = DefaultMutableTreeNode(CheckovResourceTreeNode(filePathImage, AllIcons.Vcs.Branch))
+            val pathPartNode = DefaultMutableTreeNode(CheckovFileTreeNode(filePathImage))
             currentNode.add(pathPartNode)
             currentNode = pathPartNode
         }
 
         if (!filePathRootPackage.isNullOrBlank()) {
-            val pathPartNode = DefaultMutableTreeNode(CheckovResourceTreeNode(filePathRootPackage, AllIcons.Vcs.BranchNode))
+            val pathPartNode = DefaultMutableTreeNode(CheckovFileTreeNode(filePathRootPackage))
             currentNode.add(pathPartNode)
             currentNode = pathPartNode
         }
