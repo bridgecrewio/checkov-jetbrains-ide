@@ -43,10 +43,10 @@ object CheckovScanAction : AnAction(AllIcons.Actions.Execute), DumbAware {
     private fun updateIcon() {
         if (isExecuteState) {
             presentation.icon = AllIcons.Actions.Execute
-            presentation.text = "Run Checkov Scan"
+            presentation.text = "Run Prisma Cloud Scan"
         } else {
             presentation.icon = AllIcons.Actions.Suspend
-            presentation.text = "Cancel Checkov Scan"
+            presentation.text = "Cancel Prisma Cloud Scan"
         }
     }
 
