@@ -6,6 +6,8 @@ import com.bridgecrew.services.scan.CheckovScanService
 import com.bridgecrew.utils.CheckovUtils
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
+import java.io.File
+import java.nio.file.Paths
 
 @Service
 class ResultsCacheService(val project: Project) {
@@ -52,6 +54,8 @@ class ResultsCacheService(val project: Project) {
             val checkType = CheckType.valueOf(result.check_type.uppercase())
             val severity = if (result.severity != null) Severity.valueOf(result.severity.uppercase()) else Severity.UNKNOWN
             val description = if(!result.description.isNullOrEmpty()) result.description else result.short_description
+            val filePath = result.file_abs_path.replace(baseDir, "")
+            val fileAbsPath = if (!result.file_abs_path.contains(baseDir)) Paths.get(baseDir, File.separator, result.file_abs_path).toString() else result.file_abs_path
 
             when (category) {
                 Category.VULNERABILITIES -> {
@@ -59,9 +63,9 @@ class ResultsCacheService(val project: Project) {
                         throw Exception("type is vulnerability but no vulnerability_details")
                     }
                     val vulnerabilityCheckovResult = VulnerabilityCheckovResult(
-                            checkType, result.file_abs_path.replace(baseDir, ""),
+                            checkType, filePath,
                             resource, name, result.check_id, severity, description,
-                            result.guideline, result.file_abs_path, result.file_line_range, result.fixed_definition,
+                            result.guideline, fileAbsPath, result.file_line_range, result.fixed_definition,
                             result.code_block,
                             result.vulnerability_details.cvss,
                             result.vulnerability_details.package_name,
@@ -83,17 +87,17 @@ class ResultsCacheService(val project: Project) {
                     continue
                 }
                 Category.SECRETS -> {
-                    val secretCheckovResult = SecretsCheckovResult(checkType, result.file_abs_path.replace(baseDir, ""),
+                    val secretCheckovResult = SecretsCheckovResult(checkType, filePath,
                             resource, name, result.check_id, severity, description,
-                            result.guideline, result.file_abs_path, result.file_line_range, result.fixed_definition,
+                            result.guideline, fileAbsPath, result.file_line_range, result.fixed_definition,
                             result.code_block)
                     checkovResults.add(secretCheckovResult)
                     continue
                 }
                 Category.IAC -> {
-                    val iacCheckovResult = IacCheckovResult(checkType, result.file_abs_path.replace(baseDir, ""),
+                    val iacCheckovResult = IacCheckovResult(checkType, filePath,
                             resource, name, result.check_id, severity, description,
-                            result.guideline, result.file_abs_path, result.file_line_range, result.fixed_definition,
+                            result.guideline, fileAbsPath, result.file_line_range, result.fixed_definition,
                             result.code_block)
                     checkovResults.add(iacCheckovResult)
                     continue
@@ -103,9 +107,9 @@ class ResultsCacheService(val project: Project) {
                         throw Exception("type is license but no vulnerability_details")
                     }
 
-                    val licenseCheckovResult = LicenseCheckovResult(checkType, result.file_abs_path.replace(baseDir, ""),
+                    val licenseCheckovResult = LicenseCheckovResult(checkType, filePath,
                             resource, name, result.check_id, severity, description,
-                            result.guideline, result.file_abs_path, result.file_line_range, result.fixed_definition,
+                            result.guideline, fileAbsPath, result.file_line_range, result.fixed_definition,
                             result.code_block,
                             result.vulnerability_details.package_name,
                             result.vulnerability_details.license,
