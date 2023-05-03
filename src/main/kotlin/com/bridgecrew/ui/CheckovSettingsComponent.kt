@@ -29,7 +29,7 @@ class CheckovSettingsComponent () {
         settingsPanel.add(secretKeyLabel, createGridRowCol(1,0,GridConstraints.ANCHOR_WEST))
         settingsPanel.add(secretKeyField, createGridRowCol(1,1,GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL))
 
-        val prismaURLLabel = JLabel("Prisma URL ( Required if using Prisma Cloud Access Token)")
+        val prismaURLLabel = JLabel("Prisma URL (Required)")
         prismaURLLabel.labelFor = prismaURLField
         settingsPanel.add(prismaURLLabel, createGridRowCol(2,0,GridConstraints.ANCHOR_WEST))
         settingsPanel.add(prismaURLField, createGridRowCol(2,1,GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL))

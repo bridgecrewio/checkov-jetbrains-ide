@@ -5,6 +5,7 @@ import com.bridgecrew.results.Category
 import com.bridgecrew.results.Severity
 import com.bridgecrew.ui.CheckovToolWindowFactory
 import com.bridgecrew.ui.actions.SeverityFilterActions
+import org.jetbrains.rpc.LOG
 
 class CheckovResultsListUtils {
     companion object {
@@ -39,7 +40,11 @@ class CheckovResultsListUtils {
         }
 
         fun sortResults(sourceList: MutableList<BaseCheckovResult>) {
-            sourceList.sortWith(checkovResultsComparator)
+            try {
+                sourceList.sortWith(checkovResultsComparator)
+            } catch (e: Exception) {
+                LOG.warn("error while sorting list", e)
+            }
         }
 
         fun filterResultsByCategoriesAndSeverities(sourceList: List<BaseCheckovResult>, categories: List<Category>? = null, severities: List<Severity>? = null): List<BaseCheckovResult> {
