@@ -6,6 +6,7 @@ import com.bridgecrew.services.scan.CheckovScanService
 import com.bridgecrew.utils.CheckovUtils
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
+import org.jetbrains.rpc.LOG
 import java.io.File
 import java.nio.file.Paths
 
@@ -26,8 +27,7 @@ class ResultsCacheService(val project: Project) {
     fun addCheckovResultFromFileScan(newCheckovResults: List<CheckovResult>, filePath: String) {
         newCheckovResults.forEach { newCheckovResult ->
             run {
-                if (newCheckovResult.check_type.lowercase() == CheckType.SCA_PACKAGE.name.lowercase() &&
-                        newCheckovResult.file_abs_path != filePath &&
+                if ( newCheckovResult.file_abs_path != filePath &&
                         filePath.contains(newCheckovResult.file_abs_path)) {
                     newCheckovResult.file_abs_path = filePath
                 }
@@ -50,78 +50,82 @@ class ResultsCacheService(val project: Project) {
     }
     fun setCheckovResultsFromResultsList(results: List<CheckovResult>) {
         for (result in results) {
-            val category: Category = mapCheckovCheckTypeToScanType(result.check_type, result.check_id)
-            val checkType = CheckType.valueOf(result.check_type.uppercase())
-            val resource: String = CheckovUtils.extractResource(result, category, checkType)
-            val name: String = getResourceName(result, category)
-            val severity = if (result.severity != null) Severity.valueOf(result.severity.uppercase()) else Severity.UNKNOWN
-            val description = if(!result.description.isNullOrEmpty()) result.description else result.short_description
-            val filePath = result.file_abs_path.replace(baseDir, "")
-            val fileAbsPath = if (!result.file_abs_path.contains(baseDir)) Paths.get(baseDir, File.separator, result.file_abs_path).toString() else result.file_abs_path
+            try {
+                val category: Category = mapCheckovCheckTypeToScanType(result.check_type, result.check_id)
+                val checkType = CheckType.valueOf(result.check_type.uppercase())
+                val resource: String = CheckovUtils.extractResource(result, category, checkType)
+                val name: String = getResourceName(result, category)
+                val severity = if (result.severity != null) Severity.valueOf(result.severity.uppercase()) else Severity.UNKNOWN
+                val description = if(!result.description.isNullOrEmpty()) result.description else result.short_description
+                val filePath = result.file_abs_path.replace(baseDir, "")
+                val fileAbsPath = if (!result.file_abs_path.contains(baseDir)) Paths.get(baseDir, File.separator, result.file_abs_path).toString() else result.file_abs_path
 
-            when (category) {
-                Category.VULNERABILITIES -> {
-                    if (result.vulnerability_details == null) {
-                        throw Exception("type is vulnerability but no vulnerability_details")
+                when (category) {
+                    Category.VULNERABILITIES -> {
+                        if (result.vulnerability_details == null) {
+                            throw Exception("type is vulnerability but no vulnerability_details")
+                        }
+                        val vulnerabilityCheckovResult = VulnerabilityCheckovResult(
+                                checkType, filePath,
+                                resource, name, result.check_id, severity, description,
+                                result.guideline, fileAbsPath, result.file_line_range, result.fixed_definition,
+                                result.code_block,
+                                result.vulnerability_details.cvss,
+                                result.vulnerability_details.package_name,
+                                result.vulnerability_details.package_version,
+                                result.vulnerability_details.lowest_fixed_version,
+                                result.vulnerability_details.link,
+                                result.vulnerability_details.published_date,
+                                result.vulnerability_details.vector,
+                                result.vulnerability_details.id,
+                                result.file_path,
+                                null, // TODO - fix after Saar's team fixes their side
+                                result.vulnerability_details.root_package_name,
+                                result.vulnerability_details.root_package_version,
+                                result.vulnerability_details.root_package_fix_version,
+
+                                )
+                        checkovResults.add(vulnerabilityCheckovResult)
+
+                        continue
                     }
-                    //file -> root package+version -> vulnerable package + version + CVE
-                    val vulnerabilityCheckovResult = VulnerabilityCheckovResult(
-                            checkType, filePath,
-                            resource, name, result.check_id, severity, description,
-                            result.guideline, fileAbsPath, result.file_line_range, result.fixed_definition,
-                            result.code_block,
-                            result.vulnerability_details.cvss,
-                            result.vulnerability_details.package_name,
-                            result.vulnerability_details.package_version,
-                            result.vulnerability_details.lowest_fixed_version,
-                            result.vulnerability_details.link,
-                            result.vulnerability_details.published_date,
-                            result.vulnerability_details.vector,
-                            result.vulnerability_details.id,
-                            result.file_path,
-                            null, // TODO - fix after Saar's team fixes their side
-                            result.vulnerability_details.root_package_name,
-                            result.vulnerability_details.root_package_version,
-                            result.vulnerability_details.root_package_fix_version,
-
-                            )
-                    checkovResults.add(vulnerabilityCheckovResult)
-
-                    continue
-                }
-                Category.SECRETS -> {
-                    val secretCheckovResult = SecretsCheckovResult(checkType, filePath,
-                            resource, name, result.check_id, severity, description,
-                            result.guideline, fileAbsPath, result.file_line_range, result.fixed_definition,
-                            result.code_block)
-                    checkovResults.add(secretCheckovResult)
-                    continue
-                }
-                Category.IAC -> {
-                    val iacCheckovResult = IacCheckovResult(checkType, filePath,
-                            resource, name, result.check_id, severity, description,
-                            result.guideline, fileAbsPath, result.file_line_range, result.fixed_definition,
-                            result.code_block)
-                    checkovResults.add(iacCheckovResult)
-                    continue
-                }
-                Category.LICENSES -> {
-                    if (result.vulnerability_details == null) {
-                        throw Exception("type is license but no vulnerability_details")
+                    Category.SECRETS -> {
+                        val secretCheckovResult = SecretsCheckovResult(checkType, filePath,
+                                resource, name, result.check_id, severity, description,
+                                result.guideline, fileAbsPath, result.file_line_range, result.fixed_definition,
+                                result.code_block)
+                        checkovResults.add(secretCheckovResult)
+                        continue
                     }
+                    Category.IAC -> {
+                        val iacCheckovResult = IacCheckovResult(checkType, filePath,
+                                resource, name, result.check_id, severity, description,
+                                result.guideline, fileAbsPath, result.file_line_range, result.fixed_definition,
+                                result.code_block)
+                        checkovResults.add(iacCheckovResult)
+                        continue
+                    }
+                    Category.LICENSES -> {
+                        if (result.vulnerability_details == null) {
+                            throw Exception("type is license but no vulnerability_details")
+                        }
 
-                    val licenseCheckovResult = LicenseCheckovResult(checkType, filePath,
-                            resource, name, result.check_id, severity, description,
-                            result.guideline, fileAbsPath, result.file_line_range, result.fixed_definition,
-                            result.code_block,
-                            result.vulnerability_details.package_name,
-                            result.vulnerability_details.license,
-                            result.check_id.uppercase() == "BC_LIC_1"
-                    )
-                    checkovResults.add(licenseCheckovResult)
-                    continue
+                        val licenseCheckovResult = LicenseCheckovResult(checkType, filePath,
+                                resource, name, result.check_id, severity, description,
+                                result.guideline, fileAbsPath, result.file_line_range, result.fixed_definition,
+                                result.code_block,
+                                result.vulnerability_details.package_name,
+                                result.vulnerability_details.license,
+                                result.check_id.uppercase() == "BC_LIC_1"
+                        )
+                        checkovResults.add(licenseCheckovResult)
+                        continue
+                    }
                 }
+            } catch (e: Exception) {
+                LOG.info("Error while adding checkov result $result")
             }
+
         }
     }
 
