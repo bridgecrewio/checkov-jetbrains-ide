@@ -23,16 +23,19 @@ class ResultsCacheService(val project: Project) {
         checkovResults.add(checkovResult)
     }
 
-    fun addCheckovResults(newCheckovResults: List<CheckovResult>, scanSourceType: CheckovScanService.ScanSourceType) {
-        if (scanSourceType == CheckovScanService.ScanSourceType.FILE) {
-            newCheckovResults.forEach { newCheckovResult ->
-                run {
-                    checkovResults.removeIf { savedCheckovResult -> savedCheckovResult.absoluteFilePath == newCheckovResult.file_abs_path }
-
+    fun addCheckovResultFromFileScan(newCheckovResults: List<CheckovResult>, filePath: String) {
+        newCheckovResults.forEach { newCheckovResult ->
+            run {
+                if (newCheckovResult.check_type.lowercase() == CheckType.SCA_PACKAGE.name.lowercase() &&
+                        newCheckovResult.file_abs_path != filePath &&
+                        filePath.contains(newCheckovResult.file_abs_path)) {
+                    newCheckovResult.file_abs_path = filePath
                 }
+
+                checkovResults.removeIf { savedCheckovResult -> savedCheckovResult.absoluteFilePath == newCheckovResult.file_abs_path }
+
             }
         }
-
         setCheckovResultsFromResultsList(newCheckovResults)
     }
 
@@ -48,10 +51,9 @@ class ResultsCacheService(val project: Project) {
     fun setCheckovResultsFromResultsList(results: List<CheckovResult>) {
         for (result in results) {
             val category: Category = mapCheckovCheckTypeToScanType(result.check_type, result.check_id)
-            val resource: String = getResource(result, category)
-            val name: String = getResourceName(result, category)
-                    ?: throw Exception("null name, category is ${category.name}, result is $result")
             val checkType = CheckType.valueOf(result.check_type.uppercase())
+            val resource: String = CheckovUtils.extractResource(result, category, checkType)
+            val name: String = getResourceName(result, category)
             val severity = if (result.severity != null) Severity.valueOf(result.severity.uppercase()) else Severity.UNKNOWN
             val description = if(!result.description.isNullOrEmpty()) result.description else result.short_description
             val filePath = result.file_abs_path.replace(baseDir, "")
@@ -62,6 +64,7 @@ class ResultsCacheService(val project: Project) {
                     if (result.vulnerability_details == null) {
                         throw Exception("type is vulnerability but no vulnerability_details")
                     }
+                    //file -> root package+version -> vulnerable package + version + CVE
                     val vulnerabilityCheckovResult = VulnerabilityCheckovResult(
                             checkType, filePath,
                             resource, name, result.check_id, severity, description,
@@ -145,7 +148,7 @@ class ResultsCacheService(val project: Project) {
         throw Exception("Scan type is not found in the result!")
     }
 
-    private fun getResourceName(result: CheckovResult, category: Category): String? {
+    private fun getResourceName(result: CheckovResult, category: Category): String {
         return when (category) {
             Category.IAC, Category.SECRETS -> {
                 "${result.check_name} (${result.file_line_range[0]} - ${result.file_line_range[1]})"
@@ -156,15 +159,8 @@ class ResultsCacheService(val project: Project) {
             }
 
             Category.VULNERABILITIES -> {
-                result.vulnerability_details?.id
+                "${result.vulnerability_details?.package_name}:${result.vulnerability_details?.package_version}  (${result.vulnerability_details?.id})"
             }
         }
-    }
-    private fun getResource(result: CheckovResult, category: Category) : String {
-        if (category == Category.VULNERABILITIES || category == Category.LICENSES) {
-            return result.vulnerability_details?.package_name ?: throw Exception("null resource, category is ${category.name}, result is $result")
-        }
-
-        return result.resource
     }
 }
