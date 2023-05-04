@@ -1,6 +1,8 @@
 package com.bridgecrew.ui.rightPanel.topPanel
 
 import com.bridgecrew.results.BaseCheckovResult
+import com.bridgecrew.results.Category
+import com.bridgecrew.results.CheckType
 import com.bridgecrew.results.Severity
 import com.bridgecrew.ui.buttons.SuppressionButton
 import com.bridgecrew.utils.*
@@ -21,11 +23,11 @@ open class CheckovDescriptionPanelTop(val result: BaseCheckovResult) : JPanel() 
     }
 
     fun getTitle(result: BaseCheckovResult): String {
-        return if (CheckovUtils.isCustomPolicy(result)){
-            "(custom policy) ${result.name}"
-        } else {
-            result.id
+        if ((result.category == Category.VULNERABILITIES && result.checkType == CheckType.SCA_PACKAGE) || CheckovUtils.isCustomPolicy(result) ){
+            return result.name
         }
+
+        return result.id
     }
 
     fun createActionsPanel(): JPanel {

@@ -13,11 +13,10 @@ object PANELTYPE {
     const val CHECKOV_LOAD_TABS_CONTENT = 6
 }
 
-const val DEFAULT_TIMEOUT: Long = 1800000
+const val DEFAULT_FILE_TIMEOUT: Long = 80000 // 1.3 minutes
+const val DEFAULT_FRAMEWORK_TIMEOUT: Long = 720000 // 12 minutes
 
 const val GIT_DEFAULT_REPOSITORY_NAME = "jetbrains/extension"
-
-const val DOCKER_MOUNT_DIR = "/checkovScan"
 
 val FULL_SCAN_FRAMEWORKS = arrayListOf("ansible", "arm", "bicep", "cloudformation", "dockerfile", "helm", "json",
         "yaml", "kubernetes", "kustomize", "openapi", "sca_package", "sca_image", "secrets", "serverless", "terraform", "terraform_plan")

@@ -11,7 +11,7 @@ class VulnerabilitiesDictionaryPanel(result: VulnerabilityCheckovResult): Dictio
             "Root Package" to result.rootPackageName,
             "Root Package Version" to result.rootPackageVersion,
             "Compliant Version (Fix all CVEs)" to result.rootPackageFixVersion,
-            "CVE ID" to result.name,
+            "CVE ID" to result.violationId,
             "CVSS" to result.cvss,
             "Published" to result.publishedDate,
             "Vector" to result.vector,

@@ -3,6 +3,7 @@ package com.bridgecrew.utils
 import com.bridgecrew.*
 import com.bridgecrew.results.BaseCheckovResult
 import com.bridgecrew.results.Category
+import com.bridgecrew.results.CheckType
 import com.google.gson.reflect.TypeToken
 import com.intellij.openapi.diagnostic.logger
 import org.json.JSONArray
@@ -20,6 +21,43 @@ class CheckovUtils {
         private val LOG = logger<CheckovUtils>()
         fun isCustomPolicy(result: BaseCheckovResult): Boolean {
             return (result.category == Category.IAC || result.category == Category.SECRETS) && !result.id.startsWith("CKV")
+        }
+        fun extractResource(result: CheckovResult, category: Category, checkType: CheckType) : String {
+            if (category == Category.VULNERABILITIES && checkType == CheckType.SCA_PACKAGE) {
+                return extractVulnerabilityResource(result)
+            }
+
+            if (category == Category.VULNERABILITIES || category == Category.LICENSES) {
+                return result.vulnerability_details?.package_name ?: throw Exception("null resource, category is ${category.name}, result is $result")
+            }
+
+            return result.resource
+        }
+
+        private fun extractVulnerabilityResource(result: CheckovResult): String {
+            val vulnerabilityDetails: VulnerabilityDetails = result.vulnerability_details ?: return result.resource
+
+            var vulnerabilityResource = generateVulnerabilityResourceByPackage(vulnerabilityDetails.root_package_name, vulnerabilityDetails.root_package_version)
+
+            if (vulnerabilityResource != null)
+                return vulnerabilityResource
+
+            vulnerabilityResource = generateVulnerabilityResourceByPackage(vulnerabilityDetails.package_name, vulnerabilityDetails.package_version)
+
+            if (vulnerabilityResource != null)
+                return vulnerabilityResource
+
+            return result.resource
+        }
+
+        private fun generateVulnerabilityResourceByPackage(vulnerablePackage: String?, vulnerablePackageVersion: String?): String? {
+            var resource: String? = null
+            if (vulnerablePackage != null)
+                resource = vulnerablePackage
+            if (vulnerablePackageVersion != null)
+                resource += ":$vulnerablePackageVersion"
+
+            return resource
         }
 
         fun extractFailedChecksAndParsingErrorsFromCheckovResult(rawResult: String, scanningSource: String): CheckovResultExtractionData {

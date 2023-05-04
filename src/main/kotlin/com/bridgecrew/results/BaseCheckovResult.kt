@@ -4,8 +4,8 @@ import java.nio.file.Path
 
 
 enum class Category(category: String) {
-    IAC("IAC"),
     SECRETS("Secrets"),
+    IAC("IAC"),
     VULNERABILITIES("Vulnerabilities"),
     LICENSES("Licenses")
 }

@@ -12,7 +12,7 @@ abstract class CheckovScanCommandsService(val project: Project) {
 
     fun getExecCommandForSingleFile(filePath: String, outputFilePath: String): ArrayList<String> {
         val cmds = ArrayList<String>()
-        cmds.addAll(getCheckovRunningCommandByServiceType())
+        cmds.addAll(getCheckovRunningCommandByServiceType(outputFilePath))
         cmds.addAll(getCheckovCliArgsForExecCommand(outputFilePath))
 
         cmds.add("-f")
@@ -23,7 +23,7 @@ abstract class CheckovScanCommandsService(val project: Project) {
     fun getExecCommandsForRepositoryByFramework(framework: String, outputFilePath: String): ArrayList<String> {
 
         val baseCmds = ArrayList<String>()
-        baseCmds.addAll(getCheckovRunningCommandByServiceType())
+        baseCmds.addAll(getCheckovRunningCommandByServiceType(outputFilePath))
 
         baseCmds.add("-d")
         baseCmds.add(getDirectory())
@@ -47,8 +47,10 @@ abstract class CheckovScanCommandsService(val project: Project) {
                     "Please insert an Api Token to continue")
         }
 
-        return arrayListOf("-s", "--bc-api-key", apiToken, "--repo-id", gitRepo, "--quiet", "-o", "cli", "-o", "json",
+        val command = arrayListOf("-s", "--bc-api-key", apiToken, "--repo-id", gitRepo, "--quiet", "-o", "cli", "-o", "json",
                 "--output-file-path", "console,$outputFilePath")
+        command.addAll(getCertParams())
+        return command
     }
 
     private fun getExcludePathCommand(): ArrayList<String> {
@@ -72,7 +74,19 @@ abstract class CheckovScanCommandsService(val project: Project) {
         return StringUtils.removeEnd(excludePath, "/")
     }
 
-    abstract fun getCheckovRunningCommandByServiceType(): ArrayList<String>
+    private fun getCertParams(): ArrayList<String> {
+        val cmds = ArrayList<String>()
+        val certPath = settings?.certificate
+        if (!certPath.isNullOrEmpty()) {
+            cmds.add("--ca-certificate")
+            cmds.add(getCertPath())
+            return cmds
+        }
+        return cmds
+    }
+
+    abstract fun getCheckovRunningCommandByServiceType(outputFilePath: String): ArrayList<String>
     abstract fun getDirectory(): String
     abstract fun getFilePath(originalFilePath: String): String
+    abstract fun getCertPath(): String
 }
