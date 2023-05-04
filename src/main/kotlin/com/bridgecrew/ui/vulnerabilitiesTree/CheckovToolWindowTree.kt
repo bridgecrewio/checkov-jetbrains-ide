@@ -15,6 +15,7 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.ui.JBSplitter
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.treeStructure.Tree
+import com.intellij.util.ui.UIUtil
 import java.awt.BorderLayout
 import javax.swing.JPanel
 import javax.swing.JScrollPane
@@ -25,6 +26,10 @@ import javax.swing.tree.DefaultMutableTreeNode
 class CheckovToolWindowTree(val project: Project, val split: JBSplitter, private val descriptionPanel: CheckovToolWindowDescriptionPanel) : SimpleToolWindowPanel(true, true), Disposable {
     private val resultsPanel = JPanel(BorderLayout())
     var isTreeEmpty = true
+
+    init {
+        resultsPanel.background = UIUtil.getEditorPaneBackground() ?: resultsPanel.background
+    }
 
     /**
      * Create scrollers panel around a Tree element

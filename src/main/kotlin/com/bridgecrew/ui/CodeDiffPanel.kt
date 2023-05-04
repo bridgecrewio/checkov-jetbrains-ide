@@ -11,7 +11,7 @@ import javax.swing.*
 import javax.swing.text.SimpleAttributeSet
 import javax.swing.text.StyleConstants
 
-class CodeDiffPanel(val result: BaseCheckovResult): JPanel() {
+class CodeDiffPanel(val result: BaseCheckovResult, private val isShowBadCode: Boolean): JPanel() {
 
     private val LOG = logger<CodeDiffPanel>()
     init {
@@ -71,20 +71,24 @@ class CodeDiffPanel(val result: BaseCheckovResult): JPanel() {
 
     private fun buildVulnerableLines(): ArrayList<String> {
         var vulnerableLines = arrayListOf<String>()
-        result.codeBlock.forEachIndexed { index, block ->
-            val rowNumber = (block[0] as Double).toInt().toString()
-            val code = block[1]
-            vulnerableLines += "$rowNumber\t$code".replace("\n","")
+        if (isShowBadCode) {
+            result.codeBlock.forEach { block ->
+                val rowNumber = (block[0] as Double).toInt().toString()
+                val code = block[1]
+                vulnerableLines += "$rowNumber\t$code".replace("\n", "")
+            }
         }
         return vulnerableLines
     }
 
     private fun buildFixLines(): ArrayList<String> {
-        var currentLine = (result.codeBlock[0][0] as Double).toInt()
         var fixWithRowNumber = arrayListOf<String>()
-        result.fixDefinition?.split("\n")?.forEach { codeRow ->
-            fixWithRowNumber += "$currentLine\t$codeRow".replace("\n","")
-            currentLine++
+        if (result.codeBlock.isNotEmpty()) {
+            var currentLine = (result.codeBlock[0][0] as Double).toInt()
+            result.fixDefinition?.split("\n")?.forEach { codeRow ->
+                fixWithRowNumber += "$currentLine\t$codeRow".replace("\n", "")
+                currentLine++
+            }
         }
         return fixWithRowNumber
     }

@@ -3,12 +3,14 @@ package com.bridgecrew.ui.rightPanel
 import com.bridgecrew.results.*
 import com.bridgecrew.ui.rightPanel.extraInfoPanel.*
 import com.bridgecrew.ui.rightPanel.topPanel.*
+import com.intellij.util.ui.UIUtil
 import javax.swing.*
 
 class CheckovErrorRightPanel(var result: BaseCheckovResult): JPanel() {
 
     init {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
+        background = UIUtil.getEditorPaneBackground() ?: background
         add(createTitlePanel())
         add(JSeparator(JSeparator.HORIZONTAL))
         add(createExtraInfoPanel())
