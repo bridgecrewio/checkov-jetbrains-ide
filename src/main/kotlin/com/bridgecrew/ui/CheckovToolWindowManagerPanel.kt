@@ -3,12 +3,14 @@ package com.bridgecrew.ui
 import com.bridgecrew.analytics.AnalyticsService
 import com.bridgecrew.listeners.CheckovScanListener
 import com.bridgecrew.listeners.CheckovSettingsListener
+import com.bridgecrew.results.BaseCheckovResult
 import com.bridgecrew.services.CheckovResultsListUtils
 import com.bridgecrew.services.ResultsCacheService
 import com.bridgecrew.services.scan.CheckovScanService
 import com.bridgecrew.services.scan.FullScanStateService
 import com.bridgecrew.settings.CheckovSettingsState
 import com.bridgecrew.ui.actions.CheckovScanAction
+import com.bridgecrew.ui.errorBubble.CheckovGutterErrorIcon
 import com.bridgecrew.ui.actions.SeverityFilterActions
 import com.bridgecrew.ui.topPanel.CheckovTopPanel
 import com.bridgecrew.ui.vulnerabilitiesTree.CheckovToolWindowTree
@@ -21,11 +23,15 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
-import com.intellij.openapi.fileEditor.FileEditorManager
-import com.intellij.openapi.fileEditor.FileEditorManagerListener
+import com.intellij.openapi.editor.Document
+import com.intellij.openapi.editor.markup.HighlighterLayer
+import com.intellij.openapi.editor.markup.MarkupModel
+import com.intellij.openapi.editor.markup.RangeHighlighter
+import com.intellij.openapi.fileEditor.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.ui.SimpleToolWindowPanel
+import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.openapi.vfs.newvfs.BulkFileListener
@@ -34,7 +40,6 @@ import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.openapi.wm.ex.ToolWindowManagerListener
 import com.intellij.ui.OnePixelSplitter
 import java.awt.BorderLayout
-import java.io.File
 import javax.swing.SwingUtilities
 
 @Service
@@ -43,6 +48,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
     private val checkovDescription = CheckovToolWindowDescriptionPanel(project)
     private val mainPanelSplitter = OnePixelSplitter(PANEL_SPLITTER_KEY, 0.5f)
     private val LOG = logger<CheckovToolWindowManagerPanel>()
+    private val key = Key<Boolean>("prismaCloudPlugin")
 
     /**
      * Create Splitter element which contains the tree element and description element
@@ -107,6 +113,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
             mainPanelSplitter.firstComponent = filesTreePanel
             mainPanelSplitter.secondComponent = descriptionPanel
             add(mainPanelSplitter)
+            updateErrorsInFile()
         }
     }
 
@@ -210,6 +217,13 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                     }
                 }
             }
+            override fun selectionChanged(event: FileEditorManagerEvent) {
+                super.selectionChanged(event)
+                val file = event.newFile
+                if(file != null) {
+                    updateErrorsInline(file)
+                }
+            }
         })
 
         // subscribe to update file events
@@ -280,6 +294,49 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                         project.service<CheckovToolWindowManagerPanel>().loadMainPanel()
                     }
                 })
+    }
+
+    private fun updateErrorsInFile(){
+        val manager = FileEditorManager.getInstance(project)
+        val openedFiles = manager.selectedFiles
+
+        openedFiles.forEach { file->
+            updateErrorsInline(file)
+        }
+    }
+
+    private fun updateErrorsInline(file: VirtualFile) {
+        val editor = FileEditorManager.getInstance(project).getSelectedEditor(file)
+        val markup = (editor as TextEditor).editor.markupModel
+        removeOldHighlighters(markup)
+        val document = editor.editor.document
+
+        val checkovResults: MutableList<BaseCheckovResult> = project.service<ResultsCacheService>().checkovResults
+        val fileToResourceMap = CheckovResultsListUtils.sortAndGroupResultsByPath(checkovResults)
+        val relativePath = file.path.replace(project.basePath.toString(), "")
+        val fileInResults = fileToResourceMap.filter { it.key == relativePath }[relativePath]
+        if (!fileInResults.isNullOrEmpty()) {
+            val errorsPerLine = fileInResults.groupBy { it.fileLineRange[0] }
+            errorsPerLine.forEach { (row, errorsPerLine) ->
+                createIconForLineErrors(row, errorsPerLine, markup, document)
+            }
+        }
+    }
+
+    private fun createIconForLineErrors(firstRow: Int, results: List<BaseCheckovResult>, markup: MarkupModel, document: Document) {
+        val rangeHighlighter: RangeHighlighter = markup.addLineHighlighter(firstRow, HighlighterLayer.ERROR, null)
+        val iconLocation = if(firstRow >= document.lineCount) document.getLineStartOffset(firstRow) else document.getLineStartOffset(firstRow + 1)
+        val gutterIconRenderer = CheckovGutterErrorIcon(results, iconLocation, markup, firstRow)
+        rangeHighlighter.gutterIconRenderer = gutterIconRenderer
+        rangeHighlighter.putUserData(key, true)
+    }
+
+    private fun removeOldHighlighters(markup: MarkupModel) {
+        markup.allHighlighters.forEach { rangeHighlighter ->
+            if(rangeHighlighter.isValid && rangeHighlighter.getUserData(key) == true) {
+                markup.removeHighlighter(rangeHighlighter)
+            }
+        }
     }
 
     override fun dispose() {

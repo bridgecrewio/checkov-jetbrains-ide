@@ -58,5 +58,10 @@ class CheckovResultsListUtils {
             }
         }
 
+        fun sortAndGroupResultsByPath(sourceList: List<BaseCheckovResult>): Map<String, List<BaseCheckovResult>> {
+            val filteredList = filterResultsByCategoriesAndSeverities(sourceList)
+            sortResults(filteredList.toMutableList())
+            return filteredList.groupBy { it.filePath }
+        }
     }
 }

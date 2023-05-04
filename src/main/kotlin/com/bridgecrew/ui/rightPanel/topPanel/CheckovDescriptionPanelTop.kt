@@ -6,6 +6,7 @@ import com.bridgecrew.results.CheckType
 import com.bridgecrew.results.Severity
 import com.bridgecrew.ui.buttons.SuppressionButton
 import com.bridgecrew.utils.*
+import com.intellij.util.ui.UIUtil
 import java.awt.BorderLayout
 import java.awt.Dimension
 import javax.swing.*
@@ -16,6 +17,7 @@ open class CheckovDescriptionPanelTop(val result: BaseCheckovResult) : JPanel() 
         layout = BorderLayout()
         maximumSize = Dimension(Int.MAX_VALUE, 30)
         border = BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        background = UIUtil.getEditorPaneBackground()
     }
 
     fun createTitleAndIcon(title: String, severity: Severity) : JLabel{

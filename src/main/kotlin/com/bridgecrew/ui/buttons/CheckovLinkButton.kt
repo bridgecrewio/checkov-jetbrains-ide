@@ -3,18 +3,14 @@ package com.bridgecrew.ui.buttons
 import java.awt.Cursor
 import javax.swing.JButton
 
-open class CheckovLinkButton(private var text: String): JButton() {
+open class CheckovLinkButton(private var userText: String): JButton() {
 
     init {
-        setButtonTitle("<html><u>$text</u></html>")
+        this.text = userText
         this.isBorderPainted = false
         this.isOpaque = false
         this.isContentAreaFilled = false
         setEnabledLook()
-    }
-
-    private fun setButtonTitle(title: String) {
-        setText(title)
     }
 
     protected fun setDisabledLook() {

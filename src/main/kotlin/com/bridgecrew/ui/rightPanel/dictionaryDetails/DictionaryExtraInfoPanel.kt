@@ -3,6 +3,7 @@ package com.bridgecrew.ui.rightPanel.dictionaryDetails
 import com.bridgecrew.results.BaseCheckovResult
 import com.bridgecrew.utils.CheckovUtils
 import com.intellij.util.ui.JBUI
+import com.intellij.util.ui.UIUtil
 import java.awt.Dimension
 import java.awt.Font
 import java.awt.GridBagConstraints
@@ -16,6 +17,7 @@ abstract class DictionaryExtraInfoPanel : JPanel() {
 
     init {
         layout = GridBagLayout()
+        background = UIUtil.getEditorPaneBackground()
         border = BorderFactory.createEmptyBorder(10, 10, 10, 10)
     }
 
