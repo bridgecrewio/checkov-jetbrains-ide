@@ -56,11 +56,6 @@ class CheckovUtils {
                 return vulnerabilityResource
 
             return generateVulnerabilityResourceByPackage(vulnerabilityDetails.package_name, vulnerabilityDetails.package_version, result.resource)
-
-//            if (vulnerabilityResource != null)
-//                return vulnerabilityResource
-//
-//            return result.resource
         }
 
         private fun extractVulnerabilityImageResource(result: CheckovResult, vulnerabilityDetails: VulnerabilityDetails): String {
