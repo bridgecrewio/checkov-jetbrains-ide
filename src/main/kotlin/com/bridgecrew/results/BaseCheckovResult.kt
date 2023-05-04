@@ -1,8 +1,5 @@
 package com.bridgecrew.results
 
-import java.nio.file.Path
-
-
 enum class Category(category: String) {
     SECRETS("Secrets"),
     IAC("IAC"),

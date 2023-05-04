@@ -1,13 +1,14 @@
 package com.bridgecrew.ui.rightPanel.topPanel
 
 import com.bridgecrew.results.BaseCheckovResult
+import com.bridgecrew.utils.CheckovUtils
 import java.awt.BorderLayout
 import javax.swing.JPanel
 
 class LicensePanelTop(result: BaseCheckovResult): CheckovDescriptionPanelTop(result) {
 
     init {
-        add(createTitleAndIcon(result.name, result.severity), BorderLayout.WEST)
+        add(createTitleAndIcon(CheckovUtils.createLicenseTitle(result), result.severity), BorderLayout.WEST)
         add(createDescriptionPanelTitleActions(), BorderLayout.EAST)
     }
 

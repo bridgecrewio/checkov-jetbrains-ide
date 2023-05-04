@@ -1,8 +1,8 @@
 package com.bridgecrew.ui.rightPanel.topPanel
 
 import com.bridgecrew.results.BaseCheckovResult
+import com.bridgecrew.results.SecretsCheckovResult
 import com.bridgecrew.ui.buttons.FixButton
-import com.bridgecrew.ui.buttons.SuppressionButton
 import com.bridgecrew.utils.FileType
 import com.bridgecrew.utils.getFileType
 import java.awt.BorderLayout
@@ -11,7 +11,7 @@ import javax.swing.JPanel
 class SecretsPanelTop(result: BaseCheckovResult): CheckovDescriptionPanelTop(result) {
 
     init {
-        add(createTitleAndIcon(result.name, result.severity), BorderLayout.WEST)
+        add(createTitleAndIcon((result as SecretsCheckovResult).checkName, result.severity), BorderLayout.WEST)
         add(createDescriptionPanelTitleActions(), BorderLayout.EAST)
     }
 
