@@ -23,41 +23,66 @@ class CheckovUtils {
             return (result.category == Category.IAC || result.category == Category.SECRETS) && !result.id.startsWith("CKV")
         }
         fun extractResource(result: CheckovResult, category: Category, checkType: CheckType) : String {
-            if (category == Category.VULNERABILITIES && checkType == CheckType.SCA_PACKAGE) {
-                return extractVulnerabilityResource(result)
+            if (category == Category.VULNERABILITIES) {
+                return extractVulnerabilityResource(result, checkType)
             }
 
-            if (category == Category.VULNERABILITIES || category == Category.LICENSES) {
+            if (category == Category.LICENSES) {
                 return result.vulnerability_details?.package_name ?: throw Exception("null resource, category is ${category.name}, result is $result")
             }
 
             return result.resource
         }
 
-        private fun extractVulnerabilityResource(result: CheckovResult): String {
+        private fun extractVulnerabilityResource(result: CheckovResult, checkType: CheckType): String {
             val vulnerabilityDetails: VulnerabilityDetails = result.vulnerability_details ?: return result.resource
 
-            var vulnerabilityResource = generateVulnerabilityResourceByPackage(vulnerabilityDetails.root_package_name, vulnerabilityDetails.root_package_version)
+            if (checkType == CheckType.SCA_PACKAGE) {
+                return extractVulnerabilityRootPackageResource(result, vulnerabilityDetails)
+            }
 
-            if (vulnerabilityResource != null)
-                return vulnerabilityResource
+            if (checkType == CheckType.SCA_IMAGE) {
+                return extractVulnerabilityImageResource(result, vulnerabilityDetails)
+            }
 
-            vulnerabilityResource = generateVulnerabilityResourceByPackage(vulnerabilityDetails.package_name, vulnerabilityDetails.package_version)
-
-            if (vulnerabilityResource != null)
-                return vulnerabilityResource
-
-            return result.resource
+            return generateVulnerabilityResourceByPackage(vulnerabilityDetails.package_name, vulnerabilityDetails.package_version, result.resource)
         }
 
-        private fun generateVulnerabilityResourceByPackage(vulnerablePackage: String?, vulnerablePackageVersion: String?): String? {
+        private fun extractVulnerabilityRootPackageResource(result: CheckovResult, vulnerabilityDetails: VulnerabilityDetails): String {
+
+            val vulnerabilityResource = generateVulnerabilityResourceByPackage(vulnerabilityDetails.root_package_name, vulnerabilityDetails.root_package_version, "")
+
+            if (!vulnerabilityResource.isEmpty())
+                return vulnerabilityResource
+
+            return generateVulnerabilityResourceByPackage(vulnerabilityDetails.package_name, vulnerabilityDetails.package_version, result.resource)
+
+//            if (vulnerabilityResource != null)
+//                return vulnerabilityResource
+//
+//            return result.resource
+        }
+
+        private fun extractVulnerabilityImageResource(result: CheckovResult, vulnerabilityDetails: VulnerabilityDetails): String {
+            return try {
+                val image = result.resource.split(" ").find { token -> token.startsWith("(") }
+                image!!.replace("(", "")
+            } catch (error: Error) {
+                LOG.warn("Could not find image name from result resource ${result.resource}", error)
+                generateVulnerabilityResourceByPackage(vulnerabilityDetails.package_name, vulnerabilityDetails.package_version, result.resource)
+            }
+        }
+
+        private fun generateVulnerabilityResourceByPackage(vulnerablePackage: String?, vulnerablePackageVersion: String?, defaultValue: String): String {
             var resource: String? = null
+
             if (vulnerablePackage != null)
                 resource = vulnerablePackage
+
             if (vulnerablePackageVersion != null)
                 resource += ":$vulnerablePackageVersion"
 
-            return resource
+            return resource ?: defaultValue
         }
 
         fun extractFailedChecksAndParsingErrorsFromCheckovResult(rawResult: String, scanningSource: String): CheckovResultExtractionData {
