@@ -221,7 +221,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
                 super.selectionChanged(event)
                 val file = event.newFile
                 if(file != null) {
-                    updateErrorsInline(file)
+//                    updateErrorsInline(file)
                 }
             }
         })
@@ -301,7 +301,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
         val openedFiles = manager.selectedFiles
 
         openedFiles.forEach { file->
-            updateErrorsInline(file)
+//            updateErrorsInline(file)
         }
     }
 
