@@ -4,7 +4,6 @@ import com.bridgecrew.results.*
 import com.bridgecrew.ui.rightPanel.extraInfoPanel.*
 import com.bridgecrew.ui.rightPanel.topPanel.*
 import com.intellij.util.ui.UIUtil
-import java.awt.BorderLayout
 import javax.swing.*
 
 class CheckovErrorRightPanel(var result: BaseCheckovResult): JPanel() {
@@ -12,7 +11,7 @@ class CheckovErrorRightPanel(var result: BaseCheckovResult): JPanel() {
     init {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
         background = UIUtil.getEditorPaneBackground() ?: background
-        add(createTitlePanel(), BorderLayout.EAST)
+        add(createTitlePanel())
         add(JSeparator(JSeparator.HORIZONTAL))
         add(createExtraInfoPanel())
     }

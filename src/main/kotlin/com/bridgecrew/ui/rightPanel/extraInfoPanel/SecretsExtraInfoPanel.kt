@@ -7,7 +7,6 @@ class SecretsExtraInfoPanel(result: SecretsCheckovResult) : CheckovExtraInfoPane
 
     init {
         initLayout()
-//        createRightPanelDescriptionLine(result.name)
         add(SecretsDictionaryPanel(result))
         addCodeDiffPanel()
         setDimensions()

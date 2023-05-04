@@ -18,16 +18,13 @@ open class CheckovDescriptionPanelTop(val result: BaseCheckovResult) : JPanel() 
         autoscrolls = false
     }
 
-    fun createTitleAndIcon(title: String, severity: Severity) : JLabel{
-        val jLabelTitle = JLabel("<html><body style='width: max-width;" +
+    fun createTitleAndIcon(title: String, severity: Severity): JLabel {
+        return JLabel("<html><body style='width: max-width;" +
                 "font-size: 11px;" +
                 "white-space: nowrap;\n" +
                 "  overflow: hidden;\n" +
                 "  display: block;\n" +
                 "  text-overflow: ellipsis;'>${title}</html>", getSeverityIconBySeverity(severity), SwingConstants.LEFT)
-
-//        jLabelTitle.font = Font(font.name, Font.BOLD, font.size)
-        return jLabelTitle
     }
 
     fun getTitle(result: BaseCheckovResult): String {
