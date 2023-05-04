@@ -15,7 +15,6 @@ open class CheckovDescriptionPanelTop(val result: BaseCheckovResult) : JPanel() 
         maximumSize = Dimension(Int.MAX_VALUE, 30)
         border = BorderFactory.createEmptyBorder(10, 10, 10, 10)
         background = UIUtil.getEditorPaneBackground()
-        autoscrolls = false
     }
 
     fun createTitleAndIcon(title: String, severity: Severity): JLabel {
