@@ -5,6 +5,7 @@ import com.bridgecrew.ui.actions.FocusOnFileInTree
 import com.bridgecrew.ui.buttons.CheckovLinkButton
 import com.bridgecrew.ui.buttons.DocumentationButton
 import com.bridgecrew.ui.buttons.FixCVEButton
+import com.bridgecrew.utils.CheckovUtils
 import icons.CheckovIcons
 import java.awt.Dimension
 import javax.swing.*
@@ -33,7 +34,7 @@ class ErrorBubbleActionsPanel(val result: BaseCheckovResult) : JPanel() {
     }
 
     private fun addDocumentationIfNeeded() {
-        if (result.guideline != null) {
+        if (result.guideline != null && !CheckovUtils.isCustomPolicy(result)) {
             add(DocumentationButton(result.guideline))
         }
     }
