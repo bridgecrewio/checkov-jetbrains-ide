@@ -25,7 +25,12 @@ open class CheckovDescriptionPanelTop(val result: BaseCheckovResult) : JPanel() 
     }
 
     fun getTitle(result: BaseCheckovResult): String {
-        if ((result.category == Category.VULNERABILITIES && result.checkType == CheckType.SCA_PACKAGE) || CheckovUtils.isCustomPolicy(result) ){
+        if (CheckovUtils.isCustomPolicy(result)) {
+            return name
+        }
+
+        if (result.category == Category.VULNERABILITIES &&
+                (result.checkType == CheckType.SCA_PACKAGE || result.checkType == CheckType.SCA_IMAGE)) {
             return result.name
         }
 
