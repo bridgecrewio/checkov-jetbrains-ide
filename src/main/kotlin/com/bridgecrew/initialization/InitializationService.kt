@@ -210,6 +210,7 @@ class InitializationService(private val project: Project) {
     private fun versionIsNewer(currentVersion: String, expectedVersion: String): Boolean {
         val currentVersionArr = currentVersion.split('.')
         val expectedVersionArr = expectedVersion.split('.')
+        if (currentVersionArr[0] == "") return false
         if (currentVersionArr[0].toInt() > expectedVersionArr[0].toInt()) {
             return true
         } else if (currentVersionArr[0].toInt() == expectedVersionArr[0].toInt() && currentVersionArr[1].toInt() > expectedVersionArr[1].toInt()) {
