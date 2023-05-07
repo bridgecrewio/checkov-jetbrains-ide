@@ -20,7 +20,10 @@ import java.awt.BorderLayout
 import javax.swing.JPanel
 import javax.swing.JScrollPane
 import javax.swing.ScrollPaneConstants
+import javax.swing.event.TreeExpansionEvent
+import javax.swing.event.TreeExpansionListener
 import javax.swing.tree.DefaultMutableTreeNode
+import javax.swing.tree.TreePath
 
 
 class CheckovToolWindowTree(val project: Project, val split: JBSplitter, private val descriptionPanel: CheckovToolWindowDescriptionPanel) : SimpleToolWindowPanel(true, true), Disposable {
@@ -82,9 +85,27 @@ class CheckovToolWindowTree(val project: Project, val split: JBSplitter, private
             }
         }
 
+        var expandsTreePaths = emptyArray<TreePath?>()
+        tree.addTreeExpansionListener(object : TreeExpansionListener {
+            override fun treeExpanded(event: TreeExpansionEvent?) {
+
+                expandsTreePaths = arrayOf(*expandsTreePaths,event?.path)
+            }
+            override fun treeCollapsed(event: TreeExpansionEvent?) {
+                expandsTreePaths = expandsTreePaths.filterIndexed { index, _ -> expandsTreePaths[index] != event?.path }.toTypedArray()
+            }
+        })
+
+        expandsFromState(tree, expandsTreePaths)
         resultsPanel.add(tree)
         isTreeEmpty = tree.isEmpty
         return resultsPanel
+    }
+
+    private fun expandsFromState(tree:Tree, expandsTreePaths: Array<TreePath?>) {
+        expandsTreePaths.forEach {
+                path -> tree.expandPath(path)
+        }
     }
 
     private fun createFolderTree(currentTree: DefaultMutableTreeNode, resultsPerFile: List<BaseCheckovResult>, fileName: String) {
