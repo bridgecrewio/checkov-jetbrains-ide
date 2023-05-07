@@ -5,6 +5,8 @@ import com.bridgecrew.results.Category
 import com.bridgecrew.results.LicenseCheckovResult
 import com.bridgecrew.results.VulnerabilityCheckovResult
 import com.bridgecrew.ui.CodeDiffPanel
+import com.bridgecrew.utils.UNKNOWN_LICENSES_DESCRIPTION
+import com.bridgecrew.utils.VIOLATED_LICENSES_DESCRIPTION
 import com.intellij.ui.components.JBScrollPane
 import java.awt.*
 import javax.swing.*
@@ -17,8 +19,6 @@ class ErrorBubbleInnerPanel(val result: BaseCheckovResult, private val vulnerabi
         const val PANEL_HEIGHT = 200
         const val PANEL_WIDTH = 500
         const val MAX_TITLE_TEXT_WIDTH = 400
-        const val VIOLATED_LICENSES_DESCRIPTION = "At least one of the license(s) used by this package and/or its dependencies are not OSI approved"
-        const val UNKNOWN_LICENSES_DESCRIPTION = "At least one of the license(s) used by this package and/or its dependencies are not recognized under the SPDX, are unidentifiable or belong to a proprietary open-source license. Ensure these packages are compliant"
     }
 
     init {

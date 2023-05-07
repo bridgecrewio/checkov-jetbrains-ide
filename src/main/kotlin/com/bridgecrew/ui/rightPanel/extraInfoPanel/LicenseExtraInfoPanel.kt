@@ -11,7 +11,6 @@ class LicenseExtraInfoPanel(result: LicenseCheckovResult) : CheckovExtraInfoPane
         val description = CheckovUtils.createLicenseDescription(result)
         if (description.isNotEmpty()) {
             createRightPanelDescriptionLine(description)
-
         }
         
         add(LicenseDictionaryPanel(result))
