@@ -37,5 +37,4 @@ class CheckovSettingsState() : PersistentStateComponent<CheckovSettingsState> {
         XmlSerializerUtil.copyBean(state, this)
     }
 
-
 }
