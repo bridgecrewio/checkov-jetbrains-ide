@@ -46,3 +46,10 @@ val SUPPRESSION_BUTTON_ALLOWED_FILE_TYPES: Set<FileType> = setOf(
         FileType.YAML,
         FileType.TERRAFORM
 )
+
+// license
+const val VIOLATED_LICENSES_TITLE = "Non-Complaint license"
+const val UNKNOWN_LICENSES_TITLE = "Unknown license"
+
+const val VIOLATED_LICENSES_DESCRIPTION = "At least one of the license(s) used by this package and/or its dependencies are not OSI approved."
+const val UNKNOWN_LICENSES_DESCRIPTION = "At least one of the license(s) used by this package and/or its dependencies are not recognized under the SPDX, are unidentifiable or belong to a proprietary open-source license. Ensure these packages are compliant."

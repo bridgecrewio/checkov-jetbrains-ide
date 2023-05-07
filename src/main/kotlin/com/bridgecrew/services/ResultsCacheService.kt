@@ -93,7 +93,7 @@ class ResultsCacheService(val project: Project) {
                         val secretCheckovResult = SecretsCheckovResult(checkType, filePath,
                                 resource, name, result.check_id, severity, description,
                                 result.guideline, fileAbsPath, result.file_line_range, result.fixed_definition,
-                                result.code_block)
+                                result.code_block, result.check_name)
                         checkovResults.add(secretCheckovResult)
                         continue
                     }
@@ -101,7 +101,7 @@ class ResultsCacheService(val project: Project) {
                         val iacCheckovResult = IacCheckovResult(checkType, filePath,
                                 resource, name, result.check_id, severity, description,
                                 result.guideline, fileAbsPath, result.file_line_range, result.fixed_definition,
-                                result.code_block)
+                                result.code_block, result.check_name)
                         checkovResults.add(iacCheckovResult)
                         continue
                     }

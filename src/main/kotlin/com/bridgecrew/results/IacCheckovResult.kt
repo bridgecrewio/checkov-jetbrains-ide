@@ -1,7 +1,5 @@
 package com.bridgecrew.results
 
-import java.nio.file.Path
-
 class IacCheckovResult(
         checkType: CheckType,
         filePath: String,
@@ -14,7 +12,9 @@ class IacCheckovResult(
         absoluteFilePath: String,
         fileLineRange: List<Int>,
         fixDefinition: String?,
-        codeBlock: List<List<Object>>) :
+        codeBlock: List<List<Object>>,
+        val checkName: String
+        ) :
         BaseCheckovResult(
                 category = Category.IAC,
                 checkType,

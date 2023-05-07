@@ -153,5 +153,29 @@ class CheckovUtils {
 
             return 0
         }
+
+        fun createLicenseTitle(result: BaseCheckovResult): String {
+            if (result.id == "BC_LIC_1") {
+                return VIOLATED_LICENSES_TITLE
+            }
+
+            if (result.id == "BC_LIC_2") {
+                return UNKNOWN_LICENSES_TITLE
+            }
+
+            return result.name
+        }
+
+        fun createLicenseDescription(result: BaseCheckovResult): String {
+            if(result.id == "BC_LIC_1") {
+                return VIOLATED_LICENSES_DESCRIPTION
+            }
+
+            if (result.id == "BC_LIC_2"){
+                return UNKNOWN_LICENSES_DESCRIPTION
+            }
+
+            return ""
+        }
     }
 }

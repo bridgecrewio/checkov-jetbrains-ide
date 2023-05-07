@@ -1,9 +1,6 @@
 package com.bridgecrew.ui.rightPanel.topPanel
 
-import com.bridgecrew.results.BaseCheckovResult
-import com.bridgecrew.results.Category
-import com.bridgecrew.results.CheckType
-import com.bridgecrew.results.Severity
+import com.bridgecrew.results.*
 import com.bridgecrew.ui.buttons.SuppressionButton
 import com.bridgecrew.utils.*
 import com.intellij.util.ui.UIUtil
@@ -20,18 +17,27 @@ open class CheckovDescriptionPanelTop(val result: BaseCheckovResult) : JPanel() 
         background = UIUtil.getEditorPaneBackground()
     }
 
-    fun createTitleAndIcon(title: String, severity: Severity) : JLabel{
-        return JLabel("<html><body style='width: 250px;'>${title}</html>", getSeverityIconBySeverity(severity), SwingConstants.LEFT)
+    fun createTitleAndIcon(title: String, severity: Severity): JLabel {
+        return JLabel("<html><body style='width: max-width;" +
+                "font-size: 11px;" +
+                "white-space: nowrap;\n" +
+                "  overflow: hidden;\n" +
+                "  display: block;\n" +
+                "  text-overflow: ellipsis;'>${title}</html>", getSeverityIconBySeverity(severity), SwingConstants.LEFT)
     }
 
     fun getTitle(result: BaseCheckovResult): String {
         if (CheckovUtils.isCustomPolicy(result)) {
-            return name
+            return result.name
         }
 
         if (result.category == Category.VULNERABILITIES &&
                 (result.checkType == CheckType.SCA_PACKAGE || result.checkType == CheckType.SCA_IMAGE)) {
             return result.name
+        }
+
+        if (result.category == Category.IAC) {
+            return (result as IacCheckovResult).checkName
         }
 
         return result.id
