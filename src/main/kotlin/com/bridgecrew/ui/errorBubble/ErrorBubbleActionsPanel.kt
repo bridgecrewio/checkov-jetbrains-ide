@@ -1,10 +1,10 @@
 package com.bridgecrew.ui.errorBubble
 
 import com.bridgecrew.results.BaseCheckovResult
+import com.bridgecrew.ui.actions.FixAction
 import com.bridgecrew.ui.actions.FocusOnFileInTree
 import com.bridgecrew.ui.buttons.CheckovLinkButton
 import com.bridgecrew.ui.buttons.DocumentationButton
-import com.bridgecrew.ui.buttons.FixCVEButton
 import com.bridgecrew.utils.CheckovUtils
 import icons.CheckovIcons
 import java.awt.Dimension
@@ -23,7 +23,9 @@ class ErrorBubbleActionsPanel(val result: BaseCheckovResult) : JPanel() {
 
     private fun addFixIfNeeded() {
         if (result.fixDefinition != null) {
-            add(FixCVEButton(result.id))
+            val fixButton = CheckovLinkButton("Fix")
+            fixButton.addActionListener(FixAction(fixButton, result))
+            add(fixButton)
         }
     }
 
