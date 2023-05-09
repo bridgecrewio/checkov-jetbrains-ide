@@ -30,9 +30,7 @@ import javax.swing.tree.TreePath
 
 
 class CheckovToolWindowTree(
-    val project: Project,
-    val split: JBSplitter,
-    private val descriptionPanel: CheckovToolWindowDescriptionPanel
+    val project: Project, val split: JBSplitter, private val descriptionPanel: CheckovToolWindowDescriptionPanel
 ) : SimpleToolWindowPanel(true, true), Disposable {
     private val resultsPanel = JPanel(BorderLayout())
     var isTreeEmpty = true
@@ -48,9 +46,7 @@ class CheckovToolWindowTree(
     fun createScroll(): JScrollPane {
         val tree = createTree()
         return ScrollPaneFactory.createScrollPane(
-            tree,
-            ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-            ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED
+            tree, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED
         )
     }
 
@@ -113,12 +109,10 @@ class CheckovToolWindowTree(
         expandsTreePaths.forEach {
 //            TODO: instead of searching the tree for each, expand while scanning
                 path ->
-            tree.expandPath(
-                findTreePathByUserObject(
-                    tree.model.root as DefaultMutableTreeNode,
-                    (path.lastPathComponent as DefaultMutableTreeNode).userObject
-                )
+            val currentTreePath = findTreePathByUserObject(
+                tree.model.root as DefaultMutableTreeNode, (path.lastPathComponent as DefaultMutableTreeNode).userObject
             )
+            tree.expandPath(currentTreePath)
         }
     }
 
@@ -147,17 +141,14 @@ class CheckovToolWindowTree(
     }
 
     private fun createFolderTree(
-        currentTree: DefaultMutableTreeNode,
-        resultsPerFile: List<BaseCheckovResult>,
-        fileName: String
+        currentTree: DefaultMutableTreeNode, resultsPerFile: List<BaseCheckovResult>, fileName: String
     ) {
         val fileWithErrorsNode = buildFilePath(currentTree, fileName)
         addErrorNodesToFileNode(fileWithErrorsNode, resultsPerFile)
     }
 
     private fun addErrorNodesToFileNode(
-        fileWithErrorsNode: DefaultMutableTreeNode,
-        resultsPerFile: List<BaseCheckovResult>
+        fileWithErrorsNode: DefaultMutableTreeNode, resultsPerFile: List<BaseCheckovResult>
     ) {
         val resultsGroupedByResource: Map<String, List<BaseCheckovResult>> = resultsPerFile.groupBy { it.resource }
         val parentIcon = (fileWithErrorsNode.userObject as CheckovFileTreeNode).getNodeIcon()
@@ -174,8 +165,7 @@ class CheckovToolWindowTree(
                 }
             }
 
-            if (resourceNode.childCount > 0)
-                fileWithErrorsNode.add(resourceNode)
+            if (resourceNode.childCount > 0) fileWithErrorsNode.add(resourceNode)
         }
 
         secretsNodes.forEach { node -> fileWithErrorsNode.add(node) }
@@ -201,8 +191,7 @@ class CheckovToolWindowTree(
     }
 
     private fun findExistingFilePathNodeInLevel(
-        currentNode: DefaultMutableTreeNode,
-        userObject: CheckovTreeNode
+        currentNode: DefaultMutableTreeNode, userObject: CheckovTreeNode
     ): DefaultMutableTreeNode? {
         for (child in currentNode.children()) {
             val found = (child as DefaultMutableTreeNode).userObject.equals(userObject)
