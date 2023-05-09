@@ -1,5 +1,6 @@
 package com.bridgecrew.ui.vulnerabilitiesTree
 
+import com.bridgecrew.settings.CheckovGlobalState
 import com.bridgecrew.results.BaseCheckovResult
 import com.bridgecrew.results.Category
 import com.bridgecrew.services.ResultsCacheService
@@ -17,18 +18,21 @@ import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.treeStructure.Tree
 import com.intellij.util.ui.UIUtil
 import java.awt.BorderLayout
+import java.util.*
 import javax.swing.JPanel
 import javax.swing.JScrollPane
 import javax.swing.ScrollPaneConstants
 import javax.swing.event.TreeExpansionEvent
 import javax.swing.event.TreeExpansionListener
 import javax.swing.tree.DefaultMutableTreeNode
+import javax.swing.tree.TreeNode
 import javax.swing.tree.TreePath
 
 
 class CheckovToolWindowTree(val project: Project, val split: JBSplitter, private val descriptionPanel: CheckovToolWindowDescriptionPanel) : SimpleToolWindowPanel(true, true), Disposable {
     private val resultsPanel = JPanel(BorderLayout())
     var isTreeEmpty = true
+    var globalState = CheckovGlobalState
 
     init {
         resultsPanel.background = UIUtil.getEditorPaneBackground() ?: resultsPanel.background
@@ -85,29 +89,53 @@ class CheckovToolWindowTree(val project: Project, val split: JBSplitter, private
             }
         }
 
-        var expandsTreePaths = emptyArray<TreePath?>()
+        expandsFromPathState(tree, globalState!!.expandedDescendants)
+
         tree.addTreeExpansionListener(object : TreeExpansionListener {
             override fun treeExpanded(event: TreeExpansionEvent?) {
-
-                expandsTreePaths = arrayOf(*expandsTreePaths,event?.path)
+                globalState!!.expandedDescendants = getExpandedDescendants((event?.source as Tree))
             }
             override fun treeCollapsed(event: TreeExpansionEvent?) {
-                expandsTreePaths = expandsTreePaths.filterIndexed { index, _ -> expandsTreePaths[index] != event?.path }.toTypedArray()
+                globalState!!.expandedDescendants = getExpandedDescendants((event?.source as Tree))
             }
         })
 
-        expandsFromState(tree, expandsTreePaths)
+
         resultsPanel.add(tree)
         isTreeEmpty = tree.isEmpty
         return resultsPanel
     }
 
-    private fun expandsFromState(tree:Tree, expandsTreePaths: Array<TreePath?>) {
+    private fun expandsFromPathState(tree:Tree, expandsTreePaths: List<TreePath>) {
         expandsTreePaths.forEach {
-                path -> tree.expandPath(path)
+//            TODO: instead of searching the tree for each, expand while scanning
+                path -> tree.expandPath(findTreePathByUserObject(tree.model.root as DefaultMutableTreeNode,(path.lastPathComponent as DefaultMutableTreeNode).userObject))
         }
     }
 
+    private fun findTreePathByUserObject(root: DefaultMutableTreeNode, userObject: Any): TreePath? {
+        val stack = Stack<Pair<DefaultMutableTreeNode, TreePath>>()
+        stack.push(Pair(root, TreePath(root)))
+
+        while (stack.isNotEmpty()) {
+            val (node, path) = stack.pop()
+            if (node.userObject == userObject) {
+                return path
+            }
+            for (i in 0 until node.childCount) {
+                val childNode = node.getChildAt(i) as DefaultMutableTreeNode
+                val childPath = path.pathByAddingChild(childNode)
+                stack.push(Pair(childNode, childPath))
+            }
+        }
+
+        return null
+    }
+
+    private fun getExpandedDescendants(tree:Tree): List<TreePath> {
+        val rootPath = TreePath(tree.model.root)
+        return tree.getExpandedDescendants(rootPath).toList()
+    }
     private fun createFolderTree(currentTree: DefaultMutableTreeNode, resultsPerFile: List<BaseCheckovResult>, fileName: String) {
         val fileWithErrorsNode = buildFilePath(currentTree, fileName)
         addErrorNodesToFileNode(fileWithErrorsNode, resultsPerFile)
