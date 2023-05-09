@@ -15,7 +15,7 @@ class CheckovTreeRenderer : DefaultTreeCellRenderer() {
                                               row: Int,
                                               hasFocus: Boolean): Component
     {
-        super.getTreeCellRendererComponent(tree, value, selected, true, leaf, row, hasFocus)
+        super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus)
 
         if(value is DefaultMutableTreeNode){
             val userObject = value.userObject
