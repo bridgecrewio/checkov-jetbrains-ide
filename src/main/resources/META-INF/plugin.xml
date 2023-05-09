@@ -1,11 +1,11 @@
 <idea-plugin>
     <id>com.github.bridgecrewio.checkov</id>
-    <name>Checkov</name>
+    <name>Prisma Cloud</name>
     <vendor email="info@bridgecrew.io">bridgecrewio</vendor>
     <description><![CDATA[
     Prevent cloud misconfigurations during build-time for Terraform,
     Cloudformation, Kubernetes, Serverless framework and other
-    infrastructure-as-code-languages with Checkov by Bridgecrew.
+    infrastructure-as-code-languages with Checkov by Prisma Cloud.
     ]]></description>
     <!-- Product and plugin compatibility requirements -->
     <!-- https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
