@@ -51,12 +51,11 @@ class CheckovToolWindowFactory : ToolWindowFactory {
         Disposer.register(project, checkovToolWindowPanel)
 
         val connection: MessageBusConnection = project.messageBus.connect()
-        connection.subscribe(InitializationListener.INITIALIZATION_TOPIC, object : InitializationListener {
-            override fun initializationCompleted() {
+//        connection.subscribe(InitializationListener.INITIALIZATION_TOPIC, object : InitializationListener {
+//            override fun initializationCompleted() {
                 subscribeToTollWindowManagerEvents(connection, project)
-            }
-
-        })
+//            }
+//        })
     }
 
     private fun subscribeToTollWindowManagerEvents(connection: MessageBusConnection, project: Project) {
