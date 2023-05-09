@@ -140,7 +140,7 @@ class CheckovToolWindowDescriptionPanel(val project: Project) : SimpleToolWindow
         return ScrollPaneFactory.createScrollPane(
             descriptionPanelRes,
             ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-            ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED
+            ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER
         )
     }
 

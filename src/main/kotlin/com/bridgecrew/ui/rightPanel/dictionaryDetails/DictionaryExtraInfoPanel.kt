@@ -4,10 +4,9 @@ import com.bridgecrew.results.BaseCheckovResult
 import com.bridgecrew.utils.CheckovUtils
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
-import java.awt.Dimension
-import java.awt.Font
-import java.awt.GridBagConstraints
-import java.awt.GridBagLayout
+import java.awt.*
+import java.awt.event.ComponentAdapter
+import java.awt.event.ComponentEvent
 import javax.swing.*
 
 abstract class DictionaryExtraInfoPanel : JPanel() {
@@ -19,6 +18,14 @@ abstract class DictionaryExtraInfoPanel : JPanel() {
         layout = GridBagLayout()
         background = UIUtil.getEditorPaneBackground()
         border = BorderFactory.createEmptyBorder(10, 10, 10, 10)
+
+        addComponentListener(object : ComponentAdapter() {
+            override fun componentResized(e: ComponentEvent?) {
+                val parentWidth = (e!!.component as Container).width
+                preferredSize = Dimension(parentWidth / 2, preferredSize.height)
+                revalidate()
+            }
+        })
     }
 
     fun addCustomPolicyGuidelinesIfNeeded(result: BaseCheckovResult){
@@ -56,7 +63,9 @@ abstract class DictionaryExtraInfoPanel : JPanel() {
             keyLabel.font = boldFont
             keyLabel.preferredSize = Dimension(maxKeyWidth + 50, keyLabel.preferredSize.height)
             add(keyLabel, keyConstraints)
-            add(JLabel(valueAsString), valueConstraints)
+            val valueLabel = JLabel(valueAsString)
+            valueLabel.toolTipText = valueAsString
+            add(valueLabel, valueConstraints)
         }
     }
 }
