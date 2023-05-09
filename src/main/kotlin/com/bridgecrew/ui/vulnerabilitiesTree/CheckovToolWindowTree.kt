@@ -96,11 +96,11 @@ class CheckovToolWindowTree(
 
         tree.addTreeExpansionListener(object : TreeExpansionListener {
             override fun treeExpanded(event: TreeExpansionEvent?) {
-                CheckovGlobalState!!.expandedDescendants = getExpandedDescendants((event?.source as Tree))
+                CheckovGlobalState.expandedDescendants = getExpandedDescendants((event?.source as Tree))
             }
 
             override fun treeCollapsed(event: TreeExpansionEvent?) {
-                CheckovGlobalState!!.expandedDescendants = getExpandedDescendants((event?.source as Tree))
+                CheckovGlobalState.expandedDescendants = getExpandedDescendants((event?.source as Tree))
             }
         })
 
