@@ -5,6 +5,7 @@ import com.bridgecrew.results.Category
 import com.bridgecrew.services.ResultsCacheService
 import com.bridgecrew.services.CheckovResultsListUtils
 import com.bridgecrew.ui.CheckovToolWindowDescriptionPanel
+import com.bridgecrew.ui.CheckovToolWindowManagerPanel
 import com.bridgecrew.utils.navigateToFile
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
@@ -19,6 +20,7 @@ import com.intellij.util.ui.UIUtil
 import java.awt.BorderLayout
 import javax.swing.JPanel
 import javax.swing.JScrollPane
+import javax.swing.JTree
 import javax.swing.ScrollPaneConstants
 import javax.swing.event.TreeExpansionEvent
 import javax.swing.event.TreeExpansionListener
@@ -29,6 +31,26 @@ import javax.swing.tree.TreePath
 class CheckovToolWindowTree(val project: Project, val split: JBSplitter, private val descriptionPanel: CheckovToolWindowDescriptionPanel) : SimpleToolWindowPanel(true, true), Disposable {
     private val resultsPanel = JPanel(BorderLayout())
     var isTreeEmpty = true
+    var tree: JTree = JTree()
+    var listener: TreeExpansionListener = createTreeExpansionListener()
+
+    private fun createTreeExpansionListener(): TreeExpansionListener {
+
+        return object : TreeExpansionListener {
+            override fun treeExpanded(event: TreeExpansionEvent?) {
+                project.service<CheckovToolWindowManagerPanel>().expandsTreePaths = tree.getExpandedDescendants(TreePath(tree.model.root)).toList()
+
+//                project.service<CheckovToolWindowManagerPanel>().expandsTreePaths = tree.getExpandedDescendants(TreePath(tree.model))
+            }
+            override fun treeCollapsed(event: TreeExpansionEvent?) {
+                project.service<CheckovToolWindowManagerPanel>().expandsTreePaths = tree.getExpandedDescendants(TreePath(tree.model.root)).toList()
+
+//                project.service<CheckovToolWindowManagerPanel>().expandsTreePaths = tree.getExpandedDescendants(TreePath(tree.model))
+
+//                project.service<CheckovToolWindowManagerPanel>().expandsTreePaths.remove(event!!.path)
+            }
+        }
+    }
 
     init {
         resultsPanel.background = UIUtil.getEditorPaneBackground() ?: resultsPanel.background
@@ -38,8 +60,9 @@ class CheckovToolWindowTree(val project: Project, val split: JBSplitter, private
      * Create scrollers panel around a Tree element
      * @return JScrollPane of the Tree element
      */
-    fun createScroll(): JScrollPane{
-        val tree = createTree()
+    fun createScroll(): JScrollPane {
+        val tree1 = createTree()
+
         return ScrollPaneFactory.createScrollPane(
             tree,
             ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
@@ -64,7 +87,8 @@ class CheckovToolWindowTree(val project: Project, val split: JBSplitter, private
             createFolderTree(rootNode, resources, filePath)
         }
 
-        val tree = Tree(rootNode).apply {
+        tree.removeTreeExpansionListener(listener)
+        tree = Tree(rootNode).apply {
             this.isRootVisible = false
         }
 
@@ -85,28 +109,24 @@ class CheckovToolWindowTree(val project: Project, val split: JBSplitter, private
             }
         }
 
-        var expandsTreePaths = emptyArray<TreePath?>()
-        tree.addTreeExpansionListener(object : TreeExpansionListener {
-            override fun treeExpanded(event: TreeExpansionEvent?) {
-
-                expandsTreePaths = arrayOf(*expandsTreePaths,event?.path)
-            }
-            override fun treeCollapsed(event: TreeExpansionEvent?) {
-                expandsTreePaths = expandsTreePaths.filterIndexed { index, _ -> expandsTreePaths[index] != event?.path }.toTypedArray()
-            }
-        })
-
-        expandsFromState(tree, expandsTreePaths)
+//        expandsFromState()
         resultsPanel.add(tree)
-        isTreeEmpty = tree.isEmpty
+//        isTreeEmpty = tree.isEmpty
         return resultsPanel
     }
 
-    private fun expandsFromState(tree:Tree, expandsTreePaths: Array<TreePath?>) {
-        expandsTreePaths.forEach {
-                path -> tree.expandPath(path)
-        }
-    }
+//    private fun expandsFromState() {
+//        if (project.service<CheckovToolWindowManagerPanel>().expandsTreePaths == null)
+//            return
+//
+//        while (project.service<CheckovToolWindowManagerPanel>().expandsTreePaths!!.hasMoreElements()) {
+//            val path = project.service<CheckovToolWindowManagerPanel>().expandsTreePaths!!.nextElement()
+//            tree.expandPath(path)
+//        }
+////        project.service<CheckovToolWindowManagerPanel>().expandsTreePaths.forEach {
+////                path -> tree.expandPath(path)
+////        }
+//    }
 
     private fun createFolderTree(currentTree: DefaultMutableTreeNode, resultsPerFile: List<BaseCheckovResult>, fileName: String) {
         val fileWithErrorsNode = buildFilePath(currentTree, fileName)

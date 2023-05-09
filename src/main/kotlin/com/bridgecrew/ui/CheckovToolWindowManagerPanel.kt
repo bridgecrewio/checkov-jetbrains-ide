@@ -40,7 +40,10 @@ import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.openapi.wm.ex.ToolWindowManagerListener
 import com.intellij.ui.OnePixelSplitter
 import java.awt.BorderLayout
+import java.util.Enumeration
+import javax.swing.JScrollPane
 import javax.swing.SwingUtilities
+import javax.swing.tree.TreePath
 
 @Service
 class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPanel(true, true), Disposable {
@@ -49,6 +52,9 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
     private val mainPanelSplitter = OnePixelSplitter(PANEL_SPLITTER_KEY, 0.5f)
     private val LOG = logger<CheckovToolWindowManagerPanel>()
     private val key = Key<Boolean>("prismaCloudPlugin")
+    var expandsTreePaths: List<TreePath>? = null
+    var filesTreePanel: JScrollPane? = null
+    var checkovTree: CheckovToolWindowTree? = null
 
     /**
      * Create Splitter element which contains the tree element and description element
@@ -101,14 +107,28 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
         if (panelType == PANELTYPE.CHECKOV_FRAMEWORK_SCAN_FINISHED && project.service<FullScanStateService>().wereAllFrameworksFinished()) {
             project.service<AnalyticsService>().fullScanResultsWereFullyDisplayed()
         }
+
+        if (expandsTreePaths != null) {
+            expandsTreePaths?.forEach { treePath ->  checkovTree?.tree?.expandPath(treePath)}
+            checkovTree?.tree?.addTreeExpansionListener(checkovTree?.listener)
+            revalidate()
+        } else {
+            if (checkovTree != null && checkovTree!!.tree != null) {
+                checkovTree?.tree?.addTreeExpansionListener(checkovTree?.listener)
+
+            }
+        }
+
     }
 
     private fun loadScanResultsPanel(panelType: Int) {
-        val checkovTree = CheckovToolWindowTree(project, mainPanelSplitter, checkovDescription)
-        val filesTreePanel = checkovTree.createScroll()
+//        filesTreePanel.setViewportView()
         if (shouldDisplayNoErrorPanel(panelType)) {
             add(checkovDescription.noErrorsPanel())
         } else {
+            checkovTree = CheckovToolWindowTree(project, mainPanelSplitter, checkovDescription)
+            filesTreePanel = checkovTree!!.createScroll()
+
             val descriptionPanel = checkovDescription.emptyDescription()
             mainPanelSplitter.firstComponent = filesTreePanel
             mainPanelSplitter.secondComponent = descriptionPanel
