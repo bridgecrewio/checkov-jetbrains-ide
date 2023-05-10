@@ -324,9 +324,10 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
     }
 
     private fun createIconForLineErrors(firstRow: Int, results: List<BaseCheckovResult>, markup: MarkupModel, document: Document) {
-        val rangeHighlighter: RangeHighlighter = markup.addLineHighlighter(firstRow, HighlighterLayer.ERROR, null)
-        val iconLocation = if(firstRow >= document.lineCount) document.getLineStartOffset(firstRow) else document.getLineStartOffset(firstRow + 1)
-        val gutterIconRenderer = CheckovGutterErrorIcon(results, iconLocation, markup, firstRow)
+        val rowInFile = if(firstRow > 0) firstRow - 1 else firstRow
+        val rangeHighlighter: RangeHighlighter = markup.addLineHighlighter(rowInFile, HighlighterLayer.ERROR, null)
+        val bubbleLocation = if(rowInFile >= document.lineCount) document.getLineStartOffset(rowInFile) else document.getLineStartOffset(rowInFile + 1)
+        val gutterIconRenderer = CheckovGutterErrorIcon(results, bubbleLocation, markup, rowInFile)
         rangeHighlighter.gutterIconRenderer = gutterIconRenderer
         rangeHighlighter.putUserData(key, true)
     }
