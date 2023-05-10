@@ -112,7 +112,9 @@ class CheckovToolWindowTree(
             val currentTreePath = findTreePathByUserObject(
                 tree.model.root as DefaultMutableTreeNode, (path.lastPathComponent as DefaultMutableTreeNode).userObject
             )
-            tree.expandPath(currentTreePath)
+            if(currentTreePath != null){
+                tree.expandPath(currentTreePath)
+            }
         }
     }
 
