@@ -97,6 +97,7 @@ class InitializationService(private val project: Project) {
     private fun updatePythonBasePath(project: Project, version: String) {
         if(checkIfCheckovUpdateNeeded(version)){
             updateCheckovPip(project)
+            return
         }
 
         val os = System.getProperty("os.name").lowercase()
