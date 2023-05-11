@@ -38,6 +38,7 @@ class CheckovToolWindowFactory : ToolWindowFactory {
 
     companion object {
         var internalExecution = false
+        var isInitializationCompleted = false
         var currentlyRunning = false
         private var lastSelectedTab = ""
         var lastSelectedCategory = if (tabNameToCategory.contains(lastSelectedTab)) tabNameToCategory[lastSelectedTab] else null
@@ -53,24 +54,21 @@ class CheckovToolWindowFactory : ToolWindowFactory {
         val connection: MessageBusConnection = project.messageBus.connect()
         connection.subscribe(InitializationListener.INITIALIZATION_TOPIC, object : InitializationListener {
             override fun initializationCompleted() {
-                subscribeToTollWindowManagerEvents(connection, project)
+                isInitializationCompleted = true
             }
-
         })
+        subscribeToTollWindowManagerEvents(connection, project)
     }
 
     private fun subscribeToTollWindowManagerEvents(connection: MessageBusConnection, project: Project) {
         connection.subscribe(ToolWindowManagerListener.TOPIC, object : ToolWindowManagerListener {
             override fun stateChanged(toolWindowManager: ToolWindowManager) {
                 try {
-                    if (!currentlyRunning && (internalExecution || toolWindowManager.activeToolWindowId == PRISMA_CODE_SECUTIRY_TOOL_WINDOW_ID)) {
+                    if (isInitializationCompleted && !currentlyRunning && (internalExecution || toolWindowManager.activeToolWindowId == PRISMA_CODE_SECUTIRY_TOOL_WINDOW_ID)) {
                         internalExecution = false
                         currentlyRunning = true
                         val selectedContent = toolWindowManager.getToolWindow(PRISMA_CODE_SECUTIRY_TOOL_WINDOW_ID)?.contentManager?.selectedContent
-
-                        if (selectedContent == null) {
-                            return
-                        }
+                                ?: return
 
                         refreshCounts(toolWindowManager, project)
 
