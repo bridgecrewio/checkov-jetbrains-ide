@@ -1,5 +1,6 @@
 package com.bridgecrew.ui.actions
 
+import com.bridgecrew.listeners.ErrorBubbleFixListener
 import com.bridgecrew.results.BaseCheckovResult
 import com.bridgecrew.utils.navigateToFile
 import com.intellij.ide.DataManager
@@ -9,6 +10,7 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 import java.awt.event.ActionEvent
@@ -24,6 +26,8 @@ class FixAction(private val buttonInstance: JButton, val result: BaseCheckovResu
         ApplicationManager.getApplication().invokeLater {
             applyFixDefinition()
         }
+        val project = ProjectManager.getInstance().defaultProject
+        project.messageBus.syncPublisher(ErrorBubbleFixListener.ERROR_BUBBLE_FIX_TOPIC).fixClicked()
     }
 
     private fun applyFixDefinition() {
