@@ -1,9 +1,11 @@
 package com.bridgecrew.ui.errorBubble
 
+import com.bridgecrew.listeners.ErrorBubbleFixListener
 import com.bridgecrew.results.BaseCheckovResult
 import com.bridgecrew.results.Category
 import com.intellij.openapi.editor.markup.MarkupModel
 import com.intellij.openapi.editor.markup.RangeHighlighter
+import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.ui.DialogWrapper
 import java.awt.Point
 import javax.swing.Action
@@ -52,9 +54,21 @@ class CheckovErrorBubble(val results: List<BaseCheckovResult>, private val modal
 
         currentPanel = panelList[0]
 
+        addFixActionListener()
+
         init()
         setLocation(modalLocation.x, modalLocation.y)
         show()
+    }
+
+    private fun addFixActionListener() {
+        val project = ProjectManager.getInstance().defaultProject
+        val connection = project.messageBus.connect()
+        connection.subscribe(ErrorBubbleFixListener.ERROR_BUBBLE_FIX_TOPIC, object : ErrorBubbleFixListener {
+            override fun fixClicked() {
+                close(OK_EXIT_CODE)
+            }
+        })
     }
 
     //remove default actions
