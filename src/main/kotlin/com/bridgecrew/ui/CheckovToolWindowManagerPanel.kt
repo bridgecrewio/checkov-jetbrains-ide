@@ -264,6 +264,8 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
         project.messageBus.connect(this)
                 .subscribe(CheckovScanListener.SCAN_TOPIC, object : CheckovScanListener {
 
+                    override fun fileScanningStarted(){}
+
                     override fun projectScanningStarted() {
                         SeverityFilterActions.restartState()
                         project.service<CheckovToolWindowManagerPanel>().loadMainPanel(PANELTYPE.CHECKOV_REPOSITORY_SCAN_STARTED)

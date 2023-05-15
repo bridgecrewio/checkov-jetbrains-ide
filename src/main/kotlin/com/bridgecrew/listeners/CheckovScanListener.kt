@@ -9,6 +9,8 @@ interface CheckovScanListener {
             Topic.create("Checkov scan", CheckovScanListener::class.java)
     }
 
+    fun fileScanningStarted()
+
     fun projectScanningStarted()
 
     fun scanningFinished(scanSourceType: CheckovScanService.ScanSourceType)
