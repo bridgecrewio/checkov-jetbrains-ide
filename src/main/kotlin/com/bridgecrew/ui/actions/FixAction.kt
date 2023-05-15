@@ -26,22 +26,15 @@ class FixAction(private val buttonInstance: JButton, val result: BaseCheckovResu
 
         connection.subscribe(CheckovScanListener.SCAN_TOPIC, object : CheckovScanListener {
             override fun fileScanningStarted(){
-                print("fileScanningStarted")
                 buttonInstance.isEnabled = false
-
             }
             override fun projectScanningStarted(){
-                print("projectScanningStarted")
                 buttonInstance.isEnabled = false
             }
-
             override fun scanningFinished(scanSourceType: CheckovScanService.ScanSourceType){
-                print("scanningFinished")
                 buttonInstance.isEnabled = true
             }
-
             override fun fullScanFailed(){
-                print("fullScanFailed")
                 buttonInstance.isEnabled = true
             }
         })
