@@ -1,6 +1,8 @@
 package com.bridgecrew.ui.actions
 
+import com.bridgecrew.listeners.CheckovScanListener
 import com.bridgecrew.results.BaseCheckovResult
+import com.bridgecrew.services.scan.CheckovScanService
 import com.bridgecrew.utils.navigateToFile
 import com.intellij.ide.DataManager
 import com.intellij.openapi.application.ApplicationManager
@@ -16,6 +18,34 @@ import java.awt.event.ActionListener
 import javax.swing.JButton
 
 class FixAction(private val buttonInstance: JButton, val result: BaseCheckovResult) : ActionListener {
+
+    init {
+        val dataContext = DataManager.getInstance().dataContext
+        val project = dataContext.getData("project") as Project
+        val connection = project.messageBus.connect()
+
+        connection.subscribe(CheckovScanListener.SCAN_TOPIC, object : CheckovScanListener {
+            override fun fileScanningStarted(){
+                print("fileScanningStarted")
+                buttonInstance.isEnabled = false
+
+            }
+            override fun projectScanningStarted(){
+                print("projectScanningStarted")
+                buttonInstance.isEnabled = false
+            }
+
+            override fun scanningFinished(scanSourceType: CheckovScanService.ScanSourceType){
+                print("scanningFinished")
+                buttonInstance.isEnabled = true
+            }
+
+            override fun fullScanFailed(){
+                print("fullScanFailed")
+                buttonInstance.isEnabled = true
+            }
+        })
+    }
 
     private val LOG = logger<FixAction>()
 

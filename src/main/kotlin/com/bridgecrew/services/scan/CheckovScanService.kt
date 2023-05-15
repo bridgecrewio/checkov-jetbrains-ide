@@ -50,6 +50,7 @@ class CheckovScanService: Disposable {
             }
 
             LOG.info("Trying to scan a file using $selectedCheckovScanner")
+            project.messageBus.syncPublisher(CheckovScanListener.SCAN_TOPIC).fileScanningStarted()
 
             val checkovResultFile = createCheckovTempFile("${extractFileNameFromPath(filePath)}-checkov-result", ".json")
             val execCommand = prepareExecCommand(filePath, checkovResultFile.path, ScanSourceType.FILE)

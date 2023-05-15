@@ -1,14 +1,22 @@
 package com.bridgecrew.ui.errorBubble
 
+import com.bridgecrew.listeners.CheckovScanListener
 import com.bridgecrew.results.BaseCheckovResult
+import com.bridgecrew.services.scan.CheckovScanService
+import com.bridgecrew.ui.CheckovToolWindowManagerPanel
 import com.bridgecrew.ui.actions.FixAction
 import com.bridgecrew.ui.actions.FocusOnFileInTree
+import com.bridgecrew.ui.actions.SeverityFilterActions
 import com.bridgecrew.ui.buttons.CheckovLinkButton
 import com.bridgecrew.ui.buttons.DocumentationButton
 import com.bridgecrew.utils.CheckovUtils
+import com.bridgecrew.utils.PANELTYPE
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.components.service
 import icons.CheckovIcons
 import java.awt.Dimension
 import javax.swing.*
+import com.intellij.openapi.project.ProjectManager
 
 class ErrorBubbleActionsPanel(val result: BaseCheckovResult) : JPanel() {
 
