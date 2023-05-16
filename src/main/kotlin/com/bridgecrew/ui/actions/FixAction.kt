@@ -25,15 +25,15 @@ class FixAction(private val buttonInstance: JButton, val result: BaseCheckovResu
         val dataContext = DataManager.getInstance().dataContext
         val project = dataContext.getData("project") as Project
         val connection = project.messageBus.connect()
-
+        val inScanMsg = "Scan in progress. Please wait for completion before retrying."
         connection.subscribe(CheckovScanListener.SCAN_TOPIC, object : CheckovScanListener {
             override fun fileScanningStarted(){
                 buttonInstance.isEnabled = false
-                buttonInstance.toolTipText = "Scan in progress. Please wait for completion before retrying."
+                buttonInstance.toolTipText = inScanMsg
             }
             override fun projectScanningStarted(){
                 buttonInstance.isEnabled = false
-                buttonInstance.toolTipText = "Scan in progress. Please wait for completion before retrying."
+                buttonInstance.toolTipText = inScanMsg
             }
             override fun scanningFinished(scanSourceType: CheckovScanService.ScanSourceType){
                 buttonInstance.isEnabled = true
