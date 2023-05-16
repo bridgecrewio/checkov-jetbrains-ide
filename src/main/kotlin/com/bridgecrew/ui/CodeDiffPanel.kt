@@ -24,7 +24,13 @@ class CodeDiffPanel(val result: BaseCheckovResult, private val isShowBadCode: Bo
                 .inlineDiffByWord(true)
                 .build()
 
-        val rows = generator.generateDiffRows(buildVulnerableLines(), buildFixLines())
+        var oldCode = buildVulnerableLines()
+        var newCode = buildFixLines()
+        if(!isShowBadCode){
+            newCode=buildFix()
+            oldCode=buildCodeBlock()
+        }
+        val rows = generator.generateDiffRows(oldCode, newCode)
         val firstDiffRow = rows.find { it.tag != DiffRow.Tag.EQUAL &&
             it.newLine.trim().isNotEmpty() && it.newLine.trim().toDoubleOrNull() == null }
         updateFirstDiffLine(firstDiffRow)
@@ -79,6 +85,28 @@ class CodeDiffPanel(val result: BaseCheckovResult, private val isShowBadCode: Bo
             }
         }
         return vulnerableLines
+    }
+
+    private fun buildCodeBlock(): ArrayList<String> {
+        var codeBlock = arrayListOf<String>()
+            result.codeBlock.forEach { block ->
+                val code = block[1]
+                codeBlock += "$code".replace("\n", "")
+            }
+
+        return codeBlock
+    }
+
+    private fun buildFix(): ArrayList<String> {
+        var fixWithRowNumber = arrayListOf<String>()
+        if (result.codeBlock.isNotEmpty()) {
+            var currentLine = (result.codeBlock[0][0] as Double).toInt()
+            result.fixDefinition?.split("\n")?.forEach { codeRow ->
+                fixWithRowNumber += "$codeRow"
+                currentLine++
+            }
+        }
+        return fixWithRowNumber
     }
 
     private fun buildFixLines(): ArrayList<String> {
