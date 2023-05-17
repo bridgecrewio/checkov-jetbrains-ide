@@ -11,7 +11,7 @@ import javax.swing.*
 import javax.swing.text.SimpleAttributeSet
 import javax.swing.text.StyleConstants
 
-class CodeDiffPanel(val result: BaseCheckovResult, private val isShowBadCode: Boolean): JPanel() {
+class CodeDiffPanel(val result: BaseCheckovResult, private val isErrorBubble: Boolean): JPanel() {
 
     private val LOG = logger<CodeDiffPanel>()
     init {
@@ -24,7 +24,13 @@ class CodeDiffPanel(val result: BaseCheckovResult, private val isShowBadCode: Bo
                 .inlineDiffByWord(true)
                 .build()
 
-        val rows = generator.generateDiffRows(buildVulnerableLines(), buildFixLines())
+        var oldCode = buildVulnerableLines()
+        var newCode = buildFixLines()
+        if(!isErrorBubble){
+            newCode=buildFix()
+            oldCode=buildCodeBlock()
+        }
+        val rows = generator.generateDiffRows(oldCode, newCode)
         val firstDiffRow = rows.find { it.tag != DiffRow.Tag.EQUAL &&
             it.newLine.trim().isNotEmpty() && it.newLine.trim().toDoubleOrNull() == null }
         updateFirstDiffLine(firstDiffRow)
@@ -71,7 +77,7 @@ class CodeDiffPanel(val result: BaseCheckovResult, private val isShowBadCode: Bo
 
     private fun buildVulnerableLines(): ArrayList<String> {
         var vulnerableLines = arrayListOf<String>()
-        if (isShowBadCode) {
+        if (isErrorBubble) {
             result.codeBlock.forEach { block ->
                 val rowNumber = (block[0] as Double).toInt().toString()
                 val code = block[1]
@@ -79,6 +85,28 @@ class CodeDiffPanel(val result: BaseCheckovResult, private val isShowBadCode: Bo
             }
         }
         return vulnerableLines
+    }
+
+    private fun buildCodeBlock(): ArrayList<String> {
+        var codeBlock = arrayListOf<String>()
+            result.codeBlock.forEach { block ->
+                val code = block[1]
+                codeBlock += "$code".replace("\n", "")
+            }
+
+        return codeBlock
+    }
+
+    private fun buildFix(): ArrayList<String> {
+        var fixWithRowNumber = arrayListOf<String>()
+        if (result.codeBlock.isNotEmpty()) {
+            var currentLine = (result.codeBlock[0][0] as Double).toInt()
+            result.fixDefinition?.split("\n")?.forEach { codeRow ->
+                fixWithRowNumber += "$codeRow"
+                currentLine++
+            }
+        }
+        return fixWithRowNumber
     }
 
     private fun buildFixLines(): ArrayList<String> {
