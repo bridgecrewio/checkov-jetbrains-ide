@@ -62,7 +62,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
         const val PANEL_SPLITTER_KEY = "CHECKOV_PANEL_SPLITTER_KEY"
     }
 
-    fun loadMainPanel(panelType: Int = PANELTYPE.AUTO_CHOOSE_PANEL) {
+    fun loadMainPanel(panelType: Int = PANELTYPE.AUTO_CHOOSE_PANEL, selectedPath: String = "") {
         removeAll()
         add(CheckovTopPanel(project), BorderLayout.NORTH)
         reloadTabCounts()
@@ -80,7 +80,7 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
             }
 
             PANELTYPE.CHECKOV_FILE_SCAN_FINISHED -> {
-                loadScanResultsPanel(panelType)
+                loadScanResultsPanel(panelType, selectedPath)
                 project.service<AnalyticsService>().singleFileScanResultsWereFullyDisplayed()
             }
 
@@ -103,8 +103,8 @@ class CheckovToolWindowManagerPanel(val project: Project) : SimpleToolWindowPane
         }
     }
 
-    private fun loadScanResultsPanel(panelType: Int) {
-        val checkovTree = CheckovToolWindowTree(project, mainPanelSplitter, checkovDescription)
+    private fun loadScanResultsPanel(panelType: Int, selectedPath: String = "") {
+        val checkovTree = CheckovToolWindowTree(project, mainPanelSplitter, checkovDescription, selectedPath)
         val filesTreePanel = checkovTree.createScroll()
         if (shouldDisplayNoErrorPanel(panelType)) {
             add(checkovDescription.noErrorsPanel())

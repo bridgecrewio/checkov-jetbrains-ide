@@ -14,7 +14,7 @@ import javax.swing.JComponent
 
 typealias navigationCallback = (Int, String) -> Unit
 
-class CheckovErrorBubble(val results: List<BaseCheckovResult>, private val modalLocation: Point, val markup: MarkupModel, val rangeHighlighter: RangeHighlighter) : DialogWrapper(true) {
+class CheckovErrorBubble(val results: List<BaseCheckovResult>, private val modalLocation: Point, private val markup: MarkupModel, private val rangeHighlighter: RangeHighlighter) : DialogWrapper(true) {
 
     private var panelList: ArrayList<ErrorBubbleInnerPanel> = arrayListOf()
     private var currentPanel: ErrorBubbleInnerPanel? = null
