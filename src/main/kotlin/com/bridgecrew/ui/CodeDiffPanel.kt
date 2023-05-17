@@ -11,7 +11,7 @@ import javax.swing.*
 import javax.swing.text.SimpleAttributeSet
 import javax.swing.text.StyleConstants
 
-class CodeDiffPanel(val result: BaseCheckovResult, private val isShowBadCode: Boolean): JPanel() {
+class CodeDiffPanel(val result: BaseCheckovResult, private val isErrorBubble: Boolean): JPanel() {
 
     private val LOG = logger<CodeDiffPanel>()
     init {
@@ -26,7 +26,7 @@ class CodeDiffPanel(val result: BaseCheckovResult, private val isShowBadCode: Bo
 
         var oldCode = buildVulnerableLines()
         var newCode = buildFixLines()
-        if(!isShowBadCode){
+        if(!isErrorBubble){
             newCode=buildFix()
             oldCode=buildCodeBlock()
         }
@@ -77,7 +77,7 @@ class CodeDiffPanel(val result: BaseCheckovResult, private val isShowBadCode: Bo
 
     private fun buildVulnerableLines(): ArrayList<String> {
         var vulnerableLines = arrayListOf<String>()
-        if (isShowBadCode) {
+        if (isErrorBubble) {
             result.codeBlock.forEach { block ->
                 val rowNumber = (block[0] as Double).toInt().toString()
                 val code = block[1]
