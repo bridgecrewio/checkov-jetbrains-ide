@@ -6,7 +6,7 @@ import com.intellij.icons.AllIcons
 import icons.CheckovIcons
 import javax.swing.Icon
 
-class CheckovFileTreeNode(val fileName: String): CheckovTreeNode {
+class CheckovFileTreeNode(val fileName: String, override val relativePathNode: String): CheckovTreeNode {
 
     private val defaultFile = "DEFAULT_FILE" // for files without dot notation type like Dockerfile
 
@@ -15,7 +15,7 @@ class CheckovFileTreeNode(val fileName: String): CheckovTreeNode {
     }
 
     override fun equals(other: Any?): Boolean {
-        return other is CheckovFileTreeNode && other.fileName == fileName
+        return other is CheckovFileTreeNode && other.fileName == fileName && other.relativePathNode == relativePathNode
     }
 
     private val iconMap: Map<FileType, Icon> = mapOf(

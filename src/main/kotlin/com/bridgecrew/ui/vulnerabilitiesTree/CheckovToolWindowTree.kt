@@ -30,7 +30,7 @@ import javax.swing.tree.TreePath
 
 
 class CheckovToolWindowTree(
-    val project: Project, val split: JBSplitter, private val descriptionPanel: CheckovToolWindowDescriptionPanel
+    val project: Project, val split: JBSplitter, private val descriptionPanel: CheckovToolWindowDescriptionPanel, private val selectedPath: String
 ) : SimpleToolWindowPanel(true, true), Disposable {
     private val resultsPanel = JPanel(BorderLayout())
     var isTreeEmpty = true
@@ -100,9 +100,44 @@ class CheckovToolWindowTree(
             }
         })
 
+        selectNodeBySelectedPath(tree)
+
         resultsPanel.add(tree)
         isTreeEmpty = tree.isEmpty
         return resultsPanel
+    }
+
+    //use this function to dynamically select a specific node in the tree by using `selectedPath`
+    private fun selectNodeBySelectedPath(tree: Tree) {
+        if(selectedPath == "") return
+        val root = tree.model.root as DefaultMutableTreeNode
+        val userObjectNode = findNode(root) as DefaultMutableTreeNode
+
+        val selectedPath = findTreePathByUserObject(root, userObjectNode.userObject)
+        if(selectedPath != null) {
+            tree.selectionPath = selectedPath
+        }
+    }
+
+    // find the node in the existing tree by a given similar node (same path+resource+vulnerability).
+    private fun findNode(root: TreeNode): TreeNode {
+        val stack = Stack<DefaultMutableTreeNode>()
+        var foundNode = root as DefaultMutableTreeNode
+        stack.push(foundNode)
+
+        while (stack.isNotEmpty()) {
+            val node = stack.pop()
+            if(node.userObject is CheckovTreeNode && (node.userObject as CheckovTreeNode).relativePathNode == selectedPath ) {
+                foundNode = node
+                break
+            }
+            for (i in 0 until node.childCount) {
+                val childNode = node.getChildAt(i) as DefaultMutableTreeNode
+                stack.push(childNode)
+            }
+        }
+
+        return foundNode
     }
 
     private fun expandsFromPathState(tree: Tree, expandsTreePaths: List<TreePath>) {
@@ -155,11 +190,12 @@ class CheckovToolWindowTree(
         val resultsGroupedByResource: Map<String, List<BaseCheckovResult>> = resultsPerFile.groupBy { it.resource }
         val parentIcon = (fileWithErrorsNode.userObject as CheckovFileTreeNode).getNodeIcon()
         val secretsNodes = mutableListOf<DefaultMutableTreeNode>()
+        var relativeFilePath = (fileWithErrorsNode.userObject as CheckovTreeNode).relativePathNode
 
         resultsGroupedByResource.forEach { (resource, results) ->
-            val resourceNode = DefaultMutableTreeNode(CheckovResourceTreeNode(resource, parentIcon))
+            val resourceNode = DefaultMutableTreeNode(CheckovResourceTreeNode(resource, parentIcon, "${relativeFilePath}/${resource}"))
             results.forEach { checkovResult ->
-                val checkName = DefaultMutableTreeNode(CheckovVulnerabilityTreeNode(checkovResult))
+                val checkName = DefaultMutableTreeNode(CheckovVulnerabilityTreeNode(checkovResult, "${relativeFilePath}/${resource}/${checkovResult.name}"))
                 if (checkovResult.category == Category.SECRETS) {
                     secretsNodes.add(checkName)
                 } else {
@@ -176,8 +212,10 @@ class CheckovToolWindowTree(
     private fun buildFilePath(currentTree: DefaultMutableTreeNode, fileName: String): DefaultMutableTreeNode {
         val paths = fileName.split("/").toTypedArray().filter { it.isNotEmpty() }
         var currentNode = currentTree
+        var relativePath = ""
         for (i in paths.indices) {
-            val newNode = if (i == paths.size - 1) CheckovFileTreeNode(paths[i]) else CheckovFolderTreeNode(paths[i])
+            relativePath += "/${paths[i]}"
+            val newNode = if (i == paths.size - 1) CheckovFileTreeNode(paths[i], relativePath) else CheckovFolderTreeNode(paths[i], relativePath)
             val existingChildNode = findExistingFilePathNodeInLevel(currentNode, newNode)
             currentNode = if (existingChildNode == null) {
                 // need to add child

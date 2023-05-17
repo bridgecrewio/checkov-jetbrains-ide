@@ -31,7 +31,7 @@ class ErrorBubbleActionsPanel(val result: BaseCheckovResult) : JPanel() {
 
     private fun addConsoleButton() {
         val button = CheckovLinkButton("Console")
-        button.addActionListener(FocusOnFileInTree(result.filePath))
+        button.addActionListener(FocusOnFileInTree("${result.filePath}/${result.resource}/${result.name}"))
         add(button)
     }
 
