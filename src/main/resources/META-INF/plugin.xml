@@ -26,7 +26,7 @@
         <projectConfigurable id="com.bridgecrew.settings.CheckovSettingsConfigurable"
                              instance="com.bridgecrew.settings.CheckovSettingsConfigurable"
                              groupId="tools"
-                             displayName="Checkov"/>
+                             displayName="Prisma Cloud"/>
         <applicationService serviceImplementation="com.bridgecrew.settings.CheckovSettingsState"/>
         <notificationGroup id="CheckovError"
                            displayType="BALLOON"/>
