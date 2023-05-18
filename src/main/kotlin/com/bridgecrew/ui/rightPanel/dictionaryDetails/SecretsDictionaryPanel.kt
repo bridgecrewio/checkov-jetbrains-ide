@@ -1,16 +1,11 @@
 package com.bridgecrew.ui.rightPanel.dictionaryDetails
 
 import com.bridgecrew.results.SecretsCheckovResult
-import com.bridgecrew.utils.CheckovUtils
 
 class SecretsDictionaryPanel(result: SecretsCheckovResult): DictionaryExtraInfoPanel() {
     override var fieldsMap: MutableMap<String, Any?> = mutableMapOf(
-            "Severity" to result.severity,
             "Description" to result.description,
-            "Code" to extractCode(result),
-            "Category" to result.category, // TODO - remove before release
-            "Check Type" to result.checkType.name, // TODO - remove before release
-            "Custom Policy" to CheckovUtils.isCustomPolicy(result) // TODO - remove before release
+            "Code" to extractCode(result)
     )
     init {
         addCustomPolicyGuidelinesIfNeeded(result)
@@ -19,7 +14,7 @@ class SecretsDictionaryPanel(result: SecretsCheckovResult): DictionaryExtraInfoP
 
     private fun extractCode(result: SecretsCheckovResult): Any {
         return try {
-            result.codeBlock[0][1]
+            result.codeBlock[0][1].toString().trim()
         } catch (e: Exception) {
             ""
         }

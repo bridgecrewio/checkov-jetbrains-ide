@@ -11,7 +11,6 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
-import icons.CheckovIcons
 import java.awt.BorderLayout
 import java.awt.Dimension
 import java.awt.FlowLayout
@@ -49,7 +48,6 @@ class CheckovTopPanel(val project: Project) : SimpleToolWindowPanel(true, true),
     }
 
     private fun createSeparator(actionToolbarPanel: JPanel) {
-        actionToolbarPanel.add(Box.createRigidArea(Dimension(5, 24)))
         val separator = JSeparator(JSeparator.VERTICAL)
         separator.preferredSize = Dimension(5, 24)
         actionToolbarPanel.add(separator)

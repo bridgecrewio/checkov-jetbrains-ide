@@ -27,9 +27,7 @@ class VulnerabilitiesDictionaryPanel(result: VulnerabilityCheckovResult): Dictio
                        "Published" to result.publishedDate,
                        "Vector" to result.vector,
                        "Risk Factors" to result.riskFactors,
-                       "Description" to result.description,
-                       "Category" to result.category, // TODO - remove before release
-                       "Check Type" to result.checkType.name.lowercase()) // TODO - remove before release
+                       "Description" to result.description)
         )
 
         return vulnerabilityFieldsMap

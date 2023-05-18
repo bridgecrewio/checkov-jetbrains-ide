@@ -5,14 +5,23 @@ import com.bridgecrew.results.SecretsCheckovResult
 import com.bridgecrew.ui.buttons.FixButton
 import com.bridgecrew.utils.FileType
 import com.bridgecrew.utils.getFileType
-import java.awt.BorderLayout
+import java.awt.GridBagConstraints
 import javax.swing.JPanel
 
 class SecretsPanelTop(result: BaseCheckovResult): CheckovDescriptionPanelTop(result) {
 
     init {
-        add(createTitleAndIcon((result as SecretsCheckovResult).checkName, result.severity), BorderLayout.WEST)
-        add(createDescriptionPanelTitleActions(), BorderLayout.EAST)
+        val gbc = GridBagConstraints()
+        gbc.fill = GridBagConstraints.HORIZONTAL
+        gbc.weightx = 1.0
+        val title = createTitleAndIcon((result as SecretsCheckovResult).checkName, result.severity)
+        add(title, gbc)
+
+        gbc.fill = GridBagConstraints.NONE
+        gbc.weightx = 0.0
+        gbc.gridx = 1
+        val actions = createDescriptionPanelTitleActions()
+        add(actions, gbc)
     }
 
     private fun createDescriptionPanelTitleActions(): JPanel {
