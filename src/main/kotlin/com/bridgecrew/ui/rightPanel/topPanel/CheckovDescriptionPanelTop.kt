@@ -4,26 +4,24 @@ import com.bridgecrew.results.*
 import com.bridgecrew.ui.buttons.SuppressionButton
 import com.bridgecrew.utils.*
 import com.intellij.util.ui.UIUtil
-import java.awt.BorderLayout
 import java.awt.Dimension
+import java.awt.GridBagLayout
 import javax.swing.*
 
 open class CheckovDescriptionPanelTop(val result: BaseCheckovResult) : JPanel() {
 
     init {
-        layout = BorderLayout()
+        layout = GridBagLayout()
         maximumSize = Dimension(Int.MAX_VALUE, 30)
         border = BorderFactory.createEmptyBorder(10, 10, 10, 10)
         background = UIUtil.getEditorPaneBackground()
     }
 
     fun createTitleAndIcon(title: String, severity: Severity): JLabel {
-        return JLabel("<html><body style='width: max-width;" +
-                "font-size: 11px;" +
-                "white-space: nowrap;\n" +
-                "  overflow: hidden;\n" +
-                "  display: block;\n" +
-                "  text-overflow: ellipsis;'>${title}</html>", getSeverityIconBySeverity(severity), SwingConstants.LEFT)
+        val titleLabel = JLabel(title, getSeverityIconBySeverity(severity), SwingConstants.LEFT)
+        titleLabel.toolTipText = title
+        titleLabel.preferredSize = Dimension(600, 30)
+        return titleLabel
     }
 
     fun getTitle(result: BaseCheckovResult): String {

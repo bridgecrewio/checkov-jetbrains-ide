@@ -1,14 +1,11 @@
 package com.bridgecrew.ui
 
-import com.bridgecrew.utils.createGridRowCol
 import javax.swing.JPanel
-import com.intellij.uiDesigner.core.GridLayoutManager
-import com.intellij.uiDesigner.core.GridConstraints
-import java.awt.Insets
+import java.awt.*
 import javax.swing.JLabel
 import javax.swing.JTextField
 
-class CheckovSettingsComponent () {
+class CheckovSettingsComponent() {
     private var rootPanel: JPanel = JPanel()
     val secretKeyField: JTextField = JTextField()
     val accessKeyField: JTextField = JTextField()
@@ -16,50 +13,44 @@ class CheckovSettingsComponent () {
     val prismaURLField: JTextField = JTextField()
 
     init {
-        rootPanel.layout = GridLayoutManager(1, 2, Insets(0, 0, 0, 0), -1, -1)
-        val settingsPanel = JPanel(GridLayoutManager(4, 2, Insets(0, 0, 0, 0), -1, -1))
+        rootPanel.layout = GridBagLayout()
+        val settingsPanel = JPanel(GridBagLayout())
 
-        val accessKeyLabel = JLabel("Access Key (Required)")
-        accessKeyLabel.labelFor = accessKeyField
-        settingsPanel.add(accessKeyLabel, createGridRowCol(0,0,GridConstraints.ANCHOR_WEST))
-        settingsPanel.add(accessKeyField, createGridRowCol(0,1,GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL))
+        val constraints = GridBagConstraints()
+        constraints.fill = GridBagConstraints.HORIZONTAL
+        constraints.anchor = GridBagConstraints.NORTHWEST
+        constraints.insets = Insets(0, 0, 5, 20)
 
-        val secretKeyLabel = JLabel("Secret Key (Required)")
-        secretKeyLabel.labelFor = secretKeyField
-        settingsPanel.add(secretKeyLabel, createGridRowCol(1,0,GridConstraints.ANCHOR_WEST))
-        settingsPanel.add(secretKeyField, createGridRowCol(1,1,GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL))
+        createSettingsRow(settingsPanel, constraints, "Access Key (Required):", accessKeyField, 0)
+        createSettingsRow(settingsPanel, constraints, "Secret Key (Required):", secretKeyField, 1)
+        createSettingsRow(settingsPanel, constraints, "Prisma URL (Required):", prismaURLField, 2)
+        createSettingsRow(settingsPanel, constraints, "CA-Certificate:", certificateField, 3)
 
-        val prismaURLLabel = JLabel("Prisma URL (Required)")
-        prismaURLLabel.labelFor = prismaURLField
-        settingsPanel.add(prismaURLLabel, createGridRowCol(2,0,GridConstraints.ANCHOR_WEST))
-        settingsPanel.add(prismaURLField, createGridRowCol(2,1,GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL))
+        constraints.gridx = 0
+        constraints.gridy = 0
+        constraints.fill = GridBagConstraints.VERTICAL
+        rootPanel.add(settingsPanel, constraints)
 
-        val certificateLabel = JLabel("CA-Certificate")
-        certificateLabel.labelFor = certificateField
-        settingsPanel.add(certificateLabel, createGridRowCol(3,0,GridConstraints.ANCHOR_WEST))
-        settingsPanel.add(certificateField, createGridRowCol(3,1,GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL))
-
-        rootPanel.add(settingsPanel, GridConstraints(
-            0,
-            0,
-            1,
-            1,
-            GridConstraints.ANCHOR_NORTH,
-            GridConstraints.FILL_HORIZONTAL,
-            GridConstraints.SIZEPOLICY_CAN_SHRINK or GridConstraints.SIZEPOLICY_CAN_GROW,
-            GridConstraints.SIZEPOLICY_FIXED,
-            null,
-            null,
-            null,
-            0,
-            false
-        ))
-
+        //add an empty panel to place the settings on the top left
+        constraints.gridy = 1
+        constraints.weighty = 1.0
+        constraints.weightx = 1.0
+        rootPanel.add(JPanel(), constraints)
     }
 
+    private fun createSettingsRow(settingsPanel: JPanel, constraints: GridBagConstraints, keyText: String, inputField: JTextField, gridY: Int) {
+        constraints.gridx = 0
+        constraints.gridy = gridY
+        constraints.ipady = 10
+        val accessKeyLabel = JLabel(keyText)
+        accessKeyLabel.labelFor = accessKeyField
+        settingsPanel.add(accessKeyLabel, constraints)
+        constraints.gridx = 1
+        constraints.ipady = 0
+        settingsPanel.add(inputField, constraints)
+    }
 
     fun getPanel(): JPanel {
         return rootPanel
     }
-
 }

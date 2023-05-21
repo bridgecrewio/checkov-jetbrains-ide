@@ -7,7 +7,6 @@ class IacExtraInfoPanel(result: BaseCheckovResult): CheckovExtraInfoPanel(result
 
     init {
         initLayout()
-        createRightPanelDescriptionLine(result.id)
         add(IacDictionaryPanel(result))
         addCodeDiffPanel()
         setDimensions()
