@@ -67,5 +67,15 @@ abstract class DictionaryExtraInfoPanel : JPanel() {
             valueLabel.toolTipText = valueAsString
             add(valueLabel, valueConstraints)
         }
+
+        // Add a stub panel to push the dictionary to the top
+        val constraints = GridBagConstraints().apply {
+            weighty = 1.0
+            anchor = GridBagConstraints.SOUTH
+            fill = GridBagConstraints.VERTICAL
+        }
+        val emptyPanel = JPanel()
+        emptyPanel.background = UIUtil.getEditorPaneBackground()
+        add(emptyPanel, constraints)
     }
 }
