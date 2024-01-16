@@ -6,7 +6,7 @@
 [![slack-community](https://img.shields.io/badge/Slack-contact%20us-lightgrey.svg?logo=slack)](https://codifiedsecurity.slack.com/)
 
 # Deprecation Notice
-This plugin has been deprecated. Upgrade to the latest and improved Prisma Cloud plugin for enhanced capabilities and security. Explore the new plugin [here](https://plugins.jetbrains.com/plugin/21907-prisma-cloud).
+This plugin has been deprecated. Upgrade to the latest and improved Prisma Cloud plugin for enhanced capabilities and security. Explore the new plugin [here](https://github.com/bridgecrewio/prisma-cloud-jetbrains-ide).
 Thank you for your continued support!
 
 # Checkov Plugin for Jetbrains IDEA
