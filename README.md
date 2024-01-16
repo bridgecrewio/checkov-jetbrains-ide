@@ -1,10 +1,11 @@
 [![checkov](https://raw.githubusercontent.com/bridgecrewio/checkov/master/docs/web/images/checkov_by_bridgecrew.png)](https://checkov.io)
 
-[![Maintained by Bridgecrew.io](https://img.shields.io/badge/maintained%20by-bridgecrew.io-blueviolet)](https://bridgecrew.io/?utm_source=github&utm_medium=organic_oss&utm_campaign=checkov-vscode)
 ![Build](https://github.com/bridgecrewio/checkov-jetbrains-idea/workflows/Build/badge.svg)
 [![Version](https://img.shields.io/jetbrains/plugin/v/17721-checkov.svg)](https://plugins.jetbrains.com/plugin/17721-checkov)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/17721-checkov.svg)](https://plugins.jetbrains.com/plugin/17721-checkov)
-[![slack-community](https://img.shields.io/badge/Slack-contact%20us-lightgrey.svg?logo=slack)](https://slack.bridgecrew.io/?utm_source=github&utm_medium=organic_oss&utm_campaign=checkov-intellij)
+[![slack-community](https://img.shields.io/badge/Slack-contact%20us-lightgrey.svg?logo=slack)](https://codifiedsecurity.slack.com/)
+
+## [There is a new Prisma Cloud plugin for JetBrains! Upgrade now to get the latest features](https://plugins.jetbrains.com/plugin/21907-prisma-cloud)
 
 # Checkov Plugin for Jetbrains IDEA
 
@@ -18,7 +19,7 @@ The Checkov Plugin for Intellij enables developers to get real-time scan results
 
 The plugin is currently available for download directly from the [IntelliJ Plugin Marketplace](https://plugins.jetbrains.com/plugin/17721-checkov) and its source code is available in an [Apache 2.0 licensed repository](https://github.com/bridgecrewio/checkov-jetbrains-ide).
 
-Activating the plugin requires submission of one-time Bridgecrew API Token that can be obtained by [creating a new Bridgecrew platform account](https://docs.bridgecrew.io/docs/get-api-token). It uses open [Bridgecrew Developer APIs](https://docs.bridgecrew.io/reference) to evaluate code and offer automated inline fixes. For more information about data shared with Bridgecrew see the [Disclaimer](#disclaimer) section below).
+Activating the plugin requires submission of a Prisma Cloud Access Key. It uses open [Prisma Cloud](https://prismacloud.io) to evaluate code and offer automated inline fixes. For more information about data shared with Prisma Cloud see the [Disclaimer](#disclaimer) section below).
 
 Plugin features include:
 
@@ -54,10 +55,8 @@ The Checkov plugin will invoke the latest version of ```Checkov```.
 
 ### Configuration
 
-* Sign up to a Bridgecrew Community account [here](https://bridgecrew.cloud/). If you already have an account, sign in and go to the next step.
-
-* From [Integrations](https://www.bridgecrew.cloud/integrations/api-token), select **API Token** and copy the API key.
-* In Jetbrains, enter your API Token in the Checkov plugin settings page under tools.  
+* In Prisma Cloud, go to Settings > Access Control > Add > Access Key and copy the keys.
+* In Jetbrains, enter your API endpoint and keys in the Checkov plugin settings page under tools.  
 * Using a custom CA certificate is possible. If needed, set the path to the certificate file in the Checkov plugin settings page.
 
 ### Usage
@@ -85,16 +84,9 @@ Looking to contribute new checks? Learn how to write a new check (AKA policy) [h
 
 ## Disclaimer
 
-To use this checkov-jetbrains plugin, you will need to create a free account at bridgecrew.cloud using your e-mail, the plugin uses Bridgecrew.cloud's fixes API to analyse and produce code fixes, and enrich the results provided into jetbrains IDE. Please notice bridgecrew [privacy policy](https://bridgecrew.io/privacy-policy/?utm_source=github&utm_medium=organic_oss&utm_campaign=checkov-vscode) for more details on collected data when using bridgecrew application.
+To use this checkov-jetbrains plugin, you will need a Prisma Cloud account. The plugin uses Prisma Cloud's fixes API to analyse and produce code fixes, and enrich the results provided into jetbrains IDE. Please notice the Prisma Cloud [privacy policy](paloaltonetworks.com/legal-notices/trust-center/privacy) for more details.
 To generate fixes, files found to have triggered checkov violations are made available to the fixes API for the sole purpose of generating inline fixes code recommendations.
 
-## Support
-
-[Bridgecrew](https://bridgecrew.io/?utm_source=github&utm_medium=organic_oss&utm_campaign=checkov-vscode) builds and maintains Checkov to make policy-as-code simple and accessible.
-
-Start with our [Documentation](https://bridgecrewio.github.io/checkov/) for quick tutorials and examples.
-
-If you need direct support you can contact us at [info@bridgecrew.io](mailto:info@bridgecrew.io).
 
 ---
 The plugin is based on the [Jetbrains Platform Plugin Template][template].
