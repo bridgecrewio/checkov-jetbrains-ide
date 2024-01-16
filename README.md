@@ -5,7 +5,9 @@
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/17721-checkov.svg)](https://plugins.jetbrains.com/plugin/17721-checkov)
 [![slack-community](https://img.shields.io/badge/Slack-contact%20us-lightgrey.svg?logo=slack)](https://codifiedsecurity.slack.com/)
 
-## [There is a new Prisma Cloud plugin for JetBrains! Upgrade now to get the latest features](https://plugins.jetbrains.com/plugin/21907-prisma-cloud)
+# Deprecation Notice
+This plugin has been deprecated. Upgrade to the latest and improved Prisma Cloud plugin for enhanced capabilities and security. Explore the new plugin [here](https://plugins.jetbrains.com/plugin/21907-prisma-cloud).
+Thank you for your continued support!
 
 # Checkov Plugin for Jetbrains IDEA
 
