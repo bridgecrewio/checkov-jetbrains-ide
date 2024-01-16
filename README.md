@@ -84,7 +84,7 @@ Looking to contribute new checks? Learn how to write a new check (AKA policy) [h
 
 ## Disclaimer
 
-To use this checkov-jetbrains plugin, you will need a Prisma Cloud account. The plugin uses Prisma Cloud's fixes API to analyse and produce code fixes, and enrich the results provided into jetbrains IDE. Please notice the Prisma Cloud [privacy policy](paloaltonetworks.com/legal-notices/trust-center/privacy) for more details.
+To use this plugin, you will need a Prisma Cloud account. The plugin uses Prisma Cloud's fixes API to analyse and produce code fixes, and enrich the results provided into the IDE. Please notice the Prisma Cloud [privacy policy](paloaltonetworks.com/legal-notices/trust-center/privacy) for more details.
 To generate fixes, files found to have triggered checkov violations are made available to the fixes API for the sole purpose of generating inline fixes code recommendations.
 
 
